@@ -16,14 +16,29 @@ namespace TerrainBrush {
 
         [ContextMenu("Generate")]
         public void Generate() {
+            List<Collider> colliders = new List<Collider>(Object.FindObjectsOfType<Collider>());
+            if (colliders.Count == 0) {
+                Debug.Log("No colliders found.");
+                return;
+            }
+            // Generate the volume that the textures exist on.
+            Bounds encapsulatedBounds = new Bounds(colliders[0].bounds.center, colliders[0].bounds.size);
+            foreach(Collider c in colliders) {
+                encapsulatedBounds = encapsulatedBounds.EncapsulateTransformedBounds(c.bounds);
+            }
+            Debug.DrawLine(encapsulatedBounds.min, encapsulatedBounds.max, Color.blue, 1f);
+            transform.position=encapsulatedBounds.min;
+            transform.rotation=Quaternion.identity;
+            size=Mathf.Max(encapsulatedBounds.size.x, encapsulatedBounds.size.z);
+
             if (meshFilter==null) gameObject.AddComponent<MeshFilter>();
             if (meshRenderer==null) gameObject.AddComponent<MeshRenderer>();
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             List<Vector3> vertices = new List<Vector3>();
-            for (int indexY=0; indexY<100; indexY++) {
-                for (int indexX=0; indexX<100; indexX++) {
+            for (int indexY=0; indexY<resolution; indexY++) {
+                for (int indexX=0; indexX<resolution; indexX++) {
                     RaycastHit hit;
                     Vector3 point = new Vector3(indexX * size/resolution, 0f, indexY * size/resolution);
                     if (Physics.Raycast(transform.TransformPoint(point+Vector3.up*100f), -Vector3.up, out hit, 200f, LayerMask.GetMask("TerrainBrushes"))) {
@@ -36,44 +51,43 @@ namespace TerrainBrush {
                 }
             }
             List<int> tris = new List<int>();
-            for (int indexY=0; indexY<99; indexY++) {
-                for (int indexX=0;indexX<99;indexX++) {
-                    if (Vector3.Distance(vertices[indexX+indexY*100], vertices[indexX+1+(indexY+1)*100])>Vector3.Distance(vertices[indexX+1+indexY*100], vertices[indexX+(indexY+1)*100])) {
-                        if (vertices[indexX+indexY*100].y>-100f && vertices[indexX+(indexY+1)*100].y>-100f && vertices[indexX+1+indexY*100].y>-100f) {
-                            tris.Add(indexX+indexY*100);
-                            tris.Add(indexX+(indexY+1)*100);
-                            tris.Add(indexX+1+indexY*100);
+            for (int indexY=0; indexY<resolution-1; indexY++) {
+                for (int indexX=0;indexX<resolution-1;indexX++) {
+                    if (Vector3.Distance(vertices[indexX+indexY*resolution], vertices[indexX+1+(indexY+1)*resolution])>Vector3.Distance(vertices[indexX+1+indexY*resolution], vertices[indexX+(indexY+1)*resolution])) {
+                        if (vertices[indexX+indexY*resolution].y>-100f && vertices[indexX+(indexY+1)*resolution].y>-100f && vertices[indexX+1+indexY*resolution].y>-100f) {
+                            tris.Add(indexX+indexY*resolution);
+                            tris.Add(indexX+(indexY+1)*resolution);
+                            tris.Add(indexX+1+indexY*resolution);
                         }
-                        if (vertices[indexX+(indexY+1)*100].y>-100f && vertices[indexX+1+(indexY+1)*100].y>-100f && vertices[indexX+1+indexY*100].y>-100f) {
-                            tris.Add(indexX+(indexY+1)*100);
-                            tris.Add(indexX+1+(indexY+1)*100);
-                            tris.Add(indexX+1+indexY*100);
+                        if (vertices[indexX+(indexY+1)*resolution].y>-100f && vertices[indexX+1+(indexY+1)*resolution].y>-100f && vertices[indexX+1+indexY*resolution].y>-100f) {
+                            tris.Add(indexX+(indexY+1)*resolution);
+                            tris.Add(indexX+1+(indexY+1)*resolution);
+                            tris.Add(indexX+1+indexY*resolution);
                         }
                     } else {
-                        if (vertices[indexX+indexY*100].y>-100f && vertices[indexX+1+(indexY+1)*100].y>-100f && vertices[indexX+1+indexY*100].y>-100f) {
-                            tris.Add(indexX+indexY*100);
-                            tris.Add(indexX+1+(indexY+1)*100);
-                            tris.Add(indexX+1+indexY*100);
+                        if (vertices[indexX+indexY*resolution].y>-100f && vertices[indexX+1+(indexY+1)*resolution].y>-100f && vertices[indexX+1+indexY*resolution].y>-100f) {
+                            tris.Add(indexX+indexY*resolution);
+                            tris.Add(indexX+1+(indexY+1)*resolution);
+                            tris.Add(indexX+1+indexY*resolution);
                         }
-                        if (vertices[indexX+indexY*100].y>-100f && vertices[indexX+(indexY+1)*100].y>-100f && vertices[indexX+1+(indexY+1)*100].y>-100f) {
-                            tris.Add(indexX+indexY*100);
-                            tris.Add(indexX+(indexY+1)*100);
-                            tris.Add(indexX+1+(indexY+1)*100);
+                        if (vertices[indexX+indexY*resolution].y>-100f && vertices[indexX+(indexY+1)*resolution].y>-100f && vertices[indexX+1+(indexY+1)*resolution].y>-100f) {
+                            tris.Add(indexX+indexY*resolution);
+                            tris.Add(indexX+(indexY+1)*resolution);
+                            tris.Add(indexX+1+(indexY+1)*resolution);
                         }
                     }
                 }
             }
             List<Vector3> normals = new List<Vector3>();
-            for (int indexY=0; indexY<100; indexY++) {
-                for (int indexX=0; indexX<100; indexX++) {
+            for (int indexY=0; indexY<resolution; indexY++) {
+                for (int indexX=0; indexX<resolution; indexX++) {
                     normals.Add(Vector3.up);
                 }
             }
             List<Vector2> uvs = new List<Vector2>();
-            for (int indexY=0; indexY<100; indexY++) {
-                for (int indexX=0; indexX<100; indexX++) {
-                    Vector3 texPoint = volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*100+indexX]));
-                    Debug.Log(texPoint);
+            for (int indexY=0; indexY<resolution; indexY++) {
+                for (int indexX=0; indexX<resolution; indexX++) {
+                    Vector3 texPoint = volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*resolution+indexX]));
                     uvs.Add(new Vector2(texPoint.x, texPoint.y));
                 }
             }

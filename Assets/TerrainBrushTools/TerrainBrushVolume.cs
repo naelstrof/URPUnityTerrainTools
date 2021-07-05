@@ -5,15 +5,30 @@ using UnityEditor;
 using UnityEngine;
 
 namespace TerrainBrush {
-    public class TerrainBrushVolume : ScriptableObject {
+    public class TerrainBrushVolume : ScriptableObject, ISerializationCallbackReceiver {
         public TerrainBrushVolume() { }
-        public TerrainBrushVolume(Bounds b) {
+        public void ResizeToBounds(Bounds b, int texturePowSize, float padding) {
+            this.texturePowSize = texturePowSize;
+            float textureSize = 1<<texturePowSize;
+            Vector3 pixelPadding = new Vector3(padding/textureSize*b.size.x, padding/textureSize*b.size.y, padding/textureSize*b.size.z);
             internalBounds = b;
+            internalBounds.min -= pixelPadding;
+            internalBounds.max += pixelPadding;
             internalTextureToWorld = Matrix4x4.TRS(b.min, Quaternion.FromToRotation(Vector3.forward, Vector3.down), new Vector3(b.size.x, b.size.z, b.size.y));
         }
-        public void ResizeToBounds(Bounds b) {
-            internalBounds = b;
-            internalTextureToWorld = Matrix4x4.TRS(b.min, Quaternion.FromToRotation(Vector3.forward, Vector3.down), new Vector3(b.size.x, b.size.z, b.size.y));
+
+        public void OnBeforeSerialize() {
+            internalMatrix1 = internalTextureToWorld.GetRow(0);
+            internalMatrix2 = internalTextureToWorld.GetRow(1);
+            internalMatrix3 = internalTextureToWorld.GetRow(2);
+            internalMatrix4 = internalTextureToWorld.GetRow(3);
+        }
+
+        public void OnAfterDeserialize() {
+            internalTextureToWorld.SetRow(0,internalMatrix1);
+            internalTextureToWorld.SetRow(1,internalMatrix2);
+            internalTextureToWorld.SetRow(2,internalMatrix3);
+            internalTextureToWorld.SetRow(3,internalMatrix4);
         }
 
         // Variables we serialize and store to disk
@@ -23,6 +38,13 @@ namespace TerrainBrush {
         [SerializeField] [HideInInspector]
         private Bounds internalBounds;
         [SerializeField] [HideInInspector]
+        private Vector4 internalMatrix1 = new Vector4(1,0,0,0);
+        [SerializeField] [HideInInspector]
+        private Vector4 internalMatrix2 = new Vector4(0,1,0,0);
+        [SerializeField] [HideInInspector]
+        private Vector4 internalMatrix3 = new Vector4(0,0,1,0);
+        [SerializeField] [HideInInspector]
+        private Vector4 internalMatrix4 = new Vector4(0,0,0,1);
         private Matrix4x4 internalTextureToWorld;
         
         // Getters to prevent unintentional changes. There shouldn't be a reason to change these directly.

@@ -28,16 +28,13 @@ namespace TerrainBrush {
             cmd.DrawMesh(renderMesh, transform.localToWorldMatrix, renderMaterial, 0, 0);
         }
 
-        public override void OnDrawGizmosSelected() {
+        public override void OnDrawGizmos() {
             if (renderMesh == null || renderMaterial == null) {
                 return;
             }
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.color = renderMaterial.color;
             Gizmos.DrawWireMesh(renderMesh, 0, Vector3.zero, Quaternion.identity, Vector3.one);
-            Gizmos.matrix = Matrix4x4.identity;
-            Gizmos.color = Color.white;
-            Gizmos.DrawWireCube(brushBounds.center, brushBounds.size);
         }
     }
 }

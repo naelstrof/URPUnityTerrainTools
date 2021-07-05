@@ -11,6 +11,8 @@ using UnityEngine.Assertions;
 using UnityEditor;
 namespace TerrainBrush {
     public static class TerrainBrushOverseer {
+        public static float pixelPadding = 1f;
+        public static int texturePowSize = 10;
         public static TerrainBrushVolume GetCurrentTerrainBrushVolume() {
             Scene activeScene = SceneManager.GetActiveScene();
             TerrainBrushVolume[] volumes = Resources.FindObjectsOfTypeAll<TerrainBrushVolume>();
@@ -21,7 +23,8 @@ namespace TerrainBrush {
             }
             TerrainBrushVolume newVolume = ScriptableObject.CreateInstance<TerrainBrushVolume>();
             newVolume.scenePath = activeScene.path;
-            RenderTexture texture= new RenderTexture(1<<newVolume.texturePowSize, 1<<newVolume.texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SNorm);
+            newVolume.texturePowSize = texturePowSize;
+            RenderTexture texture= new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SNorm);
             string texturePath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolume"+activeScene.name+".renderTexture";
             AssetDatabase.CreateAsset (texture, texturePath);
             newVolume.texture = AssetDatabase.LoadAssetAtPath<RenderTexture>(texturePath);
@@ -32,18 +35,23 @@ namespace TerrainBrush {
         [MenuItem("Tools/TerrainBrush/Generate Texture")]
         public static void GenerateTexture() {
             // Calculate bounds
-            Brush[] brushes = Object.FindObjectsOfType<Brush>();
-            if (brushes.Length == 0) {
+            List<Brush> brushes = new List<Brush>(Object.FindObjectsOfType<Brush>());
+            if (brushes.Count == 0) {
                 Debug.Log("No brushes found.");
                 return;
             }
+            // Generate the volume that the textures exist on.
             Bounds encapsulatedBounds = new Bounds(brushes[0].brushBounds.center, brushes[0].brushBounds.size);
             foreach(Brush b in brushes) {
                 encapsulatedBounds.Encapsulate(b.brushBounds.min);
                 encapsulatedBounds.Encapsulate(b.brushBounds.max);
             }
             TerrainBrushVolume volume = GetCurrentTerrainBrushVolume();
-            volume.ResizeToBounds(encapsulatedBounds);
+            volume.ResizeToBounds(encapsulatedBounds, texturePowSize, pixelPadding);
+
+            // Sort the brushes from bottom to top(in camera space)
+            brushes.Sort((a,b)=>Vector3.Dot(a.brushBounds.center, volume.rotation * Vector3.forward).CompareTo(Vector3.Dot(b.brushBounds.center,volume.rotation*Vector3.forward)));
+
             // corners on the texture in uv space
             Vector4[] UVpoints = { new Vector4(0,0,0,1), new Vector4(1,0,0,1), new Vector4(1,1,0,1), new Vector4(0,1,0,1)};
             for(int i=0;i<UVpoints.Length;i++) {

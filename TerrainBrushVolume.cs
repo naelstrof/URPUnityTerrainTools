@@ -40,7 +40,7 @@ namespace TerrainBrush {
             get { return Quaternion.FromToRotation(Vector3.forward, Vector3.down); }
         }
         public Matrix4x4 worldToTexture {
-            get { return Matrix4x4.Inverse(worldToTexture); }
+            get { return Matrix4x4.Inverse(textureToWorld); }
         }
     }
 }

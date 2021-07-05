@@ -13,7 +13,7 @@ namespace TerrainBrush {
             }
         }
         public abstract void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume texture);
-        public virtual void OnDrawGizmosSelected() {
+        public virtual void OnDrawGizmos() {
             Gizmos.DrawCube(brushBounds.center, brushBounds.size);
         }
     }

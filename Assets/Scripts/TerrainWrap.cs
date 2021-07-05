@@ -9,6 +9,7 @@ namespace TerrainBrush {
         [SerializeField] private float size=100f;
         [SerializeField] private int resolution=128;
         [SerializeField] private Material material;
+        [SerializeField] private TerrainBrushVolume volume;
 
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
@@ -62,6 +63,20 @@ namespace TerrainBrush {
                     }
                 }
             }
+            List<Vector3> normals = new List<Vector3>();
+            for (int indexY=0; indexY<100; indexY++) {
+                for (int indexX=0; indexX<100; indexX++) {
+                    normals.Add(Vector3.up);
+                }
+            }
+            List<Vector2> uvs = new List<Vector2>();
+            for (int indexY=0; indexY<100; indexY++) {
+                for (int indexX=0; indexX<100; indexX++) {
+                    Vector3 texPoint = volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*100+indexX]));
+                    Debug.Log(texPoint);
+                    uvs.Add(new Vector2(texPoint.x, texPoint.y));
+                }
+            }
             // CULL UNUSED VERTS
             List<int> vertCull = new List<int>();
             for (int i=0;i<vertices.Count;i++) vertCull.Add(i);
@@ -69,6 +84,8 @@ namespace TerrainBrush {
             while (cullIndex<vertices.Count) {
                 if (vertices[cullIndex].y<=-100f) {
                     vertices.RemoveAt(cullIndex);
+                    normals.RemoveAt(cullIndex);
+                    uvs.RemoveAt(cullIndex);
                     vertCull.RemoveAt(cullIndex);
                 } else {
                     cullIndex++;
@@ -81,15 +98,10 @@ namespace TerrainBrush {
             for (int i=0;i<tris.Count;i++) {
                 tris[i]=vertLookup[tris[i]];
             }
-            List<Vector3> normals = new List<Vector3>();
-            for (int indexY=0; indexY<100; indexY++) {
-                for (int indexX=0; indexX<100; indexX++) {
-                    normals.Add(Vector3.up);
-                }
-            }
             mesh.vertices = vertices.ToArray();
             mesh.triangles = tris.ToArray();
             mesh.normals = normals.ToArray();
+            mesh.uv = uvs.ToArray();
             mesh.RecalculateNormals();
             meshFilter.mesh=mesh;
             meshRenderer.sharedMaterial=material;

@@ -40,6 +40,10 @@ namespace TerrainBrush {
             if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
                 return;
             }
+            if (!SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
+                return;
+            }
+
             // Calculate bounds
             List<Brush> brushes = new List<Brush>(Object.FindObjectsOfType<Brush>());
             if (brushes.Count == 0) {

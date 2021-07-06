@@ -127,7 +127,7 @@ namespace TerrainBrush {
                 }
                 line.SetPosition(currentPoint++, JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, 1f));
             }
-            TerrainBrushOverseer.GenerateTexture();
+            TerrainBrushOverseer.instance.Bake();
         }
         public override void OnDrawGizmos() {
             base.OnDrawGizmos();

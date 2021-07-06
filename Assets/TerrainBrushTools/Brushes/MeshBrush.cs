@@ -39,7 +39,7 @@ namespace TerrainBrush {
             if (renderMesh == null || renderMaterial == null) {
                 return;
             }
-            TerrainBrushOverseer.GenerateTexture();
+            TerrainBrushOverseer.instance.Bake();
         }
         public void OnDrawGizmosSelected() {
             if (renderMesh == null || renderMaterial == null) {

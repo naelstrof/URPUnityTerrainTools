@@ -14,7 +14,7 @@ namespace TerrainBrush {
             internalBounds = b;
             internalBounds.min -= pixelPadding;
             internalBounds.max += pixelPadding;
-            internalTextureToWorld = Matrix4x4.TRS(b.min, Quaternion.FromToRotation(Vector3.forward, Vector3.down), new Vector3(b.size.x, b.size.z, b.size.y));
+            internalTextureToWorld = Matrix4x4.TRS(new Vector3(b.min.x, b.max.y, b.min.z), Quaternion.FromToRotation(Vector3.forward, Vector3.down), new Vector3(b.size.x, b.size.z, b.size.y));
         }
 
         public void OnBeforeSerialize() {

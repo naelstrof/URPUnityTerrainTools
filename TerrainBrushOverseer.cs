@@ -103,7 +103,7 @@ namespace TerrainBrush {
                 terrainWraps[i].SetChunkID(i);
             }
 
-            Debug.Log("Success! A render texture should be next to the scene now.");
+            //Debug.Log("Success! A render texture should be next to the scene now.");
         }
     }
 }

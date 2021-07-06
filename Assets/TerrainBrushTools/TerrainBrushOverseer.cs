@@ -53,7 +53,8 @@ namespace TerrainBrush {
             brushes.Sort((a,b)=>Vector3.Dot(a.brushBounds.center, volume.rotation * Vector3.forward).CompareTo(Vector3.Dot(b.brushBounds.center,volume.rotation*Vector3.forward)));
 
             // corners on the texture in uv space
-            Vector4[] UVpoints = { new Vector4(0,0,0,1), new Vector4(1,0,0,1), new Vector4(1,1,0,1), new Vector4(0,1,0,1)};
+            Vector4[] UVpoints = { new Vector4(0,0,0,1), new Vector4(1,0,0,1), new Vector4(1,1,0,1), new Vector4(0,1,0,1), new Vector4(0,0,0,1),
+                                   new Vector4(0,0,1,1), new Vector4(1,0,1,1), new Vector4(1,1,1,1), new Vector4(0,1,1,1), new Vector4(0,0,1,1) };
             for(int i=0;i<UVpoints.Length;i++) {
                 // We project them out into the world to make sure it looks right.
                 Debug.DrawLine(volume.textureToWorld.MultiplyPoint(UVpoints[i]), volume.textureToWorld.MultiplyPoint(UVpoints[(i+1)%UVpoints.Length]), Color.red, 5f);
@@ -68,14 +69,15 @@ namespace TerrainBrush {
 
             cmd.GetTemporaryRT(temporaryTexture.id, volume.texture.descriptor);
             cmd.SetRenderTarget(temporaryTexture.id);
+            cmd.ClearRenderTarget(true, true, Color.clear);
 
             // Generate our projection/view matrix
             Matrix4x4 projection = Matrix4x4.Ortho(-volume.bounds.extents.x, volume.bounds.extents.x,
-                                                   -volume.bounds.extents.z, volume.bounds.extents.z, 0f, volume.bounds.size.z);
+                                                   -volume.bounds.extents.z, volume.bounds.extents.z, 0f, volume.bounds.size.y);
 
             // FIXME: I'm pretty sure the scale is inverted on the z axis due to API differences. Though I'm not sure.
             // As long as we stick to one graphics api, we don't care.
-            Matrix4x4 view = Matrix4x4.Inverse(Matrix4x4.TRS(volume.bounds.center+Vector3.up*volume.bounds.size.y, volume.rotation, new Vector3(1, 1, -1)));
+            Matrix4x4 view = Matrix4x4.Inverse(Matrix4x4.TRS(volume.bounds.center+Vector3.up*volume.bounds.extents.y, volume.rotation, new Vector3(1, 1, -1)));
             cmd.SetViewProjectionMatrices(view, projection);
             // Finally queue up the render commands
             foreach(Brush b in brushes) {
@@ -83,12 +85,12 @@ namespace TerrainBrush {
             }
             // After the render, we blit directly into the texture
             cmd.Blit(temporaryTexture.id, volume.texture);
-
-            Graphics.ExecuteCommandBuffer(cmd);
-
             // Then clean up our stuffs.
             cmd.ReleaseTemporaryRT(temporaryTexture.id);
+
+            Graphics.ExecuteCommandBuffer(cmd);
             cmd.Release();
+
             Debug.Log("Success! A render texture should be next to the scene now.");
         }
     }

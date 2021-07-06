@@ -1,0 +1,38 @@
+#pragma kernel CSMain
+Texture2D<float4> Source;
+RWTexture2D<float4> Result;
+
+const float seedRadius = 1.5;
+
+// https://en.wikipedia.org/wiki/Eikonal_equation
+float eikonal1d(float h, float v, float g) {
+	return min(h, v) + g;
+}
+
+float eikonal2d(float h, float v, float g) {
+    float hv = h + v;
+    float d = hv*hv - 2.0 * (h*h + v*v - g*g);
+   	return 0.5 * (hv + sqrt(d));
+}
+
+float neighborMin(uint2 coord, uint2 delta, uint2 dim) {
+    float a = Source[(coord+delta)%dim].r;
+    float b = Source[(coord-delta)%dim].r;
+    return min(a, b);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID) {
+    uint width,height;
+    Source.GetDimensions(width, height);
+
+    float h = neighborMin(id.xy, uint2(1, 0), uint2(width,height));
+    float v = neighborMin(id.xy, uint2(0, 1), uint2(width,height));
+    
+    float cur = Source[id.xy].r;
+
+    float ne = (abs(h - v) >= 1.0) ? eikonal1d(h, v, 1.0) : eikonal2d(h, v, 1.0);
+    float dist = (cur > seedRadius) ? ne : cur;
+
+    Result[id.xy] = float4(dist,dist,dist,1);
+}

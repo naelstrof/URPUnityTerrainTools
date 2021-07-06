@@ -29,6 +29,7 @@ namespace TerrainBrush {
         }
 
         public override void OnDrawGizmos() {
+            base.OnDrawGizmos();
             if (renderMesh == null || renderMaterial == null) {
                 return;
             }

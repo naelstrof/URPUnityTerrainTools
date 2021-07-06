@@ -62,8 +62,8 @@ namespace TerrainBrush {
             transform.rotation=Quaternion.identity;
             size=Mathf.Max(encapsulatedBounds.size.x, encapsulatedBounds.size.z);
 
-            if (meshFilter==null) gameObject.AddComponent<MeshFilter>();
-            if (meshRenderer==null) gameObject.AddComponent<MeshRenderer>();
+            if (gameObject.GetComponent<MeshFilter>()==null) meshFilter=gameObject.AddComponent<MeshFilter>();
+            if (gameObject.GetComponent<MeshRenderer>()==null) meshRenderer=gameObject.AddComponent<MeshRenderer>();
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
             Mesh mesh = new Mesh();

@@ -20,7 +20,7 @@ public static class BoundsExtensions {
             new Vector3(targetBounds.max.x, targetBounds.max.y, targetBounds.max.z)
         };
         foreach (Vector3 boundsCorner in boundsCorners) {
-            Debug.DrawLine(targetMatrix.MultiplyPoint(boundsCorner), targetMatrix.MultiplyPoint(boundsCorner)+Vector3.up, Color.blue, 1f);
+            //Debug.DrawLine(targetMatrix.MultiplyPoint(boundsCorner), targetMatrix.MultiplyPoint(boundsCorner)+Vector3.up, Color.blue, 1f);
             sourceBounds.Encapsulate(targetMatrix.MultiplyPoint(boundsCorner));
         }
         return sourceBounds;

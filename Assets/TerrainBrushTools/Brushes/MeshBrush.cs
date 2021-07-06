@@ -24,7 +24,7 @@ namespace TerrainBrush {
             }
         }
 
-        public override void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume) {
+        public override void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection) {
             cmd.DrawMesh(renderMesh, transform.localToWorldMatrix, renderMaterial, 0, 0);
         }
 

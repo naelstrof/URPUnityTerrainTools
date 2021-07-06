@@ -81,7 +81,7 @@ namespace TerrainBrush {
             cmd.SetViewProjectionMatrices(view, projection);
             // Finally queue up the render commands
             foreach(Brush b in brushes) {
-                b.Execute(cmd, temporaryTexture, volume);
+                b.Execute(cmd, temporaryTexture, volume, view, projection);
             }
             // After the render, we blit directly into the texture
             cmd.Blit(temporaryTexture.id, volume.texture);

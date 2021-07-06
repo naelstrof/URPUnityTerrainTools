@@ -12,7 +12,7 @@ namespace TerrainBrush {
                 return new Bounds(transform.position, transform.lossyScale);
             }
         }
-        public abstract void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume);
+        public abstract void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection);
         public virtual void OnDrawGizmos() {
             Gizmos.DrawWireCube(brushBounds.center, brushBounds.size);
         }

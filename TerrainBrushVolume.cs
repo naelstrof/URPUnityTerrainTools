@@ -33,7 +33,7 @@ namespace TerrainBrush {
 
         // Variables we serialize and store to disk
         public int texturePowSize = 10;
-        public string scenePath;
+        public string sceneGUID;
 
         [SerializeField] [HideInInspector]
         private Bounds internalBounds;

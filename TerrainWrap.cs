@@ -56,7 +56,7 @@ namespace TerrainBrush {
             // Generate the volume that the textures exist on.
             Bounds encapsulatedBounds = new Bounds(colliders[0].bounds.center, colliders[0].bounds.size);
             foreach(Collider c in colliders) {
-                encapsulatedBounds = encapsulatedBounds.EncapsulateTransformedBounds(c.bounds);
+                encapsulatedBounds.EncapsulateTransformedBounds(c.bounds);
             }
             transform.position=encapsulatedBounds.min;
             transform.rotation=Quaternion.identity;

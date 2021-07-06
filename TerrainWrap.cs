@@ -16,12 +16,11 @@ namespace TerrainBrush {
         //[HideInInspector]
         public int chunkID=0;
         [SerializeField] private Material material;
-        [SerializeField] private TerrainBrushVolume volume;
-
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
         private int generateTimer;
-        private bool generated=false;
+        [HideInInspector]
+        public bool generated=false;
         public void SetChunkID(int value) { chunkID=value; generateTimer=value; generated=false; }
 
 #if UNITY_EDITOR
@@ -89,7 +88,7 @@ namespace TerrainBrush {
             List<Vector2> uvs = new List<Vector2>();
             for (int indexY=0; indexY<resolution+1; indexY++) {
                 for (int indexX=0; indexX<resolution+1; indexX++) {
-                    Vector3 texPoint = volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*(resolution+1)+indexX]));
+                    Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*(resolution+1)+indexX]));
                     uvs.Add(new Vector2(texPoint.x, texPoint.y));
                 }
             }

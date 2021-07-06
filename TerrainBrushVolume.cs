@@ -5,10 +5,10 @@ using UnityEditor;
 using UnityEngine;
 
 namespace TerrainBrush {
-    public class TerrainBrushVolume : ScriptableObject, ISerializationCallbackReceiver {
+    [System.Serializable]
+    public class TerrainBrushVolume : ISerializationCallbackReceiver {
         public TerrainBrushVolume() { }
         public void ResizeToBounds(Bounds b, int texturePowSize, float padding) {
-            this.texturePowSize = texturePowSize;
             float textureSize = 1<<texturePowSize;
             Vector3 pixelPadding = new Vector3(padding/textureSize*b.size.x, padding/textureSize*b.size.y, padding/textureSize*b.size.z);
             internalBounds = b;
@@ -32,8 +32,6 @@ namespace TerrainBrush {
         }
 
         // Variables we serialize and store to disk
-        public int texturePowSize = 10;
-        public string sceneGUID;
 
         [SerializeField] [HideInInspector]
         private Bounds internalBounds;

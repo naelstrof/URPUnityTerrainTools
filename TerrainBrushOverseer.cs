@@ -11,6 +11,7 @@ using UnityEngine.Assertions;
 using UnityEditor;
 namespace TerrainBrush {
     public static class TerrainBrushOverseer {
+
         public static float pixelPadding = 1f;
         public static int texturePowSize = 10;
         public static TerrainBrushVolume GetCurrentTerrainBrushVolume() {
@@ -90,6 +91,17 @@ namespace TerrainBrush {
 
             Graphics.ExecuteCommandBuffer(cmd);
             cmd.Release();
+
+            GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
+            List<TerrainWrap> terrainWraps = new List<TerrainWrap>(Object.FindObjectsOfType<TerrainWrap>());
+            terrainWraps.Sort((a,b)=>(a.chunkID.CompareTo(b.chunkID)));
+            for (int i=0;i<64;i++) {
+                if (terrainWraps.Count<=i) {
+                    GameObject newTerrainWrapObject = GameObject.Instantiate(terrainWrapPrefab, Vector3.zero, Quaternion.identity);
+                    terrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
+                }
+                terrainWraps[i].SetChunkID(i);
+            }
 
             Debug.Log("Success! A render texture should be next to the scene now.");
         }

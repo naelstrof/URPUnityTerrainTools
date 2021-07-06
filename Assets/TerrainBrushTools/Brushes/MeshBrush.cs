@@ -8,6 +8,7 @@ namespace TerrainBrush {
     // Made to be inherited.
     public class MeshBrush : Brush {
         public Material renderMaterial;
+        public Color color = Color.white;
         public Mesh renderMesh;
         public override Bounds brushBounds {
             get {
@@ -25,12 +26,20 @@ namespace TerrainBrush {
         }
 
         public override void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection) {
-            cmd.DrawMesh(renderMesh, transform.localToWorldMatrix, renderMaterial, 0, 0);
+            Material tempMaterial = Material.Instantiate(renderMaterial);
+            tempMaterial.SetColor("_Color", color);
+            cmd.DrawMesh(renderMesh, transform.localToWorldMatrix, tempMaterial, 0, 0);
         }
 
         public override void OnDrawGizmos() {
             base.OnDrawGizmos();
             Gizmos.DrawIcon(transform.position, "ico_brush.png", true);
+        }
+        public void OnValidate() {
+            if (renderMesh == null || renderMaterial == null) {
+                return;
+            }
+            TerrainBrushOverseer.GenerateTexture();
         }
         public void OnDrawGizmosSelected() {
             if (renderMesh == null || renderMaterial == null) {

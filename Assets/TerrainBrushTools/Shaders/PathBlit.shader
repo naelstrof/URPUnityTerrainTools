@@ -47,7 +47,7 @@ Shader "PathBlit" {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
                 float distance = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_MainTex, i.texcoord).r;
                 float triggerAmount = 1.0-saturate((distance - _Radius)/_Radius);
-                return float4(_Color.rgb, triggerAmount);
+                return float4(_Color.rgb, triggerAmount*_Color.a);
             }
             ENDCG
 

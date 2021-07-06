@@ -6,6 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace TerrainBrush {
     public class PathBrush : Brush {
+        public Color colorMask;
         [Range(0f,512f)]
         public float softRadius = 16f;
         [Range(0.5f,2f)]
@@ -37,19 +38,22 @@ namespace TerrainBrush {
                 }
                 Bounds b = new Bounds(transform.GetChild(0).position, Vector3.zero);
                 for(int i=0;i<pathNodes.Count-1;i++) {
-                    float len = Vector3.Distance(pathNodes[i].position, pathNodes[i+1].position);
+                    float len = Vector3.Distance(pathNodes[i%pathNodes.Count].position, pathNodes[(i+1)%pathNodes.Count].position);
                     for (float t=0;t<1f;t+=pointsPerMeter/len) {
                         Vector3 point = JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, t);
                         b.Encapsulate(point);
                         b.Encapsulate(point+Vector3.one*maxWidth);
                         b.Encapsulate(point-Vector3.one*maxWidth);
                     }
+                    Vector3 p = JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, 1f);
+                    b.Encapsulate(p);
+                    b.Encapsulate(p+Vector3.one*maxWidth);
+                    b.Encapsulate(p-Vector3.one*maxWidth);
                 }
                 return b;
             }
         }
         public override void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection) {
-            OnValidate();
             // Now prepare a texture with our line rendered to it.
             RenderTargetHandle temporaryTextureA = new RenderTargetHandle();
             RenderTargetHandle temporaryTextureB = new RenderTargetHandle();
@@ -63,6 +67,9 @@ namespace TerrainBrush {
             line.BakeMesh(tempMesh, true);
             cmd.DrawMesh(tempMesh, Matrix4x4.identity, line.sharedMaterials[0], 0, 0);
 
+            // Run a compute shader to run the eikonal equation over and over to generate a 2D SDF.
+            // This compute shader outputs a pure "pixel distance" distance as a 32 bit float in the red channel.
+            // Can't normally display or blit it
             int threadGroupsX = Mathf.FloorToInt(volume.texture.width / 8.0f);
             int threadGroupsY = Mathf.FloorToInt(volume.texture.height / 8.0f);
             for(int i=0;i<256;i++) {
@@ -74,13 +81,16 @@ namespace TerrainBrush {
                 cmd.SetComputeTextureParam(eikonalShader, 0, "Result", temporaryTextureA.id);
                 cmd.DispatchCompute(eikonalShader, 0, threadGroupsX, threadGroupsY, 1);
             }
-            pathBlit.SetFloat("_Radius", softRadius);
-            cmd.Blit(temporaryTextureA.id, renderTarget.id, pathBlit);
+            // Use a material to read the pixel-distance-SDF to produce a smooth 0-1 result.
+            Material pathBlitInstance = Material.Instantiate(pathBlit);
+            pathBlitInstance.SetFloat("_Radius", softRadius);
+            pathBlitInstance.SetColor("_Color", colorMask);
+            cmd.Blit(temporaryTextureA.id, renderTarget.id, pathBlitInstance);
+
+            // 
             cmd.ReleaseTemporaryRT(temporaryTextureA.id);
             cmd.ReleaseTemporaryRT(temporaryTextureB.id);
             cmd.SetRenderTarget(renderTarget.id);
-
-            //cmd.DrawRenderer(GetComponent<LineRenderer>(), GetComponent<LineRenderer>().sharedMaterial);
         }
 
         public void OnValidate() {
@@ -105,6 +115,7 @@ namespace TerrainBrush {
                 for (float t=0;t<1f;t+=pointsPerMeter/len) {
                     totalPoints++;
                 }
+                totalPoints++;
             }
             line.positionCount = totalPoints;
             // Now calculate them for real
@@ -114,15 +125,21 @@ namespace TerrainBrush {
                 for (float t=0;t<1f;t+=pointsPerMeter/len) {
                     line.SetPosition(currentPoint++, JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, t));
                 }
+                line.SetPosition(currentPoint++, JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, 1f));
             }
+            TerrainBrushOverseer.GenerateTexture();
         }
         public override void OnDrawGizmos() {
             base.OnDrawGizmos();
             for(int i=0;i<transform.childCount;i++) {
                 Transform t = transform.GetChild(i);
+                PathNode pathNode = t.GetComponent<PathNode>();
+                if (pathNode == null) {
+                    t.gameObject.AddComponent<PathNode>();
+                }
                 if (t.hasChanged) {
-                    OnValidate();
                     t.hasChanged = false;
+                    OnValidate();
                 }
                 //float mw = maxWidth;
                 //Gizmos.DrawWireSphere(t.position, mw*0.5f);

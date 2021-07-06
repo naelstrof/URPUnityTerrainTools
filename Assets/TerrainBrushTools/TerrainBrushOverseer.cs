@@ -17,13 +17,14 @@ namespace TerrainBrush {
         public static TerrainBrushVolume GetCurrentTerrainBrushVolume() {
             Scene activeScene = SceneManager.GetActiveScene();
             TerrainBrushVolume[] volumes = Resources.FindObjectsOfTypeAll<TerrainBrushVolume>();
+            string sceneGUID = AssetDatabase.AssetPathToGUID(activeScene.path);
             foreach(var v in volumes) {
-                if (v.scenePath == activeScene.path) {
+                if (v.sceneGUID == sceneGUID) {
                     return v;
                 }
             }
             TerrainBrushVolume newVolume = ScriptableObject.CreateInstance<TerrainBrushVolume>();
-            newVolume.scenePath = activeScene.path;
+            newVolume.sceneGUID = sceneGUID;
             newVolume.texturePowSize = texturePowSize;
             RenderTexture texture= new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SNorm);
             string texturePath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolume"+activeScene.name+".renderTexture";
@@ -35,6 +36,10 @@ namespace TerrainBrush {
         }
         [MenuItem("Tools/TerrainBrush/Generate Texture")]
         public static void GenerateTexture() {
+            // Editor crashes on load because OnValidate can get called while the editor isn't ready.
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
+                return;
+            }
             // Calculate bounds
             List<Brush> brushes = new List<Brush>(Object.FindObjectsOfType<Brush>());
             if (brushes.Count == 0) {

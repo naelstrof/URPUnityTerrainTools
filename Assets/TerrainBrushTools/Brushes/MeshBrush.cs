@@ -30,6 +30,9 @@ namespace TerrainBrush {
 
         public override void OnDrawGizmos() {
             base.OnDrawGizmos();
+            Gizmos.DrawIcon(transform.position, "ico_brush.png", true);
+        }
+        public void OnDrawGizmosSelected() {
             if (renderMesh == null || renderMaterial == null) {
                 return;
             }

@@ -66,18 +66,11 @@ namespace TerrainBrush {
             cmd.ClearRenderTarget(true, true, Color.white);
             Mesh tempMesh = new Mesh();
             // Line renderer needs a camera to bake for somereason???
-            bool createdCamera = false;
-            Camera cam = Camera.main;
-            if (cam == null) { cam = Camera.current; }
-            if (cam == null) { cam = UnityEngine.Object.FindObjectOfType<Camera>(); }
-            if (cam == null) {
-                cam = new GameObject("TempCamera", new System.Type[]{typeof(Camera)}).GetComponent<Camera>();
-                createdCamera = true;
-            }
+            Camera cam = new GameObject("TempCamera", new System.Type[]{typeof(Camera)}).GetComponent<Camera>();
+            cam.worldToCameraMatrix = view.inverse;
+            cam.projectionMatrix = projection;
             line.BakeMesh(tempMesh, cam, true);
-            if (createdCamera) {
-                Destroy(cam.gameObject);
-            }
+            DestroyImmediate(cam.gameObject);
             cmd.DrawMesh(tempMesh, Matrix4x4.identity, line.sharedMaterials[0], 0, 0);
 
             // Run a compute shader to run the eikonal equation over and over to generate a 2D unsigned SDF.

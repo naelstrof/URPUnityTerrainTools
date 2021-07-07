@@ -13,6 +13,7 @@ using UnityEditor;
 namespace TerrainBrush {
     public class TerrainBrushOverseer : MonoBehaviour {
         public LayerMask meshBrushTargetLayers;
+        public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
         private static TerrainBrushOverseer _instance;
         public static TerrainBrushOverseer instance {
@@ -69,6 +70,11 @@ namespace TerrainBrush {
             return texture;
         }
         private void BakeTick() {
+            if (Application.isPlaying) {
+                currentState = BakeState.Idle;
+                EditorApplication.update -= BakeTick;
+                return;
+            }
             try {
                 switch(currentState) {
                     case BakeState.Idle: {
@@ -102,7 +108,11 @@ namespace TerrainBrush {
             }
         }
         public void Bake() {
-            if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
+            if (terrainWrapPrefab == null || terrainMaterial == null || meshBrushTargetLayers == 0) {
+                Debug.LogWarning("TerrainBrushOverseer is missing the prefab, material, or layermask! Nothing will generate.", gameObject);
+                return;
+            }
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating || Application.isPlaying) {
                 return;
             }
             if (!SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
@@ -142,7 +152,7 @@ namespace TerrainBrush {
             File.WriteAllBytes(filename, outputTexture.EncodeToPNG());
             UnityEditor.AssetDatabase.Refresh();
             Texture2D realTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(filename);
-            UnityEngine.Object.FindObjectOfType<TerrainWrap>().GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_BlendMap", realTexture);
+            TerrainBrushOverseer.instance.terrainMaterial?.SetTexture("_BlendMap", realTexture);
         }
 
         [ContextMenu("Generate Texture")]
@@ -215,23 +225,8 @@ namespace TerrainBrush {
         [ContextMenu("Generate Mesh")]
         public void GenerateMesh() {
             //GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
-            // If our terrainwrap is null, we'll just auto generate it. This is because we cannot edit materials or prefabs within a package, that's illegal!
-            if (terrainWrapPrefab == null) {
-                GameObject originalPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
-                Material originalMaterial = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath("ad5bce9faf2a3d04a9048b1c7606615d"));
-                Scene activeScene = SceneManager.GetActiveScene();
-                Assert.IsTrue(activeScene.IsValid());
-
-                string matPath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolumeTerrainMat"+activeScene.name+".mat";
-                AssetDatabase.CreateAsset(Material.Instantiate(originalMaterial), matPath);
-                Material instanceMaterial = AssetDatabase.LoadAssetAtPath<Material>(matPath);
-
-                GameObject instance = GameObject.Instantiate(originalPrefab);
-                string assetPath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolumeTerrainWrap"+activeScene.name+".prefab";
-                instance.GetComponent<MeshRenderer>().sharedMaterial = instanceMaterial;
-                PrefabUtility.SaveAsPrefabAsset(instance, assetPath);
-                terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-            }
+            Assert.IsTrue(terrainWrapPrefab != null);
+            Assert.IsTrue(terrainMaterial != null);
             for (int i=0; i<activeTerrainWraps.Count; i++) {
                 if (activeTerrainWraps[i]==null) {
                     activeTerrainWraps.RemoveAt(i);
@@ -246,9 +241,7 @@ namespace TerrainBrush {
                 }
             }
             // If we've recently baked, we'll have a non-render texture in this slot. So we update it.
-            if (activeTerrainWraps.Count > 0) {
-                activeTerrainWraps[0].GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_BlendMap", volume.texture);
-            }
+            terrainMaterial.SetTexture("_BlendMap", volume.texture);
             activeTerrainWraps.Sort((a,b)=>(a.chunkID.CompareTo(b.chunkID)));
             for (int i=0;i<64;i++) {
                 if (activeTerrainWraps.Count<=i) {
@@ -256,6 +249,7 @@ namespace TerrainBrush {
                     newTerrainWrapObject.transform.parent = transform;
                     activeTerrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                 }
+                activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
                 activeTerrainWraps[i].SetChunkID(i);
             }
         }

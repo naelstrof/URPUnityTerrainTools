@@ -74,7 +74,7 @@ namespace TerrainBrush {
                     float chunkX=(chunkID%chunks)*size/chunks;
                     float chunkY=Mathf.Floor(chunkID/chunks)*size/chunks;
                     Vector3 point = new Vector3(indexX * (size/chunks)/resolution + chunkX, 0f, indexY * (size/chunks)/resolution + chunkY);
-                    if (Physics.Raycast(transform.TransformPoint(point+Vector3.up*100f), -Vector3.up, out hit, 200f, LayerMask.GetMask("TerrainBrushes"))) {
+                    if (Physics.Raycast(transform.TransformPoint(point+Vector3.up*100f), -Vector3.up, out hit, 200f, TerrainBrushOverseer.instance.meshBrushTargetLayers)) {
                         float y = transform.InverseTransformPoint(hit.point).y;
                         //y = Mathf.Max(0f, y);
                         vertices.Add(new Vector3(point.x, y, point.z));

@@ -50,8 +50,6 @@ namespace TerrainBrush {
 
         private BakeState currentState = BakeState.Idle;
         public TerrainBrushVolume volume = new TerrainBrushVolume();
-        [HideInInspector]
-        public List<MeshBrush> activeMeshBrushes = new List<MeshBrush>();
 
         [HideInInspector]
         public List<TerrainWrap> activeTerrainWraps = new List<TerrainWrap>();

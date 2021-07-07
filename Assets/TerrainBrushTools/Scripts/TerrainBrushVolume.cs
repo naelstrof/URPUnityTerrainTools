@@ -12,7 +12,7 @@ namespace TerrainBrush {
             float textureSize = 1<<texturePowSize;
 
             // Force it to be square, makes it so that we don't have any stretched pixels.
-            float squareSize = Mathf.Max(b.size.x, b.size.y);
+            float squareSize = Mathf.Max(b.size.x, b.size.z);
             b.size = new Vector3(squareSize, b.size.y, squareSize);
 
             Vector3 pixelPadding = new Vector3(padding/textureSize*b.size.x, padding/textureSize*b.size.y, padding/textureSize*b.size.z);

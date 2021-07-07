@@ -12,6 +12,7 @@ using System;
 using UnityEditor;
 namespace TerrainBrush {
     public class TerrainBrushOverseer : MonoBehaviour {
+        public LayerMask meshBrushTargetLayers;
         private static TerrainBrushOverseer _instance;
         public static TerrainBrushOverseer instance {
             get {
@@ -47,10 +48,10 @@ namespace TerrainBrush {
             }
         }
 
-        public BakeState currentState = BakeState.Idle;
+        private BakeState currentState = BakeState.Idle;
         public TerrainBrushVolume volume = new TerrainBrushVolume();
         [HideInInspector]
-        public List<Brush> activeBrushes = new List<Brush>();
+        public List<MeshBrush> activeMeshBrushes = new List<MeshBrush>();
 
         [HideInInspector]
         public List<TerrainWrap> activeTerrainWraps = new List<TerrainWrap>();
@@ -142,17 +143,11 @@ namespace TerrainBrush {
                 return;
             }
 
+            List<Brush> activeBrushes = new List<Brush>(UnityEngine.Object.FindObjectsOfType<Brush>());
             // Calculate bounds
             if (activeBrushes.Count == 0) {
-                foreach(Brush b in UnityEngine.Object.FindObjectsOfType<Brush>()) {
-                    if (!activeBrushes.Contains(b)) {
-                        activeBrushes.Add(b);
-                    }
-                }
-                if (activeBrushes.Count == 0) {
-                    Debug.Log("No brushes found.");
-                    return;
-                }
+                Debug.Log("No brushes found.");
+                return;
             }
 
             // Generate the volume that the textures exist on.
@@ -160,6 +155,9 @@ namespace TerrainBrush {
             foreach(Brush b in activeBrushes) {
                 encapsulatedBounds.Encapsulate(b.brushBounds.min);
                 encapsulatedBounds.Encapsulate(b.brushBounds.max);
+            }
+            if (volume == null) {
+                volume = new TerrainBrushVolume();
             }
             volume.ResizeToBounds(encapsulatedBounds, texturePowSize, pixelPadding);
 
@@ -225,6 +223,9 @@ namespace TerrainBrush {
                 activeTerrainWraps[i].transform.parent = transform;
                 activeTerrainWraps[i].SetChunkID(i);
             }
+        }
+        public void OnValidate() {
+            Bake();
         }
     }
 }

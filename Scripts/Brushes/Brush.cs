@@ -13,14 +13,6 @@ namespace TerrainBrush {
                 return new Bounds(transform.position, transform.lossyScale);
             }
         }
-        public virtual void OnEnable() {
-            if (TerrainBrushOverseer.instance.activeBrushes.Contains(this)) {
-                TerrainBrushOverseer.instance.activeBrushes.Add(this);
-            }
-        }
-        public virtual void OnDisable() {
-            TerrainBrushOverseer.instance.activeBrushes.Remove(this);
-        }
         public abstract void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection);
         public virtual void OnDrawGizmos() {
             if (transform.hasChanged) {

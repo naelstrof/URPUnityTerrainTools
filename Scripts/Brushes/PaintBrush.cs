@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace TerrainBrush {
     // Made to be inherited.
-    public class MeshBrush : Brush {
+    public class PaintBrush : Brush {
         public Material renderMaterial;
         public Color color = Color.white;
         public Mesh renderMesh;

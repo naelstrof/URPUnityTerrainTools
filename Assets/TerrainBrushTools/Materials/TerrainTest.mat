@@ -127,7 +127,8 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HeightBlendFactor: 5
+    - _HeightBlendFactor: 10
+    - _HeightBlendSmoothing: 0.182
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -144,6 +145,10 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorADark: {r: 0.4824804, g: 0.6509434, b: 0.41451585, a: 0}
+    - _ColorALight: {r: 0.6650071, g: 0.7075472, b: 0.4772606, a: 0}
+    - _ColorBDark: {r: 0.4716981, g: 0.45716998, b: 0.40717337, a: 0}
+    - _ColorBLight: {r: 0.5522873, g: 0.5943396, b: 0.58996826, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

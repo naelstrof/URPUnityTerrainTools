@@ -17,7 +17,7 @@ Or if that doesn't work, add it to the manifest.json like so.
 ```
 {
   "dependencies": {
-    "com.naelstrof.skinnedmeshdecals": "https://github.com/naelstrof/URPUnityTerrainTools.git#upm",
+    "com.vilarnaelstrof.terrainbrushtools": "https://github.com/naelstrof/URPUnityTerrainTools.git#upm",
   }
 }
 ```

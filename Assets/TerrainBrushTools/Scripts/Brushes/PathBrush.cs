@@ -68,8 +68,8 @@ namespace TerrainBrush {
             line.BakeMesh(tempMesh, true);
             cmd.DrawMesh(tempMesh, Matrix4x4.identity, line.sharedMaterials[0], 0, 0);
 
-            // Run a compute shader to run the eikonal equation over and over to generate a 2D SDF.
-            // This compute shader outputs a pure "pixel distance" distance as a 32 bit float in the red channel.
+            // Run a compute shader to run the eikonal equation over and over to generate a 2D unsigned SDF.
+            // This compute shader outputs a pure "pixel distance" distance as a signed 32 bit float in the red channel.
             // Can't normally display or blit it
             int threadGroupsX = Mathf.FloorToInt(volume.texture.width / 8.0f);
             int threadGroupsY = Mathf.FloorToInt(volume.texture.height / 8.0f);

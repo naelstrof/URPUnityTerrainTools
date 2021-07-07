@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -8,6 +9,22 @@ namespace TerrainBrush {
     // Made to be inherited.
     public class PaintBrush : Brush {
         #if UNITY_EDITOR
+        private static string gizmoName = "ico_brush.png";
+        private string internalGizmoPath = "";
+        private string gizmoPath { 
+            get {
+                if (string.IsNullOrEmpty(internalGizmoPath)) {
+                    var assembly = Assembly.GetExecutingAssembly();
+                    var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(assembly);
+                    if (packageInfo == null) {
+                        internalGizmoPath = "Assets/TerrainBrushTools/Gizmos/"+gizmoName;
+                    } else {
+                        internalGizmoPath = packageInfo.assetPath+"/Gizmos/"+gizmoName;
+                    }
+                }
+                return internalGizmoPath;
+            }
+        }
         public Material renderMaterial;
         public Color color = Color.white;
         public Mesh renderMesh;
@@ -34,7 +51,7 @@ namespace TerrainBrush {
 
         public override void OnDrawGizmos() {
             base.OnDrawGizmos();
-            Gizmos.DrawIcon(transform.position, "ico_brush.png", true);
+            Gizmos.DrawIcon(transform.position, gizmoPath, true);
         }
         public void OnValidate() {
             if (renderMesh == null || renderMaterial == null) {

@@ -48,6 +48,8 @@ namespace TerrainBrush {
             }
         }
 
+        public int callbackOrder => throw new NotImplementedException();
+
         private BakeState currentState = BakeState.Idle;
         public TerrainBrushVolume volume = new TerrainBrushVolume();
 
@@ -59,7 +61,7 @@ namespace TerrainBrush {
         private RenderTexture GetTexture() {
             Scene activeScene = SceneManager.GetActiveScene();
             Assert.IsTrue(activeScene.IsValid());
-            RenderTexture texture= new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SNorm);
+            RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm);
             string texturePath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolume"+activeScene.name+".renderTexture";
             AssetDatabase.CreateAsset (texture, texturePath);
             AssetDatabase.SaveAssets();
@@ -109,7 +111,6 @@ namespace TerrainBrush {
             EditorApplication.update -= BakeTick;
             EditorApplication.update += BakeTick;
         }
-
         public CommandBuffer GenerateDepthNormals() {
             CommandBuffer cmd = new CommandBuffer();
             RenderTargetHandle temporaryTexture = new RenderTargetHandle();
@@ -124,6 +125,19 @@ namespace TerrainBrush {
             }
             cmd.SetGlobalTexture("_TerrainBrushDepthNormal", temporaryTexture.id);
             return cmd;
+        }
+        [MenuItem("TerrainBrush/Finalize Texture")]
+        private static void FinalizeTexture() {
+            Texture2D outputTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, true, true);
+            RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;
+            outputTexture.ReadPixels(new Rect(0,0,TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height), 0, 0);
+            outputTexture.Apply();
+            string filename = Path.GetDirectoryName(TerrainBrushOverseer.instance.gameObject.scene.path) + "/TerrainBrushOutput"+TerrainBrushOverseer.instance.gameObject.scene.name+".png";
+            //then Save To Disk as PNG
+            File.WriteAllBytes(filename, outputTexture.EncodeToPNG());
+            UnityEditor.AssetDatabase.Refresh();
+            Texture2D realTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(filename);
+            UnityEngine.Object.FindObjectOfType<TerrainWrap>().GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_BlendMap", realTexture);
         }
 
         [ContextMenu("Generate Texture")]
@@ -216,6 +230,10 @@ namespace TerrainBrush {
                         activeTerrainWraps.Add(t);
                     }
                 }
+            }
+            // If we've recently baked, we'll have a non-render texture in this slot. So we update it.
+            if (activeTerrainWraps.Count > 0) {
+                activeTerrainWraps[0].GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_BlendMap", volume.texture);
             }
             activeTerrainWraps.Sort((a,b)=>(a.chunkID.CompareTo(b.chunkID)));
             for (int i=0;i<64;i++) {

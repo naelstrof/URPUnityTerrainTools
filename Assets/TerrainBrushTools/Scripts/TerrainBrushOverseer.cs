@@ -11,6 +11,7 @@ using System;
 #if UNITY_EDITOR
 using UnityEditor;
 namespace TerrainBrush {
+    [ExecuteInEditMode]
     public class TerrainBrushOverseer : MonoBehaviour {
         public LayerMask meshBrushTargetLayers;
         public Material terrainMaterial;
@@ -18,6 +19,10 @@ namespace TerrainBrush {
         private static TerrainBrushOverseer _instance;
         public static TerrainBrushOverseer instance {
             get {
+                if (Application.isPlaying || !SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
+                    _instance = null;
+                    return null;
+                }
                 if (_instance == null){
                     _instance = UnityEngine.Object.FindObjectOfType<TerrainBrushOverseer>();
                 }
@@ -34,6 +39,11 @@ namespace TerrainBrush {
             MeshGeneration,
             TextureGeneration,
             Finished,
+        }
+        public void OnEnable() {
+            if (instance != this && instance != null) {
+                DestroyImmediate(gameObject);
+            }
         }
         // Generate our projection/view matrix
         public Matrix4x4 projection {
@@ -110,6 +120,7 @@ namespace TerrainBrush {
         public void Bake() {
             if (terrainWrapPrefab == null || terrainMaterial == null || meshBrushTargetLayers == 0) {
                 Debug.LogWarning("TerrainBrushOverseer is missing the prefab, material, or layermask! Nothing will generate.", gameObject);
+                Debug.Log(gameObject + " " + terrainWrapPrefab + " " + terrainMaterial + " " + meshBrushTargetLayers);
                 return;
             }
             if (EditorApplication.isCompiling || EditorApplication.isUpdating || Application.isPlaying) {

@@ -17,7 +17,7 @@ namespace TerrainBrush {
         public abstract void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection);
         public virtual void OnDrawGizmos() {
             if (transform.hasChanged) {
-                TerrainBrushOverseer.instance.Bake();
+                TerrainBrushOverseer.instance?.Bake();
                 transform.hasChanged=false;
             }
             //Gizmos.DrawWireCube(brushBounds.center, brushBounds.size);

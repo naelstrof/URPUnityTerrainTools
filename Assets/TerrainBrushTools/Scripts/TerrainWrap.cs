@@ -74,14 +74,14 @@ namespace TerrainBrush {
                     RaycastHit hit;
                     float chunkX=(chunkID%chunks)*size/chunks;
                     float chunkY=Mathf.Floor(chunkID/chunks)*size/chunks;
-                    Vector3 point = new Vector3(indexX * (size/chunks)/resolution + chunkX, 0f, indexY * (size/chunks)/resolution + chunkY);
-                    if (Physics.Raycast(transform.TransformPoint(point+Vector3.up*100f), -Vector3.up, out hit, 200f, TerrainBrushOverseer.instance.meshBrushTargetLayers)) {
-                        float y = transform.InverseTransformPoint(hit.point).y;
+                    Vector3 point = new Vector3(indexX * (size/chunks)/resolution + chunkX, 0, indexY * (size/chunks)/resolution + chunkY);
+                    if (Physics.Raycast(transform.TransformPoint(point)+Vector3.up*encapsulatedBounds.size.y, -Vector3.up, out hit, encapsulatedBounds.size.y, TerrainBrushOverseer.instance.meshBrushTargetLayers)) {
                         //y = Mathf.Max(0f, y);
+                        float y = transform.InverseTransformPoint(hit.point).y;
                         vertices.Add(new Vector3(point.x, y, point.z));
                         normals.Add(hit.normal);
                     } else {
-                        vertices.Add(point-Vector3.up*100f);
+                        vertices.Add(point-Vector3.up*encapsulatedBounds.extents.y);
                         normals.Add(Vector3.up);
                     }
                 }
@@ -94,26 +94,27 @@ namespace TerrainBrush {
                 }
             }
             List<int> tris = new List<int>();
+            float lowerBound = 0f;
             for (int indexY=0; indexY<resolution; indexY++) {
                 for (int indexX=0;indexX<resolution;indexX++) {
                     if (Vector3.Distance(vertices[indexX+indexY*(resolution+1)], vertices[indexX+1+(indexY+1)*(resolution+1)])>Vector3.Distance(vertices[indexX+1+indexY*(resolution+1)], vertices[indexX+(indexY+1)*(resolution+1)])) {
-                        if (vertices[indexX+indexY*(resolution+1)].y>-100f && vertices[indexX+(indexY+1)*(resolution+1)].y>-100f && vertices[indexX+1+indexY*(resolution+1)].y>-100f) {
+                        if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
                             tris.Add(indexX+indexY*(resolution+1));
                             tris.Add(indexX+(indexY+1)*(resolution+1));
                             tris.Add(indexX+1+indexY*(resolution+1));
                         }
-                        if (vertices[indexX+(indexY+1)*(resolution+1)].y>-100f && vertices[indexX+1+(indexY+1)*(resolution+1)].y>-100f && vertices[indexX+1+indexY*(resolution+1)].y>-100f) {
+                        if (vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
                             tris.Add(indexX+(indexY+1)*(resolution+1));
                             tris.Add(indexX+1+(indexY+1)*(resolution+1));
                             tris.Add(indexX+1+indexY*(resolution+1));
                         }
                     } else {
-                        if (vertices[indexX+indexY*(resolution+1)].y>-100f && vertices[indexX+1+(indexY+1)*(resolution+1)].y>-100f && vertices[indexX+1+indexY*(resolution+1)].y>-100f) {
+                        if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
                             tris.Add(indexX+indexY*(resolution+1));
                             tris.Add(indexX+1+(indexY+1)*(resolution+1));
                             tris.Add(indexX+1+indexY*(resolution+1));
                         }
-                        if (vertices[indexX+indexY*(resolution+1)].y>-100f && vertices[indexX+(indexY+1)*(resolution+1)].y>-100f && vertices[indexX+1+(indexY+1)*(resolution+1)].y>-100f) {
+                        if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound) {
                             tris.Add(indexX+indexY*(resolution+1));
                             tris.Add(indexX+(indexY+1)*(resolution+1));
                             tris.Add(indexX+1+(indexY+1)*(resolution+1));
@@ -126,7 +127,7 @@ namespace TerrainBrush {
             for (int i=0;i<vertices.Count;i++) vertCull.Add(i);
             int cullIndex=0;
             while (cullIndex<vertices.Count) {
-                if (vertices[cullIndex].y<=-100f) {
+                if (vertices[cullIndex].y<=lowerBound) {
                     vertices.RemoveAt(cullIndex);
                     normals.RemoveAt(cullIndex);
                     uvs.RemoveAt(cullIndex);

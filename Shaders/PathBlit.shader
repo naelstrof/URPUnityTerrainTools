@@ -1,5 +1,5 @@
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
-Shader "PathBlit" {
+Shader "TerrainBrush/PathBlit" {
     Properties
     {
         _MainTex ("Texture", any) = "" {}

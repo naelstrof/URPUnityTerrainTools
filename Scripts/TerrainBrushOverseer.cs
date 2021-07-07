@@ -204,6 +204,12 @@ namespace TerrainBrush {
         [ContextMenu("Generate Mesh")]
         public void GenerateMesh() {
             GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
+            for (int i=0; i<activeTerrainWraps.Count; i++) {
+                if (activeTerrainWraps[i]==null) {
+                    activeTerrainWraps.RemoveAt(i);
+                    i--;
+                }
+            }
             if (activeTerrainWraps.Count<64) {
                 foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
                     if (!activeTerrainWraps.Contains(t)) {

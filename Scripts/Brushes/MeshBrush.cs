@@ -5,17 +5,16 @@ using UnityEngine;
 namespace TerrainBrush {
     public class MeshBrush : MonoBehaviour {
         public void OnEnable() {
-            if (TerrainBrushOverseer.instance.activeMeshBrushes.Contains(this)) {
-                TerrainBrushOverseer.instance.activeMeshBrushes.Add(this);
-            }
-            int mask = 1;
+        // This probably shouldn't happen without the user knowing.
+            /*int mask = 1;
             for (int i=0;i<31;i++) {
                 if ((mask & TerrainBrushOverseer.instance.meshBrushTargetLayers) != 0) {
                     gameObject.layer = i;
                     break;
                 }
                 mask <<= 1;
-            }
+            }*/
+            TerrainBrushOverseer.instance.Bake();
         }
         public void OnDrawGizmos() {
             if (transform.hasChanged) {
@@ -25,7 +24,7 @@ namespace TerrainBrush {
             Gizmos.DrawIcon(transform.position, "ico_meshbrush.png", true);
         }
         public void OnDisable() {
-            TerrainBrushOverseer.instance.activeMeshBrushes.Remove(this);
+            TerrainBrushOverseer.instance.Bake();
         }
     }
 }

@@ -15,7 +15,6 @@ namespace TerrainBrush {
         [SerializeField] private int chunks=4;
         //[HideInInspector]
         public int chunkID=0;
-        [SerializeField] private Material material;
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
         private int generateTimer;
@@ -149,7 +148,6 @@ namespace TerrainBrush {
             mesh.uv = uvs.ToArray();
             mesh.RecalculateNormals();
             meshFilter.mesh=mesh;
-            meshRenderer.sharedMaterial=material;
         }
 
 #endif

@@ -13,6 +13,7 @@ using UnityEditor;
 namespace TerrainBrush {
     public class TerrainBrushOverseer : MonoBehaviour {
         public LayerMask meshBrushTargetLayers;
+        public GameObject terrainWrapPrefab;
         private static TerrainBrushOverseer _instance;
         public static TerrainBrushOverseer instance {
             get {
@@ -113,6 +114,10 @@ namespace TerrainBrush {
         }
         public CommandBuffer GenerateDepthNormals() {
             CommandBuffer cmd = new CommandBuffer();
+            // If these are null, then we have nothing to draw, so we just return.
+            if (volume == null || volume.texture == null) {
+                return cmd;
+            }
             RenderTargetHandle temporaryTexture = new RenderTargetHandle();
             temporaryTexture.Init("_TerrainBrushDepthNormalGenerate");
             cmd.GetTemporaryRT(temporaryTexture.id, volume.texture.width, volume.texture.height, 0, FilterMode.Bilinear, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat, 1, false, RenderTextureMemoryless.None, false);
@@ -147,14 +152,6 @@ namespace TerrainBrush {
             GenerateTexture(cmd);
         }
         public void GenerateTexture(CommandBuffer cmd) {
-            // Editor crashes on load because OnValidate can get called while the editor isn't ready.
-            if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
-                return;
-            }
-            if (!SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
-                return;
-            }
-
             List<Brush> activeBrushes = new List<Brush>(UnityEngine.Object.FindObjectsOfType<Brush>());
             // Calculate bounds
             if (activeBrushes.Count == 0) {
@@ -217,7 +214,24 @@ namespace TerrainBrush {
         }
         [ContextMenu("Generate Mesh")]
         public void GenerateMesh() {
-            GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
+            //GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
+            // If our terrainwrap is null, we'll just auto generate it. This is because we cannot edit materials or prefabs within a package, that's illegal!
+            if (terrainWrapPrefab == null) {
+                GameObject originalPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
+                Material originalMaterial = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath("ad5bce9faf2a3d04a9048b1c7606615d"));
+                Scene activeScene = SceneManager.GetActiveScene();
+                Assert.IsTrue(activeScene.IsValid());
+
+                string matPath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolumeTerrainMat"+activeScene.name+".mat";
+                AssetDatabase.CreateAsset(Material.Instantiate(originalMaterial), matPath);
+                Material instanceMaterial = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+
+                GameObject instance = GameObject.Instantiate(originalPrefab);
+                string assetPath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolumeTerrainWrap"+activeScene.name+".prefab";
+                instance.GetComponent<MeshRenderer>().sharedMaterial = instanceMaterial;
+                PrefabUtility.SaveAsPrefabAsset(instance, assetPath);
+                terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+            }
             for (int i=0; i<activeTerrainWraps.Count; i++) {
                 if (activeTerrainWraps[i]==null) {
                     activeTerrainWraps.RemoveAt(i);

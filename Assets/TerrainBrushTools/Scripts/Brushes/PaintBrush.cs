@@ -30,6 +30,9 @@ namespace TerrainBrush {
         public Mesh renderMesh;
         public override Bounds brushBounds {
             get {
+                if ( renderMesh == null ){
+                    return new Bounds();
+                }
                 // FIXME: Bounds are meant to be axis aligned, though meshes can just be transformed like whatever.
                 // There's probably a helper function to transform local bounds into world bounds, but here's my crappy solution anyway.
                 Vector3 minPoint = transform.TransformPoint(renderMesh.bounds.min);

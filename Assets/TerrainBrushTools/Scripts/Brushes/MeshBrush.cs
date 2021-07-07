@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace TerrainBrush {
     public class MeshBrush : MonoBehaviour {
+        #if UNITY_EDITOR
         public void OnEnable() {
         // This probably shouldn't happen without the user knowing.
             /*int mask = 1;
@@ -26,5 +27,6 @@ namespace TerrainBrush {
         public void OnDisable() {
             TerrainBrushOverseer.instance.Bake();
         }
+        #endif
     }
 }

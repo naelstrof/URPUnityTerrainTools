@@ -7,6 +7,7 @@ using UnityEngine.Rendering.Universal;
 namespace TerrainBrush {
     // Made to be inherited.
     public class PaintBrush : Brush {
+        #if UNITY_EDITOR
         public Material renderMaterial;
         public Color color = Color.white;
         public Mesh renderMesh;
@@ -49,5 +50,6 @@ namespace TerrainBrush {
             Gizmos.color = renderMaterial.color;
             Gizmos.DrawWireMesh(renderMesh, 0, Vector3.zero, Quaternion.identity, Vector3.one);
         }
+        #endif
     }
 }

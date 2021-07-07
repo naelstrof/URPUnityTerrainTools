@@ -224,7 +224,6 @@ namespace TerrainBrush {
                     newTerrainWrapObject.transform.parent = transform;
                     activeTerrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                 }
-                activeTerrainWraps[i].transform.parent = transform;
                 activeTerrainWraps[i].SetChunkID(i);
             }
         }

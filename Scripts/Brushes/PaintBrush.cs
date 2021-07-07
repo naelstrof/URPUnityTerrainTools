@@ -7,6 +7,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace TerrainBrush {
     // Made to be inherited.
+    [ExecuteInEditMode]
     public class PaintBrush : Brush {
         #if UNITY_EDITOR
         private static string gizmoName = "ico_brush.png";
@@ -60,7 +61,7 @@ namespace TerrainBrush {
             if (renderMesh == null || renderMaterial == null) {
                 return;
             }
-            TerrainBrushOverseer.instance.Bake();
+            TerrainBrushOverseer.instance?.Bake();
         }
         public void OnDrawGizmosSelected() {
             if (renderMesh == null || renderMaterial == null) {

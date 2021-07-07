@@ -4,6 +4,7 @@ using System.Reflection;
 using UnityEngine;
 
 namespace TerrainBrush {
+    [ExecuteInEditMode]
     public class MeshBrush : MonoBehaviour {
         #if UNITY_EDITOR
         private static string gizmoName = "ico_meshbrush.png";
@@ -32,17 +33,17 @@ namespace TerrainBrush {
                 }
                 mask <<= 1;
             }*/
-            TerrainBrushOverseer.instance.Bake();
+            TerrainBrushOverseer.instance?.Bake();
         }
         public void OnDrawGizmos() {
             if (transform.hasChanged) {
-                TerrainBrushOverseer.instance.Bake();
+                TerrainBrushOverseer.instance?.Bake();
                 transform.hasChanged = false;
             }
             Gizmos.DrawIcon(transform.position, gizmoPath, true);
         }
         public void OnDisable() {
-            TerrainBrushOverseer.instance.Bake();
+            TerrainBrushOverseer.instance?.Bake();
         }
         #endif
     }

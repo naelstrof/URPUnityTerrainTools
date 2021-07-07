@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace TerrainBrush {
+    [ExecuteInEditMode]
     public class PathBrush : Brush {
         #if UNITY_EDITOR
         public Color colorMask;
@@ -133,7 +134,7 @@ namespace TerrainBrush {
                 }
                 line.SetPosition(currentPoint++, JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, 1f));
             }
-            TerrainBrushOverseer.instance.Bake();
+            TerrainBrushOverseer.instance?.Bake();
         }
         public override void OnDrawGizmos() {
             base.OnDrawGizmos();

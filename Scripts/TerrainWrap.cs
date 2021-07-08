@@ -69,6 +69,7 @@ namespace TerrainBrush {
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
+            mesh.name="GeneratedSceneMesh";
             List<Vector3> surfaceLattice = new List<Vector3>();
             for (int indexY=-2; indexY<resolution+3; indexY++) {
                 for (int indexX=-2; indexX<resolution+3; indexX++) {
@@ -180,6 +181,10 @@ namespace TerrainBrush {
             mesh.uv2 = uv2.ToArray();
             //mesh.RecalculateNormals();
             meshFilter.mesh=mesh;
+
+            MeshCollider meshCollider = GetComponent<MeshCollider>();
+            if (meshCollider==null) meshCollider = gameObject.AddComponent<MeshCollider>();
+            meshCollider.sharedMesh=mesh;
         }
 
 #endif

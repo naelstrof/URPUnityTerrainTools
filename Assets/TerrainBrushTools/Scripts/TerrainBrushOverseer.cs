@@ -16,6 +16,8 @@ namespace TerrainBrush {
         public LayerMask meshBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
+        [Range(2,16)]
+        public int chunkSizeSquared = 3;
         private static TerrainBrushOverseer _instance;
         public static TerrainBrushOverseer instance {
             get {
@@ -65,8 +67,7 @@ namespace TerrainBrush {
         private BakeState currentState = BakeState.Idle;
         public TerrainBrushVolume volume = new TerrainBrushVolume();
 
-        [HideInInspector]
-        public List<TerrainWrap> activeTerrainWraps = new List<TerrainWrap>();
+        private List<TerrainWrap> activeTerrainWraps = new List<TerrainWrap>();
 
         public float pixelPadding = 1f;
         public int texturePowSize = 10;
@@ -78,6 +79,13 @@ namespace TerrainBrush {
             AssetDatabase.CreateAsset (texture, texturePath);
             AssetDatabase.SaveAssets();
             return texture;
+        }
+        public void Start() {
+            foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
+                if (!activeTerrainWraps.Contains(t)) {
+                    activeTerrainWraps.Add(t);
+                }
+            }
         }
         private void BakeTick() {
             if (Application.isPlaying) {
@@ -263,13 +271,20 @@ namespace TerrainBrush {
             //GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
             Assert.IsTrue(terrainWrapPrefab != null);
             Assert.IsTrue(terrainMaterial != null);
+            int numChunks = chunkSizeSquared*chunkSizeSquared;
             for (int i=0; i<activeTerrainWraps.Count; i++) {
                 if (activeTerrainWraps[i]==null) {
                     activeTerrainWraps.RemoveAt(i);
                     i--;
+                    continue;
+                }
+                if (i>=numChunks) {
+                    DestroyImmediate(activeTerrainWraps[i].gameObject);
+                    activeTerrainWraps.RemoveAt(i);
+                    i--;
                 }
             }
-            if (activeTerrainWraps.Count<64) {
+            if (activeTerrainWraps.Count<numChunks) {
                 foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
                     if (!activeTerrainWraps.Contains(t)) {
                         activeTerrainWraps.Add(t);
@@ -279,14 +294,14 @@ namespace TerrainBrush {
             // If we've recently baked, we'll have a non-render texture in this slot. So we update it.
             terrainMaterial.SetTexture("_BlendMap", volume.texture);
             activeTerrainWraps.Sort((a,b)=>(a.chunkID.CompareTo(b.chunkID)));
-            for (int i=0;i<64;i++) {
+            for (int i=0;i<numChunks;i++) {
                 if (activeTerrainWraps.Count<=i) {
                     GameObject newTerrainWrapObject = GameObject.Instantiate(terrainWrapPrefab, Vector3.zero, Quaternion.identity);
                     newTerrainWrapObject.transform.parent = transform;
                     activeTerrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                 }
                 activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
-                activeTerrainWraps[i].SetChunkID(i);
+                activeTerrainWraps[i].SetChunkID(i, chunkSizeSquared);
             }
         }
         public void OnValidate() {

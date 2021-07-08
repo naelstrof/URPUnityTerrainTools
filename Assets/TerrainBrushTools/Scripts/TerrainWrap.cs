@@ -120,7 +120,7 @@ namespace TerrainBrush {
                 for (int indexX=0; indexX<resolution+1; indexX++) {
                     Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*(resolution+1)+indexX]));
                     uv.Add(new Vector2(texPoint.x, texPoint.y));
-                    uv2.Add(new Vector2(indexX/resolution, indexY/resolution));
+                    uv2.Add(new Vector2((float)indexX/(float)resolution, (float)indexY/(float)resolution));
                 }
             }
             List<int> triangles = new List<int>();

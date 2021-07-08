@@ -181,12 +181,12 @@ namespace TerrainBrush {
             mesh.uv2 = uv2.ToArray();
             //mesh.RecalculateNormals();
             meshFilter.mesh=mesh;
+            mesh.RecalculateBounds();
 
             MeshCollider meshCollider = GetComponent<MeshCollider>();
             if (meshCollider==null) meshCollider = gameObject.AddComponent<MeshCollider>();
             meshCollider.sharedMesh=mesh;
         }
-
 #endif
     }
 

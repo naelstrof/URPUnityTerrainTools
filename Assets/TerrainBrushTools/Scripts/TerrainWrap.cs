@@ -67,30 +67,37 @@ namespace TerrainBrush {
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
-            List<Vector3> vertices = new List<Vector3>();
-            List<Vector3> normals = new List<Vector3>();
-            for (int indexY=0; indexY<resolution+1; indexY++) {
-                for (int indexX=0; indexX<resolution+1; indexX++) {
+            List<Vector3> surfaceLattice = new List<Vector3>();
+            for (int indexY=-1; indexY<resolution+3; indexY++) {
+                for (int indexX=1; indexX<resolution+3; indexX++) {
                     RaycastHit hit;
                     float chunkX=(chunkID%chunks)*size/chunks;
                     float chunkY=Mathf.Floor(chunkID/chunks)*size/chunks;
                     Vector3 point = new Vector3(indexX * (size/chunks)/resolution + chunkX, 0, indexY * (size/chunks)/resolution + chunkY);
                     if (Physics.Raycast(transform.TransformPoint(point)+Vector3.up*encapsulatedBounds.size.y, -Vector3.up, out hit, encapsulatedBounds.size.y, TerrainBrushOverseer.instance.meshBrushTargetLayers)) {
-                        //y = Mathf.Max(0f, y);
                         float y = transform.InverseTransformPoint(hit.point).y;
-                        vertices.Add(new Vector3(point.x, y, point.z));
-                        normals.Add(hit.normal);
+                        surfaceLattice.Add(new Vector3(point.x, y, point.z));
                     } else {
-                        vertices.Add(point-Vector3.up*encapsulatedBounds.extents.y);
-                        normals.Add(Vector3.up);
+                        surfaceLattice.Add(point-Vector3.up*encapsulatedBounds.extents.y);
                     }
                 }
             }
+            List<Vector3> vertices = new List<Vector3>();
+            List<Vector3> normals = new List<Vector3>();
+            for (int indexY=0; indexY<resolution+1; indexY++) {
+                for (int indexX=0; indexX<resolution+1; indexX++) {
+                    int myIndex=(indexX+1)+(indexY+1)*(resolution+2);
+                    vertices.Add(surfaceLattice[myIndex]);
+                    normals.Add(Vector3.up);
+                }
+            }
             List<Vector2> uvs = new List<Vector2>();
+            List<Vector2> uv2s = new List<Vector2>();
             for (int indexY=0; indexY<resolution+1; indexY++) {
                 for (int indexX=0; indexX<resolution+1; indexX++) {
                     Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*(resolution+1)+indexX]));
                     uvs.Add(new Vector2(texPoint.x, texPoint.y));
+                    uv2s.Add(new Vector2(indexX/resolution, indexY/resolution));
                 }
             }
             List<int> tris = new List<int>();
@@ -131,6 +138,7 @@ namespace TerrainBrush {
                     vertices.RemoveAt(cullIndex);
                     normals.RemoveAt(cullIndex);
                     uvs.RemoveAt(cullIndex);
+                    uv2s.RemoveAt(cullIndex);
                     vertCull.RemoveAt(cullIndex);
                 } else {
                     cullIndex++;
@@ -147,6 +155,7 @@ namespace TerrainBrush {
             mesh.triangles = tris.ToArray();
             mesh.normals = normals.ToArray();
             mesh.uv = uvs.ToArray();
+            mesh.uv2 = uv2s.ToArray();
             mesh.RecalculateNormals();
             meshFilter.mesh=mesh;
         }

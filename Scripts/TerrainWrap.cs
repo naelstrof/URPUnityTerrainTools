@@ -61,15 +61,17 @@ namespace TerrainBrush {
             transform.position=encapsulatedBounds.min;
             transform.rotation=Quaternion.identity;
             size=Mathf.Max(encapsulatedBounds.size.x, encapsulatedBounds.size.z);
-
+            // BLOOD SACRIFICES WERE MADE FOR THIS
+            // NEVER TOUCH IT AGAIN
+            // THIS MAGIC HAS BEEN LOST TO TIME
             if (gameObject.GetComponent<MeshFilter>()==null) meshFilter=gameObject.AddComponent<MeshFilter>();
             if (gameObject.GetComponent<MeshRenderer>()==null) meshRenderer=gameObject.AddComponent<MeshRenderer>();
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             List<Vector3> surfaceLattice = new List<Vector3>();
-            for (int indexY=-1; indexY<resolution+3; indexY++) {
-                for (int indexX=1; indexX<resolution+3; indexX++) {
+            for (int indexY=-2; indexY<resolution+3; indexY++) {
+                for (int indexX=-2; indexX<resolution+3; indexX++) {
                     RaycastHit hit;
                     float chunkX=(chunkID%chunks)*size/chunks;
                     float chunkY=Mathf.Floor(chunkID/chunks)*size/chunks;
@@ -82,49 +84,69 @@ namespace TerrainBrush {
                     }
                 }
             }
+            List<Vector3> surfaceLatticeSmooth = new List<Vector3>(surfaceLattice);
+            for (int indexY=0; indexY<resolution+3; indexY++) {
+                for (int indexX=0; indexX<resolution+3; indexX++) {
+                    Vector3 smoothedPoint=surfaceLattice[(indexX+0)+(indexY+1)*(resolution+5)];
+                    smoothedPoint+=surfaceLattice[(indexX+2)+(indexY+1)*(resolution+5)];
+                    smoothedPoint+=surfaceLattice[(indexX+1)+(indexY+0)*(resolution+5)];
+                    smoothedPoint+=surfaceLattice[(indexX+1)+(indexY+2)*(resolution+5)];
+                    smoothedPoint+=surfaceLattice[(indexX+0)+(indexY+0)*(resolution+5)];
+                    smoothedPoint+=surfaceLattice[(indexX+2)+(indexY+0)*(resolution+5)];
+                    smoothedPoint+=surfaceLattice[(indexX+0)+(indexY+2)*(resolution+5)];
+                    smoothedPoint+=surfaceLattice[(indexX+2)+(indexY+2)*(resolution+5)];
+                    smoothedPoint/=8f;
+                    surfaceLatticeSmooth[(indexX+1)+(indexY+1)*(resolution+5)]=smoothedPoint;
+                }
+            }
             List<Vector3> vertices = new List<Vector3>();
             List<Vector3> normals = new List<Vector3>();
             for (int indexY=0; indexY<resolution+1; indexY++) {
                 for (int indexX=0; indexX<resolution+1; indexX++) {
-                    int myIndex=(indexX+1)+(indexY+1)*(resolution+2);
-                    vertices.Add(surfaceLattice[myIndex]);
-                    normals.Add(Vector3.up);
+                    int myIndex=(indexX+2)+(indexY+2)*(resolution+5);
+                    vertices.Add(surfaceLatticeSmooth[myIndex]);
+                    Vector3 myNormal=Vector3.zero;
+                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex-(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex-1]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex-1]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex+(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex+(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex+1]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex+1]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex-(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    normals.Add(myNormal.normalized);
                 }
             }
-            List<Vector2> uvs = new List<Vector2>();
-            List<Vector2> uv2s = new List<Vector2>();
+            List<Vector2> uv = new List<Vector2>();
+            List<Vector2> uv2 = new List<Vector2>();
             for (int indexY=0; indexY<resolution+1; indexY++) {
                 for (int indexX=0; indexX<resolution+1; indexX++) {
                     Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*(resolution+1)+indexX]));
-                    uvs.Add(new Vector2(texPoint.x, texPoint.y));
-                    uv2s.Add(new Vector2(indexX/resolution, indexY/resolution));
+                    uv.Add(new Vector2(texPoint.x, texPoint.y));
+                    uv2.Add(new Vector2(indexX/resolution, indexY/resolution));
                 }
             }
-            List<int> tris = new List<int>();
+            List<int> triangles = new List<int>();
             float lowerBound = 0f;
             for (int indexY=0; indexY<resolution; indexY++) {
                 for (int indexX=0;indexX<resolution;indexX++) {
                     if (Vector3.Distance(vertices[indexX+indexY*(resolution+1)], vertices[indexX+1+(indexY+1)*(resolution+1)])>Vector3.Distance(vertices[indexX+1+indexY*(resolution+1)], vertices[indexX+(indexY+1)*(resolution+1)])) {
                         if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
-                            tris.Add(indexX+indexY*(resolution+1));
-                            tris.Add(indexX+(indexY+1)*(resolution+1));
-                            tris.Add(indexX+1+indexY*(resolution+1));
+                            triangles.Add(indexX+indexY*(resolution+1));
+                            triangles.Add(indexX+(indexY+1)*(resolution+1));
+                            triangles.Add(indexX+1+indexY*(resolution+1));
                         }
                         if (vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
-                            tris.Add(indexX+(indexY+1)*(resolution+1));
-                            tris.Add(indexX+1+(indexY+1)*(resolution+1));
-                            tris.Add(indexX+1+indexY*(resolution+1));
+                            triangles.Add(indexX+(indexY+1)*(resolution+1));
+                            triangles.Add(indexX+1+(indexY+1)*(resolution+1));
+                            triangles.Add(indexX+1+indexY*(resolution+1));
                         }
                     } else {
                         if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
-                            tris.Add(indexX+indexY*(resolution+1));
-                            tris.Add(indexX+1+(indexY+1)*(resolution+1));
-                            tris.Add(indexX+1+indexY*(resolution+1));
+                            triangles.Add(indexX+indexY*(resolution+1));
+                            triangles.Add(indexX+1+(indexY+1)*(resolution+1));
+                            triangles.Add(indexX+1+indexY*(resolution+1));
                         }
                         if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound) {
-                            tris.Add(indexX+indexY*(resolution+1));
-                            tris.Add(indexX+(indexY+1)*(resolution+1));
-                            tris.Add(indexX+1+(indexY+1)*(resolution+1));
+                            triangles.Add(indexX+indexY*(resolution+1));
+                            triangles.Add(indexX+(indexY+1)*(resolution+1));
+                            triangles.Add(indexX+1+(indexY+1)*(resolution+1));
                         }
                     }
                 }
@@ -137,8 +159,8 @@ namespace TerrainBrush {
                 if (vertices[cullIndex].y<=lowerBound) {
                     vertices.RemoveAt(cullIndex);
                     normals.RemoveAt(cullIndex);
-                    uvs.RemoveAt(cullIndex);
-                    uv2s.RemoveAt(cullIndex);
+                    uv.RemoveAt(cullIndex);
+                    uv2.RemoveAt(cullIndex);
                     vertCull.RemoveAt(cullIndex);
                 } else {
                     cullIndex++;
@@ -148,15 +170,15 @@ namespace TerrainBrush {
             List<int> vertLookup = new List<int>();
             for (int i=0;i<(resolution+1)*(resolution+1);i++) vertLookup.Add(0);
             for (int i=0;i<vertCull.Count;i++) vertLookup[vertCull[i]]=i;
-            for (int i=0;i<tris.Count;i++) {
-                tris[i]=vertLookup[tris[i]];
+            for (int i=0;i<triangles.Count;i++) {
+                triangles[i]=vertLookup[triangles[i]];
             }
             mesh.vertices = vertices.ToArray();
-            mesh.triangles = tris.ToArray();
+            mesh.triangles = triangles.ToArray();
             mesh.normals = normals.ToArray();
-            mesh.uv = uvs.ToArray();
-            mesh.uv2 = uv2s.ToArray();
-            mesh.RecalculateNormals();
+            mesh.uv = uv.ToArray();
+            mesh.uv2 = uv2.ToArray();
+            //mesh.RecalculateNormals();
             meshFilter.mesh=mesh;
         }
 

@@ -65,14 +65,7 @@ namespace TerrainBrush {
             cmd.GetTemporaryRT(temporaryTextureB.id, volume.texture.width, volume.texture.height, 0, FilterMode.Point, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat, 1, true, RenderTextureMemoryless.None, false);
             cmd.SetRenderTarget(temporaryTextureA.id);
             cmd.ClearRenderTarget(true, true, Color.white);
-            Mesh tempMesh = new Mesh();
-            // Line renderer needs a camera to bake for somereason???
-            Camera cam = new GameObject("TempCamera", new System.Type[]{typeof(Camera)}).GetComponent<Camera>();
-            cam.worldToCameraMatrix = view.inverse;
-            cam.projectionMatrix = projection;
-            line.BakeMesh(tempMesh, cam, true);
-            DestroyImmediate(cam.gameObject);
-            cmd.DrawMesh(tempMesh, Matrix4x4.identity, line.sharedMaterials[0], 0, 0);
+            cmd.DrawRenderer(line, line.sharedMaterials[0],0,0);
 
             // Run a compute shader to run the eikonal equation over and over to generate a 2D unsigned SDF.
             // This compute shader outputs a pure "pixel distance" distance as a signed 32 bit float in the red channel.

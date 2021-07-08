@@ -20,7 +20,7 @@ namespace TerrainBrush {
         private int generateTimer;
         [HideInInspector]
         public bool generated=false;
-        public void SetChunkID(int value, int chunks) { chunkID=value; this.chunks = chunks; generateTimer=value; generated=false; }
+        public void SetChunkID(int value, int chunks, int resolution) { chunkID=value; this.chunks = chunks; this.resolution = resolution; generateTimer=value; generated=false; }
 
 #if UNITY_EDITOR
 		void OnEnable() {

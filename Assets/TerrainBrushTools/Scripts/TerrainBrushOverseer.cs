@@ -17,7 +17,9 @@ namespace TerrainBrush {
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
         [Range(2,16)]
-        public int chunkSizeSquared = 3;
+        public int chunkSizeSquared = 8;
+        [Range(2,6)]
+        public int resolutionPow = 4;
         private static TerrainBrushOverseer _instance;
         public static TerrainBrushOverseer instance {
             get {
@@ -301,7 +303,7 @@ namespace TerrainBrush {
                     activeTerrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                 }
                 activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
-                activeTerrainWraps[i].SetChunkID(i, chunkSizeSquared);
+                activeTerrainWraps[i].SetChunkID(i, chunkSizeSquared, 1<<resolutionPow);
             }
         }
         public void OnValidate() {

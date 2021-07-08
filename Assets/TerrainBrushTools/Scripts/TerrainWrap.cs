@@ -174,6 +174,16 @@ namespace TerrainBrush {
             for (int i=0;i<triangles.Count;i++) {
                 triangles[i]=vertLookup[triangles[i]];
             }
+            // MOVE ORIGIN TO CENTER
+            float averageY = 0f;
+            if (vertices.Count>0) {
+                for (int i=0;i<vertices.Count;i++) averageY+=vertices[i].y+transform.position.y;
+                averageY/=vertices.Count;
+            }
+            Vector3 offset=new Vector3((chunkID%chunks+0.5f)*size/chunks + encapsulatedBounds.min.x, averageY, (Mathf.Floor(chunkID/chunks)+0.5f)*size/chunks + encapsulatedBounds.min.z)-transform.position;
+            for (int i=0;i<vertices.Count;i++) vertices[i]-=offset;
+            transform.position+=offset;
+
             mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();
             mesh.normals = normals.ToArray();

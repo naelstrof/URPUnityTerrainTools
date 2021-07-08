@@ -32,7 +32,7 @@ namespace TerrainBrush {
         }
         public override Bounds brushBounds {
             get {
-                if (transform.childCount <= 0 || factors.Count <= 0 || transform.childCount <= 2) {
+                if (transform.childCount <= 0 || factors == null || factors.Count <= 0 || transform.childCount <= 2) {
                     return new Bounds();
                 }
                 List<Transform> pathNodes = new List<Transform>();

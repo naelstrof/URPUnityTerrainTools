@@ -152,7 +152,32 @@ namespace TerrainBrush {
             cmd.SetGlobalTexture("_TerrainBrushDepthNormal", temporaryTexture.id);
             return cmd;
         }
-        [MenuItem("TerrainBrush/Finalize Texture")]
+        [MenuItem("Tools/TerrainBrush/New Path Brush")]
+        private static void NewPathBrush() {
+            string findPath = Path.GetDirectoryName(SceneManager.GetActiveScene().path)+"/PathBrush.prefab";
+            GameObject tempPathObj = AssetDatabase.LoadAssetAtPath<GameObject>(findPath);
+            if (tempPathObj == null) {
+                GameObject pathObj = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("9caf7ba2c57f48f4ea061249fed87358"));
+                GameObject pathObjInstance = GameObject.Instantiate(pathObj);
+                PrefabUtility.SaveAsPrefabAsset(pathObjInstance, findPath);
+                tempPathObj = AssetDatabase.LoadAssetAtPath<GameObject>(findPath);
+            }
+            PrefabUtility.InstantiatePrefab(tempPathObj);
+        }
+
+        [MenuItem("Tools/TerrainBrush/New Mesh Brush")]
+        private static void NewMeshBrush() {
+            string findPath = Path.GetDirectoryName(SceneManager.GetActiveScene().path)+"/MeshBrush.prefab";
+            GameObject tempPathObj = AssetDatabase.LoadAssetAtPath<GameObject>(findPath);
+            if (tempPathObj == null) {
+                GameObject pathObj = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("df565f2ee7110db45a9212d73d3fb46e"));
+                GameObject pathObjInstance = GameObject.Instantiate(pathObj);
+                PrefabUtility.SaveAsPrefabAsset(pathObjInstance, findPath);
+                tempPathObj = AssetDatabase.LoadAssetAtPath<GameObject>(findPath);
+            }
+            PrefabUtility.InstantiatePrefab(tempPathObj);
+        }
+        [MenuItem("Tools/TerrainBrush/Finalize Texture")]
         private static void FinalizeTexture() {
             Texture2D outputTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, true, true);
             RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;

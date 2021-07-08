@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -31,7 +32,7 @@ namespace TerrainBrush {
         }
         public override Bounds brushBounds {
             get {
-                if (transform.childCount <= 0) {
+                if (transform.childCount <= 0 || factors.Count <= 0 || transform.childCount <= 2) {
                     return new Bounds();
                 }
                 List<Transform> pathNodes = new List<Transform>();
@@ -65,7 +66,14 @@ namespace TerrainBrush {
             cmd.GetTemporaryRT(temporaryTextureB.id, volume.texture.width, volume.texture.height, 0, FilterMode.Point, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat, 1, true, RenderTextureMemoryless.None, false);
             cmd.SetRenderTarget(temporaryTextureA.id);
             cmd.ClearRenderTarget(true, true, Color.white);
-            cmd.DrawRenderer(line, line.sharedMaterials[0],0,0);
+            Mesh tempMesh = new Mesh();
+            // Line renderer needs a camera to bake for somereason???
+            Camera cam = new GameObject("TempCamera", new System.Type[]{typeof(Camera)}).GetComponent<Camera>();
+            cam.worldToCameraMatrix = view.inverse;
+            cam.projectionMatrix = projection;
+            line.BakeMesh(tempMesh, cam, true);
+            DestroyImmediate(cam.gameObject);
+            cmd.DrawMesh(tempMesh, Matrix4x4.identity, line.sharedMaterials[0], 0, 0);
 
             // Run a compute shader to run the eikonal equation over and over to generate a 2D unsigned SDF.
             // This compute shader outputs a pure "pixel distance" distance as a signed 32 bit float in the red channel.
@@ -94,6 +102,10 @@ namespace TerrainBrush {
         }
 
         public void OnValidate() {
+            GameObject prefab = PrefabUtility.GetCorrespondingObjectFromSource<GameObject>(gameObject);
+            if (AssetDatabase.GUIDFromAssetPath(AssetDatabase.GetAssetPath(prefab)) == new GUID("9caf7ba2c57f48f4ea061249fed87358")) {
+                Debug.LogError("Please don't directly use the path prefab from the package, this can cause internal corruption! Use Tools/TerrainBrush/New Path Brush instead.", gameObject);
+            }
             if (line == null) {
                 GameObject gameObjectLine = new GameObject("PathLineRenderer", new System.Type[]{typeof(LineRenderer)});
                 gameObjectLine.transform.parent = transform;

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
-  m_Name: UnpackDepthNormals
+  m_Name: UnpackNormals
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18910\n182;269;1675;656;834.5;325;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-463.5,-63;Inherit;False;Input;5;0;False;1;0;COLOR;0,0,0,0;False;1;COLOR;0\nNode;AmplifyShaderEditor.SwizzleNode;4;-215.5,24;Inherit;False;FLOAT;3;1;2;3;1;0;COLOR;0,0,0,0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SwizzleNode;2;-220.5,-108;Inherit;False;FLOAT3;0;1;2;3;1;0;COLOR;0,0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.FunctionOutput;0;109,-74;Inherit;False;True;-1;Normal;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.FunctionOutput;3;87.5,40;Inherit;False;False;-1;Depth;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;4;0;1;0\nWireConnection;2;0;1;0\nWireConnection;0;0;2;0\nWireConnection;3;0;4;0\nASEEND*/\n//CHKSM=B46A3ECD0570F8A8913A592FF712C7E7C492E131"
+    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18910\n157;335;1675;1029;931.5;361.5;1;True;False\nNode;AmplifyShaderEditor.SwizzleNode;2;-241.5,-169;Inherit;False;FLOAT3;0;1;2;3;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.TFHCRemapNode;7;1.5,-181.5;Inherit;False;5;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;1,1,1;False;3;FLOAT3;-1,-1,-1;False;4;FLOAT3;1,1,1;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.FunctionInput;1;-451.5,-170;Inherit;False;Input;3;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.FunctionOutput;0;400,-153;Inherit;False;True;-1;Normal;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nWireConnection;2;0;1;0\nWireConnection;7;0;2;0\nWireConnection;0;0;7;0\nASEEND*/\n//CHKSM=C6B1AD6EC8C00272E4AB21671380B2416847482C"
   m_functionName: 
   m_description: 
   m_additionalIncludes:

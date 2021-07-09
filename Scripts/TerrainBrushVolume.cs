@@ -54,6 +54,8 @@ namespace TerrainBrush {
         public Bounds bounds { get => internalBounds; }
         public Matrix4x4 textureToWorld {get => internalTextureToWorld;}
         public RenderTexture texture;
+        public RenderTexture normals;
+        public RenderTexture depth;
         public Vector3 position { 
             get { return textureToWorld.MultiplyPoint(new Vector4(0f,0f,0f,1f)); }
         }

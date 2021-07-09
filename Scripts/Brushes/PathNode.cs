@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace TerrainBrush {
     public class PathNode : MonoBehaviour {
+        #if UNITY_EDITOR
         private static string gizmoName = "ico_pathnode.png";
         private string internalGizmoPath = "";
         private string gizmoPath { 
@@ -24,5 +25,6 @@ namespace TerrainBrush {
         public void OnDrawGizmos() {
             Gizmos.DrawIcon(transform.position, gizmoPath, true);
         }
+        #endif
     }
 }

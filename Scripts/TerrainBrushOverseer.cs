@@ -10,9 +10,12 @@ using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
+#endif
 namespace TerrainBrush {
     [ExecuteInEditMode]
     public class TerrainBrushOverseer : MonoBehaviour {
+        [SerializeField, HideInInspector]
+        private bool locked = false;
         public LayerMask meshBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
@@ -44,11 +47,6 @@ namespace TerrainBrush {
             TextureGeneration,
             Finished,
         }
-        public void OnEnable() {
-            if (instance != this && instance != null) {
-                DestroyImmediate(gameObject);
-            }
-        }
         // Generate our projection/view matrix
         public Matrix4x4 projection {
             get {
@@ -73,11 +71,38 @@ namespace TerrainBrush {
 
         public float pixelPadding = 1f;
         public int texturePowSize = 10;
-        private RenderTexture GetTexture() {
+        public void OnEnable() {
+            if (instance != this && instance != null) {
+                DestroyImmediate(gameObject);
+            }
+            if (volume != null) {
+                Shader.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
+            }
+        }
+#if UNITY_EDITOR
+        private RenderTexture GetNewTexture() {
             Scene activeScene = SceneManager.GetActiveScene();
             Assert.IsTrue(activeScene.IsValid());
             RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm);
             string texturePath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolume"+activeScene.name+".renderTexture";
+            AssetDatabase.CreateAsset (texture, texturePath);
+            AssetDatabase.SaveAssets();
+            return texture;
+        }
+        private RenderTexture GetNewNormalsTexture() {
+            Scene activeScene = SceneManager.GetActiveScene();
+            Assert.IsTrue(activeScene.IsValid());
+            RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
+            string texturePath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolumeNormals"+activeScene.name+".renderTexture";
+            AssetDatabase.CreateAsset (texture, texturePath);
+            AssetDatabase.SaveAssets();
+            return texture;
+        }
+        private RenderTexture GetNewDepthTexture() {
+            Scene activeScene = SceneManager.GetActiveScene();
+            Assert.IsTrue(activeScene.IsValid());
+            RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
+            string texturePath = Path.GetDirectoryName(activeScene.path) + "/TerrainBrushVolumeDepth"+activeScene.name+".renderTexture";
             AssetDatabase.CreateAsset (texture, texturePath);
             AssetDatabase.SaveAssets();
             return texture;
@@ -133,7 +158,7 @@ namespace TerrainBrush {
                 Debug.Log(gameObject + " " + terrainWrapPrefab + " " + terrainMaterial + " " + meshBrushTargetLayers);
                 return;
             }
-            if (EditorApplication.isCompiling || EditorApplication.isUpdating || Application.isPlaying) {
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating || Application.isPlaying || BuildPipeline.isBuildingPlayer || locked) {
                 return;
             }
             if (!SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
@@ -143,23 +168,43 @@ namespace TerrainBrush {
             EditorApplication.update -= BakeTick;
             EditorApplication.update += BakeTick;
         }
+        private void RenderTerrainMeshWithMaterial(CommandBuffer cmd, RenderTexture outputTexture, Material withMaterial, Color clearColor) {
+            RenderTargetHandle temporaryTexture = new RenderTargetHandle();
+            temporaryTexture.Init("_TerrainBrushNormalGenerate");
+            cmd.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
+            cmd.GetTemporaryRT(temporaryTexture.id, outputTexture.width, outputTexture.height, 0, FilterMode.Bilinear, outputTexture.graphicsFormat, 1, false, RenderTextureMemoryless.None, false);
+            cmd.SetRenderTarget(temporaryTexture.id);
+            cmd.ClearRenderTarget(true, true, clearColor);
+            cmd.SetViewProjectionMatrices(view, projection);
+            foreach(TerrainWrap wrap in activeTerrainWraps) {
+                cmd.DrawMesh(wrap.GetComponent<MeshFilter>().sharedMesh, wrap.transform.localToWorldMatrix, withMaterial);
+            }
+            cmd.Blit(temporaryTexture.id, outputTexture);
+            cmd.ReleaseTemporaryRT(temporaryTexture.id);
+        }
         public CommandBuffer GenerateDepthNormals() {
             CommandBuffer cmd = new CommandBuffer();
             // If these are null, then we have nothing to draw, so we just return.
             if (volume == null || volume.texture == null) {
                 return cmd;
             }
-            RenderTargetHandle temporaryTexture = new RenderTargetHandle();
-            temporaryTexture.Init("_TerrainBrushDepthNormalGenerate");
-            cmd.GetTemporaryRT(temporaryTexture.id, volume.texture.width, volume.texture.height, 0, FilterMode.Bilinear, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat, 1, false, RenderTextureMemoryless.None, false);
-            cmd.SetRenderTarget(temporaryTexture.id);
-            cmd.ClearRenderTarget(true, true, Color.clear);
-            cmd.SetViewProjectionMatrices(view, projection);
-            Material depthNormalMaterial = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath("e193d81be99018543abf37ccc4ba04a6"));
-            foreach(TerrainWrap wrap in activeTerrainWraps) {
-                cmd.DrawMesh(wrap.GetComponent<MeshFilter>().sharedMesh, wrap.transform.localToWorldMatrix, depthNormalMaterial);
+            if ( volume.normals == null || volume.normals.width != 1<<texturePowSize || volume.normals.height != 1<<texturePowSize) {
+                volume.normals = GetNewNormalsTexture();
             }
-            cmd.SetGlobalTexture("_TerrainBrushDepthNormal", temporaryTexture.id);
+            if ( volume.depth == null || volume.depth.width != 1<<texturePowSize || volume.depth.height != 1<<texturePowSize) {
+                volume.depth = GetNewDepthTexture();
+            }
+            Material normalsMaterial = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath("e193d81be99018543abf37ccc4ba04a6"));
+            Material depthMaterial = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath("e71467d04236c064aaed2dfa2df7e7a7"));
+            RenderTerrainMeshWithMaterial(cmd, volume.normals, normalsMaterial, Color.green);
+            cmd.SetGlobalTexture("_TerrainBrushNormals", volume.normals);
+            cmd.SetGlobalTexture("_TerrainBrushDepth", volume.depth);
+            RenderTerrainMeshWithMaterial(cmd, volume.depth, depthMaterial, Color.white);
+            foreach(BlendedBrush b in UnityEngine.Object.FindObjectsOfType<BlendedBrush>()) {
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainBlendMap", volume.texture);
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainDepth", volume.depth);
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainNormals", volume.normals);
+            }
             return cmd;
         }
         [MenuItem("Tools/TerrainBrush/New Path Brush")]
@@ -187,8 +232,9 @@ namespace TerrainBrush {
             }
             PrefabUtility.InstantiatePrefab(tempPathObj);
         }
-        [MenuItem("Tools/TerrainBrush/Finalize Texture")]
+        [MenuItem("Tools/TerrainBrush/Lock Changes")]
         private static void FinalizeTexture() {
+            TerrainBrushOverseer.instance.locked = true;
             Texture2D outputTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, true, true);
             RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;
             outputTexture.ReadPixels(new Rect(0,0,TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height), 0, 0);
@@ -196,9 +242,60 @@ namespace TerrainBrush {
             string filename = Path.GetDirectoryName(TerrainBrushOverseer.instance.gameObject.scene.path) + "/TerrainBrushOutput"+TerrainBrushOverseer.instance.gameObject.scene.name+".png";
             //then Save To Disk as PNG
             File.WriteAllBytes(filename, outputTexture.EncodeToPNG());
+
+            Texture2D outputNormalsTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBAFloat, true, true);
+            RenderTexture.active = TerrainBrushOverseer.instance.volume.normals;
+            //Graphics.Blit(TerrainBrushOverseer.instance.volume.depthNormals,outputDepthTexture);
+            outputNormalsTexture.ReadPixels(new Rect(0,0,TerrainBrushOverseer.instance.volume.normals.width, TerrainBrushOverseer.instance.volume.normals.height), 0, 0);
+            outputNormalsTexture.Apply();
+            string normalsFilename = Path.GetDirectoryName(TerrainBrushOverseer.instance.gameObject.scene.path) + "/TerrainBrushNormalsOutput"+TerrainBrushOverseer.instance.gameObject.scene.name+".exr";
+            File.WriteAllBytes(normalsFilename, outputNormalsTexture.EncodeToEXR(Texture2D.EXRFlags.OutputAsFloat));
+
+            Texture2D outputDepthTexture = new Texture2D(TerrainBrushOverseer.instance.volume.depth.width, TerrainBrushOverseer.instance.volume.depth.height, TextureFormat.RFloat, true, true);
+            RenderTexture.active = TerrainBrushOverseer.instance.volume.depth;
+            outputDepthTexture.ReadPixels(new Rect(0,0,TerrainBrushOverseer.instance.volume.depth.width, TerrainBrushOverseer.instance.volume.depth.height), 0, 0);
+            outputDepthTexture.Apply();
+            string depthFilename = Path.GetDirectoryName(TerrainBrushOverseer.instance.gameObject.scene.path) + "/TerrainBrushDepthOutput"+TerrainBrushOverseer.instance.gameObject.scene.name+".png";
+            //then Save To Disk as PNG
+            File.WriteAllBytes(depthFilename, outputDepthTexture.EncodeToEXR(Texture2D.EXRFlags.OutputAsFloat));
+
             UnityEditor.AssetDatabase.Refresh();
+            TextureImporter importer = (TextureImporter)TextureImporter.GetAtPath( filename );
+            importer.sRGBTexture = false;
+            importer.mipmapEnabled = false;
+            EditorUtility.SetDirty(importer);
+            importer.SaveAndReimport();
+
+            TextureImporter normalImporter = (TextureImporter)TextureImporter.GetAtPath( normalsFilename );
+            normalImporter.sRGBTexture = false;
+            normalImporter.alphaSource = TextureImporterAlphaSource.None;
+            normalImporter.mipmapEnabled = false;
+            EditorUtility.SetDirty(normalImporter);
+            normalImporter.SaveAndReimport();
+
+            TextureImporter depthImporter = (TextureImporter)TextureImporter.GetAtPath( depthFilename );
+            depthImporter.sRGBTexture = false;
+            depthImporter.alphaSource = TextureImporterAlphaSource.None;
+            depthImporter.textureType = TextureImporterType.SingleChannel;
+            depthImporter.mipmapEnabled = false;
+            EditorUtility.SetDirty(depthImporter);
+            depthImporter.SaveAndReimport();
+
             Texture2D realTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(filename);
-            TerrainBrushOverseer.instance.terrainMaterial?.SetTexture("_BlendMap", realTexture);
+            Texture2D realNormalsTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(normalsFilename);
+            Texture2D realDepthTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(depthFilename);
+            TerrainBrushOverseer.instance.terrainMaterial?.SetTexture("_TerrainBlendMap", realTexture);
+
+            foreach(BlendedBrush b in UnityEngine.Object.FindObjectsOfType<BlendedBrush>()) {
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainBlendMap", realTexture);
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainDepth", realDepthTexture);
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainNormals", realNormalsTexture);
+            }
+        }
+
+        [MenuItem("Tools/TerrainBrush/Unlock Changes")]
+        public static void Unlock() {
+            TerrainBrushOverseer.instance.locked = false;
         }
 
         [ContextMenu("Generate Texture")]
@@ -228,7 +325,7 @@ namespace TerrainBrush {
 
             // Regenerate texture if needed.
             if ( volume.texture == null || volume.texture.width != 1<<texturePowSize || volume.texture.height != 1<<texturePowSize) {
-                volume.texture = GetTexture();
+                volume.texture = GetNewTexture();
             }
 
             // Sort the brushes from bottom to top(in camera space)
@@ -255,6 +352,7 @@ namespace TerrainBrush {
             cmd.SetRenderTarget(temporaryTexture.id);
             cmd.ClearRenderTarget(true, true, Color.clear);
 
+            cmd.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
             cmd.SetViewProjectionMatrices(view, projection);
             // Finally queue up the render commands
             foreach(Brush b in activeBrushes) {
@@ -294,7 +392,7 @@ namespace TerrainBrush {
                 }
             }
             // If we've recently baked, we'll have a non-render texture in this slot. So we update it.
-            terrainMaterial.SetTexture("_BlendMap", volume.texture);
+            terrainMaterial.SetTexture("_TerrainBlendMap", volume.texture);
             activeTerrainWraps.Sort((a,b)=>(a.chunkID.CompareTo(b.chunkID)));
             for (int i=0;i<numChunks;i++) {
                 if (activeTerrainWraps.Count<=i) {
@@ -309,6 +407,7 @@ namespace TerrainBrush {
         public void OnValidate() {
             Bake();
         }
+        #endif
     }
 }
-#endif
+

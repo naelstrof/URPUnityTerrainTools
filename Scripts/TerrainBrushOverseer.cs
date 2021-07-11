@@ -20,6 +20,8 @@ namespace TerrainBrush {
         public LayerMask subtractiveBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
+        public Mesh[] foliageMeshes;
+        public Material foliageMaterial;
         [Range(2,16)]
         public int chunkSizeSquared = 8;
         [Range(2,6)]

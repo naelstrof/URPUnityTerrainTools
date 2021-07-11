@@ -81,22 +81,59 @@ namespace TerrainBrush {
                         float y = transform.InverseTransformPoint(hit.point).y;
                         surfaceLattice.Add(new Vector3(point.x, y, point.z));
                     } else {
-                        surfaceLattice.Add(point-Vector3.up*encapsulatedBounds.extents.y);
+                        surfaceLattice.Add(new Vector3(point.x, encapsulatedBounds.min.y, point.z));
                     }
                 }
             }
             List<Vector3> surfaceLatticeSmooth = new List<Vector3>(surfaceLattice);
             for (int indexY=0; indexY<resolution+3; indexY++) {
                 for (int indexX=0; indexX<resolution+3; indexX++) {
-                    Vector3 smoothedPoint=surfaceLattice[(indexX+0)+(indexY+1)*(resolution+5)];
-                    smoothedPoint+=surfaceLattice[(indexX+2)+(indexY+1)*(resolution+5)];
-                    smoothedPoint+=surfaceLattice[(indexX+1)+(indexY+0)*(resolution+5)];
-                    smoothedPoint+=surfaceLattice[(indexX+1)+(indexY+2)*(resolution+5)];
-                    smoothedPoint+=surfaceLattice[(indexX+0)+(indexY+0)*(resolution+5)];
-                    smoothedPoint+=surfaceLattice[(indexX+2)+(indexY+0)*(resolution+5)];
-                    smoothedPoint+=surfaceLattice[(indexX+0)+(indexY+2)*(resolution+5)];
-                    smoothedPoint+=surfaceLattice[(indexX+2)+(indexY+2)*(resolution+5)];
-                    smoothedPoint/=8f;
+                    Vector3 smoothPoint;
+                    Vector3 smoothedPoint=surfaceLattice[(indexX+1)+(indexY+1)*(resolution+5)];
+                    int smoothPoints=1;
+                    if (smoothedPoint.y>encapsulatedBounds.min.y) {
+                        smoothPoint=surfaceLattice[(indexX+0)+(indexY+0)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothPoint=surfaceLattice[(indexX+1)+(indexY+0)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothPoint=surfaceLattice[(indexX+2)+(indexY+0)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothPoint=surfaceLattice[(indexX+0)+(indexY+1)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothPoint=surfaceLattice[(indexX+2)+(indexY+1)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothPoint=surfaceLattice[(indexX+0)+(indexY+2)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothPoint=surfaceLattice[(indexX+1)+(indexY+2)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothPoint=surfaceLattice[(indexX+2)+(indexY+2)*(resolution+5)];
+                        if (smoothPoint.y>encapsulatedBounds.min.y) {
+                            smoothedPoint+=smoothPoint;
+                            smoothPoints++;
+                        }
+                        smoothedPoint/=smoothPoints;
+                    }
                     surfaceLatticeSmooth[(indexX+1)+(indexY+1)*(resolution+5)]=smoothedPoint;
                 }
             }
@@ -107,10 +144,14 @@ namespace TerrainBrush {
                     int myIndex=(indexX+2)+(indexY+2)*(resolution+5);
                     vertices.Add(surfaceLatticeSmooth[myIndex]);
                     Vector3 myNormal=Vector3.zero;
-                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex-(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex-1]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
-                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex-1]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex+(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
-                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex+(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex+1]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
-                    myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex+1]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex-(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    if (surfaceLatticeSmooth[myIndex-(resolution+5)].y>encapsulatedBounds.min.y && surfaceLatticeSmooth[myIndex-1].y>encapsulatedBounds.min.y)
+                        myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex-(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex-1]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    if (surfaceLatticeSmooth[myIndex-1].y>encapsulatedBounds.min.y && surfaceLatticeSmooth[myIndex+(resolution+5)].y>encapsulatedBounds.min.y)
+                        myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex-1]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex+(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    if (surfaceLatticeSmooth[myIndex+(resolution+5)].y>encapsulatedBounds.min.y && surfaceLatticeSmooth[myIndex+1].y>encapsulatedBounds.min.y)
+                        myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex+(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex+1]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
+                    if (surfaceLatticeSmooth[myIndex+1].y>encapsulatedBounds.min.y && surfaceLatticeSmooth[myIndex-(resolution+5)].y>encapsulatedBounds.min.y)
+                        myNormal+=Vector3.Cross((surfaceLatticeSmooth[myIndex+1]-surfaceLatticeSmooth[myIndex]).normalized, (surfaceLatticeSmooth[myIndex-(resolution+5)]-surfaceLatticeSmooth[myIndex]).normalized).normalized;
                     normals.Add(myNormal.normalized);
                 }
             }
@@ -124,27 +165,26 @@ namespace TerrainBrush {
                 }
             }
             List<int> triangles = new List<int>();
-            float lowerBound = 0f;
             for (int indexY=0; indexY<resolution; indexY++) {
                 for (int indexX=0;indexX<resolution;indexX++) {
                     if (Vector3.Distance(vertices[indexX+indexY*(resolution+1)], vertices[indexX+1+(indexY+1)*(resolution+1)])>Vector3.Distance(vertices[indexX+1+indexY*(resolution+1)], vertices[indexX+(indexY+1)*(resolution+1)])) {
-                        if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
+                        if (vertices[indexX+indexY*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+(indexY+1)*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+1+indexY*(resolution+1)].y>encapsulatedBounds.min.y) {
                             triangles.Add(indexX+indexY*(resolution+1));
                             triangles.Add(indexX+(indexY+1)*(resolution+1));
                             triangles.Add(indexX+1+indexY*(resolution+1));
                         }
-                        if (vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
+                        if (vertices[indexX+(indexY+1)*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+1+(indexY+1)*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+1+indexY*(resolution+1)].y>encapsulatedBounds.min.y) {
                             triangles.Add(indexX+(indexY+1)*(resolution+1));
                             triangles.Add(indexX+1+(indexY+1)*(resolution+1));
                             triangles.Add(indexX+1+indexY*(resolution+1));
                         }
                     } else {
-                        if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+indexY*(resolution+1)].y>lowerBound) {
+                        if (vertices[indexX+indexY*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+1+(indexY+1)*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+1+indexY*(resolution+1)].y>encapsulatedBounds.min.y) {
                             triangles.Add(indexX+indexY*(resolution+1));
                             triangles.Add(indexX+1+(indexY+1)*(resolution+1));
                             triangles.Add(indexX+1+indexY*(resolution+1));
                         }
-                        if (vertices[indexX+indexY*(resolution+1)].y>lowerBound && vertices[indexX+(indexY+1)*(resolution+1)].y>lowerBound && vertices[indexX+1+(indexY+1)*(resolution+1)].y>lowerBound) {
+                        if (vertices[indexX+indexY*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+(indexY+1)*(resolution+1)].y>encapsulatedBounds.min.y && vertices[indexX+1+(indexY+1)*(resolution+1)].y>encapsulatedBounds.min.y) {
                             triangles.Add(indexX+indexY*(resolution+1));
                             triangles.Add(indexX+(indexY+1)*(resolution+1));
                             triangles.Add(indexX+1+(indexY+1)*(resolution+1));
@@ -157,7 +197,7 @@ namespace TerrainBrush {
             for (int i=0;i<vertices.Count;i++) vertCull.Add(i);
             int cullIndex=0;
             while (cullIndex<vertices.Count) {
-                if (vertices[cullIndex].y<=lowerBound) {
+                if (vertices[cullIndex].y<=encapsulatedBounds.min.y) {
                     vertices.RemoveAt(cullIndex);
                     normals.RemoveAt(cullIndex);
                     uv.RemoveAt(cullIndex);

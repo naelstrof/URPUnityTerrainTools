@@ -20,7 +20,9 @@ namespace TerrainBrush {
         public LayerMask subtractiveBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
-        public Mesh[] foliageMeshes;
+        public Mesh[] foliageMeshesSpillers;
+        public Mesh[] foliageMeshesFillers;
+        public Mesh[] foliageMeshesThrillers;
         public Material foliageMaterial;
         [Range(2,16)]
         public int chunkSizeSquared = 8;
@@ -50,6 +52,7 @@ namespace TerrainBrush {
             Prepass,
             MeshGeneration,
             TextureGeneration,
+            FoliageGeneration,
             Finished,
         }
         // Generate our projection/view matrix
@@ -145,6 +148,12 @@ namespace TerrainBrush {
                         break;
                     }
                     case BakeState.TextureGeneration: {
+                        GenerateTexture(GenerateDepthNormals());
+                        GenerateFoliage();
+                        currentState = BakeState.FoliageGeneration;
+                        break;
+                    }
+                    case BakeState.FoliageGeneration: {
                         GenerateTexture(GenerateDepthNormals());
                         currentState = BakeState.Finished;
                         EditorApplication.update -= BakeTick;
@@ -407,6 +416,11 @@ namespace TerrainBrush {
                 }
                 activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
                 activeTerrainWraps[i].SetChunkID(i, chunkSizeSquared, 1<<resolutionPow, smoothness);
+            }
+        }
+        public void GenerateFoliage() {
+            for (int i=0;i<activeTerrainWraps.Count;i++) {
+                activeTerrainWraps[i].GenerateFoliage();
             }
         }
         public void OnValidate() {

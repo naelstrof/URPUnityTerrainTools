@@ -17,12 +17,15 @@ namespace TerrainBrush {
         [SerializeField, HideInInspector]
         private bool locked = false;
         public LayerMask meshBrushTargetLayers;
+        public LayerMask subtractiveBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
         [Range(2,16)]
         public int chunkSizeSquared = 8;
         [Range(2,6)]
         public int resolutionPow = 4;
+        [Range(0f,1f)]
+        public float smoothness = 1f;
         private static TerrainBrushOverseer _instance;
         public static TerrainBrushOverseer instance {
             get {
@@ -401,7 +404,7 @@ namespace TerrainBrush {
                     activeTerrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                 }
                 activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
-                activeTerrainWraps[i].SetChunkID(i, chunkSizeSquared, 1<<resolutionPow);
+                activeTerrainWraps[i].SetChunkID(i, chunkSizeSquared, 1<<resolutionPow, smoothness);
             }
         }
         public void OnValidate() {

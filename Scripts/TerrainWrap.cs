@@ -50,10 +50,6 @@ namespace TerrainBrush {
 
         [ContextMenu("Generate")]
         public void Generate() {
-            dataTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, false);
-            RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;
-            dataTexture.ReadPixels(new Rect(0, 0, TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height), 0, 0);
-            dataTexture.Apply();
             List<Collider> colliders = new List<Collider>(Object.FindObjectsOfType<Collider>());
             if (colliders.Count == 0) {
                 Debug.Log("No colliders found.");
@@ -244,10 +240,18 @@ namespace TerrainBrush {
             MeshCollider meshCollider = GetComponent<MeshCollider>();
             if (meshCollider==null) meshCollider = gameObject.AddComponent<MeshCollider>();
             meshCollider.sharedMesh=mesh;
-            BuildFoliageMesh(vertices, normals, triangles, uv);
+            //BuildFoliageMesh(vertices, normals, triangles, uv);
         }
 
-        private void BuildFoliageMesh(List<Vector3> verticesTerrain, List<Vector3> normalsTerrain, List<int> trianglesTerrain, List<Vector2> uvTerrain) {
+        public void GenerateFoliage() {
+            BuildFoliageMesh(meshFilter.sharedMesh.vertices, meshFilter.sharedMesh.normals, meshFilter.sharedMesh.triangles, meshFilter.sharedMesh.uv);
+        }
+
+        private void BuildFoliageMesh(Vector3[] verticesTerrain, Vector3[] normalsTerrain, int[] trianglesTerrain, Vector2[] uvTerrain) {
+            dataTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, false);
+            RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;
+            dataTexture.ReadPixels(new Rect(0, 0, TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height), 0, 0);
+            dataTexture.Apply();
             GameObject foliage;
             Transform foliageT = transform.Find("Foliage");
             if (foliageT!=null) {
@@ -265,7 +269,7 @@ namespace TerrainBrush {
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
             List<int> triangles = new List<int>();
-            for (int i=0;i<trianglesTerrain.Count;i+=3) {
+            for (int i=0;i<trianglesTerrain.Length;i+=3) {
                 AddFoliageAtTriangle(
                     ref vertices,
                     ref uv,
@@ -274,7 +278,7 @@ namespace TerrainBrush {
                     verticesTerrain[trianglesTerrain[i+1]],
                     verticesTerrain[trianglesTerrain[i+2]],
                     Vector3.Cross((verticesTerrain[trianglesTerrain[i+1]]-verticesTerrain[trianglesTerrain[i]]).normalized, (verticesTerrain[trianglesTerrain[i+2]]-verticesTerrain[trianglesTerrain[i]]).normalized),
-                    1);
+                    2);
             }
             meshFilterFoliage.sharedMesh=new Mesh();
             meshFilterFoliage.sharedMesh.name="Foliage";
@@ -301,17 +305,19 @@ namespace TerrainBrush {
                 Vector3 RandomOffset = Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, normal) * Vector3.forward * triSize;
                 Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(triCenter+RandomOffset));
                 //Debug.Log(dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)));
-                float foliageDensity = dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)).r;
-                if (Random.Range(0f,100f)>100f-foliageDensity*100f) {
-                    int chosenMesh=Random.Range(0,TerrainBrushOverseer.instance.foliageMeshes.Length);
-                    Vector3[] foliageVerts=TerrainBrushOverseer.instance.foliageMeshes[chosenMesh].vertices;
-                    Vector2[] foliageUv=TerrainBrushOverseer.instance.foliageMeshes[chosenMesh].uv;
-                    int[] foliageTriangles=TerrainBrushOverseer.instance.foliageMeshes[chosenMesh].triangles;
+                float foliageDensity = dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.y*TerrainBrushOverseer.instance.volume.texture.height)).g;
+                if (Random.Range(0f,100f)>150f-foliageDensity*80f) {
+                    Mesh chosenMesh=TerrainBrushOverseer.instance.foliageMeshesSpillers[Random.Range(0,TerrainBrushOverseer.instance.foliageMeshesSpillers.Length)];
+                    if (foliageDensity>0.9f || Random.Range(0f,100f)>150f-foliageDensity*100f) chosenMesh=TerrainBrushOverseer.instance.foliageMeshesFillers[Random.Range(0,TerrainBrushOverseer.instance.foliageMeshesFillers.Length)];
+                    if (foliageDensity>0.9f && Random.Range(0f,100f)>90f) chosenMesh=TerrainBrushOverseer.instance.foliageMeshesThrillers[Random.Range(0,TerrainBrushOverseer.instance.foliageMeshesThrillers.Length)];
+                    Vector3[] foliageVerts=chosenMesh.vertices;
+                    Vector2[] foliageUv=chosenMesh.uv;
+                    int[] foliageTriangles=chosenMesh.triangles;
                     int lastVert = vertices.Count;
                     Quaternion rotationFix=Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, Vector3.Lerp(normal,Vector3.up,0.5f));
                     rotationFix = rotationFix * Quaternion.Euler(-90f, 0f, 0f);
                     for (int i=0;i<foliageVerts.Length;i++) {
-                        Vector3 newVert = rotationFix * foliageVerts[i] * 0.02f + triCenter + RandomOffset;
+                        Vector3 newVert = rotationFix * foliageVerts[i] * (0.015f * Random.Range(1f,2f)) + triCenter + RandomOffset;
                         vertices.Add(newVert);
                         uv.Add(foliageUv[i]);
                     }

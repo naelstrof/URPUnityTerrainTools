@@ -18,7 +18,10 @@ namespace TerrainBrush {
         private float smooth=1f;
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
+        private MeshFilter meshFilterFoliage;
+        private MeshRenderer meshRendererFoliage;
         private int generateTimer;
+        private Texture2D dataTexture;
         [HideInInspector]
         public bool generated=false;
         public void SetChunkID(int value, int chunks, int resolution, float smooth) { chunkID=value; this.chunks = chunks; this.resolution = resolution; this.smooth=smooth; generateTimer=value; generated=false; }
@@ -47,6 +50,10 @@ namespace TerrainBrush {
 
         [ContextMenu("Generate")]
         public void Generate() {
+            dataTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, false);
+            RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;
+            dataTexture.ReadPixels(new Rect(0, 0, TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height), 0, 0);
+            dataTexture.Apply();
             List<Collider> colliders = new List<Collider>(Object.FindObjectsOfType<Collider>());
             if (colliders.Count == 0) {
                 Debug.Log("No colliders found.");
@@ -237,6 +244,82 @@ namespace TerrainBrush {
             MeshCollider meshCollider = GetComponent<MeshCollider>();
             if (meshCollider==null) meshCollider = gameObject.AddComponent<MeshCollider>();
             meshCollider.sharedMesh=mesh;
+            BuildFoliageMesh(vertices, normals, triangles, uv);
+        }
+
+        private void BuildFoliageMesh(List<Vector3> verticesTerrain, List<Vector3> normalsTerrain, List<int> trianglesTerrain, List<Vector2> uvTerrain) {
+            GameObject foliage;
+            Transform foliageT = transform.Find("Foliage");
+            if (foliageT!=null) {
+                foliage=foliageT.gameObject;
+            } else {
+                foliage=new GameObject("Foliage");
+                foliage.transform.parent=transform;
+            }
+            foliage.transform.localPosition=Vector3.zero;
+            foliage.transform.localRotation=Quaternion.identity;
+            meshFilterFoliage=foliage.GetComponent<MeshFilter>();
+            if (meshFilterFoliage==null) meshFilterFoliage=foliage.AddComponent<MeshFilter>();
+            meshRendererFoliage=foliage.GetComponent<MeshRenderer>();
+            if (meshRendererFoliage==null) meshRendererFoliage=foliage.AddComponent<MeshRenderer>();
+            List<Vector3> vertices = new List<Vector3>();
+            List<Vector2> uv = new List<Vector2>();
+            List<int> triangles = new List<int>();
+            for (int i=0;i<trianglesTerrain.Count;i+=3) {
+                AddFoliageAtTriangle(
+                    ref vertices,
+                    ref uv,
+                    ref triangles,
+                    verticesTerrain[trianglesTerrain[i]],
+                    verticesTerrain[trianglesTerrain[i+1]],
+                    verticesTerrain[trianglesTerrain[i+2]],
+                    Vector3.Cross((verticesTerrain[trianglesTerrain[i+1]]-verticesTerrain[trianglesTerrain[i]]).normalized, (verticesTerrain[trianglesTerrain[i+2]]-verticesTerrain[trianglesTerrain[i]]).normalized),
+                    1);
+            }
+            meshFilterFoliage.sharedMesh=new Mesh();
+            meshFilterFoliage.sharedMesh.name="Foliage";
+            meshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
+            meshFilterFoliage.sharedMesh.uv=uv.ToArray();
+            meshFilterFoliage.sharedMesh.triangles=triangles.ToArray();
+            meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.foliageMaterial;
+        }
+
+        private void AddFoliageAtTriangle(ref List<Vector3> vertices, ref List<Vector2> uv, ref List<int> triangles, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, int recurse) {
+            if (recurse>0) {
+                Vector3 pm1 = (p1+p2)/2f;
+                Vector3 pm2 = (p2+p3)/2f;
+                Vector3 pm3 = (p3+p1)/2f;
+                AddFoliageAtTriangle(ref vertices, ref uv, ref triangles, p1, pm1, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(ref vertices, ref uv, ref triangles, pm1, p2, pm2, normal, recurse-1);
+                AddFoliageAtTriangle(ref vertices, ref uv, ref triangles, pm1, pm2, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(ref vertices, ref uv, ref triangles, pm2, p3, pm3, normal, recurse-1);
+            } else {
+                Vector3 triCenter = (p1+p2+p3) / 3f;
+                float triSize=Mathf.Min(Vector3.Distance(p1,p2), Vector3.Distance(p2,p3));
+                triSize=Mathf.Min(triSize, Vector3.Distance(p1,p3));
+                triSize/=50f;
+                Vector3 RandomOffset = Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, normal) * Vector3.forward * triSize;
+                Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(triCenter+RandomOffset));
+                //Debug.Log(dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)));
+                float foliageDensity = dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)).r;
+                if (Random.Range(0f,100f)>100f-foliageDensity*100f) {
+                    int chosenMesh=Random.Range(0,TerrainBrushOverseer.instance.foliageMeshes.Length);
+                    Vector3[] foliageVerts=TerrainBrushOverseer.instance.foliageMeshes[chosenMesh].vertices;
+                    Vector2[] foliageUv=TerrainBrushOverseer.instance.foliageMeshes[chosenMesh].uv;
+                    int[] foliageTriangles=TerrainBrushOverseer.instance.foliageMeshes[chosenMesh].triangles;
+                    int lastVert = vertices.Count;
+                    Quaternion rotationFix=Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, Vector3.Lerp(normal,Vector3.up,0.5f));
+                    rotationFix = rotationFix * Quaternion.Euler(-90f, 0f, 0f);
+                    for (int i=0;i<foliageVerts.Length;i++) {
+                        Vector3 newVert = rotationFix * foliageVerts[i] * 0.02f + triCenter + RandomOffset;
+                        vertices.Add(newVert);
+                        uv.Add(foliageUv[i]);
+                    }
+                    for (int i=0;i<foliageTriangles.Length;i++) {
+                        triangles.Add(foliageTriangles[i]+lastVert);
+                    }
+                }
+            }
         }
 #endif
     }

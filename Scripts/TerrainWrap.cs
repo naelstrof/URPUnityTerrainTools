@@ -13,14 +13,15 @@ namespace TerrainBrush {
         [SerializeField] private float size=40f;
         [SerializeField] private int resolution=128;
         [SerializeField] private int chunks=4;
-        //[HideInInspector]
+        [HideInInspector]
         public int chunkID=0;
+        private float smooth=1f;
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
         private int generateTimer;
         [HideInInspector]
         public bool generated=false;
-        public void SetChunkID(int value, int chunks, int resolution) { chunkID=value; this.chunks = chunks; this.resolution = resolution; generateTimer=value; generated=false; }
+        public void SetChunkID(int value, int chunks, int resolution, float smooth) { chunkID=value; this.chunks = chunks; this.resolution = resolution; this.smooth=smooth; generateTimer=value; generated=false; }
 
 #if UNITY_EDITOR
 		void OnEnable() {
@@ -134,7 +135,7 @@ namespace TerrainBrush {
                         }
                         smoothedPoint/=smoothPoints;
                     }
-                    surfaceLatticeSmooth[(indexX+1)+(indexY+1)*(resolution+5)]=smoothedPoint;
+                    surfaceLatticeSmooth[(indexX+1)+(indexY+1)*(resolution+5)]=Vector3.Lerp(surfaceLattice[(indexX+1)+(indexY+1)*(resolution+5)], smoothedPoint, smooth);
                 }
             }
             List<Vector3> vertices = new List<Vector3>();

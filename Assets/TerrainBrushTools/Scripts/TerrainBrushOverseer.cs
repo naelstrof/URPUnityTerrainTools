@@ -21,11 +21,11 @@ namespace TerrainBrush {
         public GameObject terrainWrapPrefab;
         public FoliageData[] foliageMeshes;
         public int seed = 8008569;
-        [Range(2,16)]
+        [Range(2,32)]
         public int chunkSizeSquared = 8;
         [Range(2,6)]
         public int resolutionPow = 4;
-        [Range(1,4)]
+        [Range(1,3)]
         public int foliageRecursiveCount = 2;
         [Range(0f,1f)]
         public float smoothness = 1f;

@@ -7,7 +7,7 @@ using UnityEditor;
 
 namespace TerrainBrush {
     #if UNITY_EDITOR
-    [CustomEditor(typeof(FoliageData))]
+    [CustomEditor(typeof(FoliageData)), CanEditMultipleObjects]
     public class FoliageDataEditor : Editor {
         public override Texture2D RenderStaticPreview(string assetPath, Object[] subAssets, int width, int height) {
             FoliageData data = (FoliageData)target;

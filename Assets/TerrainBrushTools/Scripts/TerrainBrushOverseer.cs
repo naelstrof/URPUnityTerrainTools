@@ -17,7 +17,6 @@ namespace TerrainBrush {
         [SerializeField, HideInInspector]
         private bool locked = false;
         public LayerMask meshBrushTargetLayers;
-        public LayerMask subtractiveBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
         public Mesh[] foliageMeshesSpillers;
@@ -427,6 +426,18 @@ namespace TerrainBrush {
             }
         }
         public void OnValidate() {
+            foreach(Mesh m in foliageMeshesThrillers) {
+                if (m == null) { return; }
+            }
+            foreach(Mesh m in foliageMeshesFillers) {
+                if (m == null) { return; }
+            }
+            foreach(Mesh m in foliageMeshesGrass) {
+                if (m == null) { return; }
+            }
+            foreach(Mesh m in foliageMeshesSpillers) {
+                if (m == null) { return; }
+            }
             Bake();
         }
         #endif

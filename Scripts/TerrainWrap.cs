@@ -360,7 +360,7 @@ namespace TerrainBrush {
                 int x = Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width);
                 int y = Mathf.RoundToInt(texPoint.y*TerrainBrushOverseer.instance.volume.texture.height);
                 float foliageDensity = dataTexture.GetPixel(x, y).g;
-                if (Random.Range(0f,1f)>1f-foliageDensity*0.2f) {
+                if (Random.Range(0f,1f)>1f-foliageDensity*TerrainBrushOverseer.instance.foliageDensity) {
                     Mesh chosenMesh=ChooseFoliage(foliageDensity, texPoint.x, texPoint.y);
                     if (chosenMesh == null) {
                         return;

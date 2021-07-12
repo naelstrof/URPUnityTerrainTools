@@ -14,22 +14,33 @@ using UnityEditor;
 namespace TerrainBrush {
     [ExecuteInEditMode]
     public class TerrainBrushOverseer : MonoBehaviour {
+        private static TerrainBrushOverseer _instance;
         [SerializeField, HideInInspector]
         private bool locked = false;
+
+        [Header("Mesh Generation Settings")]
         public LayerMask meshBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
-        public FoliageData[] foliageMeshes;
-        public int seed = 8008569;
         [Range(2,32)]
-        public int chunkSizeSquared = 8;
+        public int chunkCountSquared = 8;
         [Range(2,6)]
         public int resolutionPow = 4;
+        [Range(0f,1f)]
+        public float smoothness = 1f;
+
+        [Header("Texture map settings")]
+        public float pixelPadding = 1f;
+        public int texturePowSize = 10;
+
+        [Header("Foliage Settings")]
+        public FoliageData[] foliageMeshes;
+        public int seed = 8008569;
         [Range(1,3)]
         public int foliageRecursiveCount = 2;
         [Range(0f,1f)]
-        public float smoothness = 1f;
-        private static TerrainBrushOverseer _instance;
+        public float foliageDensity = 0.2f;
+
         public int GetFoliageCount(FoliageData.FoliageAspect aspect) {
             int count = 0;
             foreach(FoliageData data in foliageMeshes) {
@@ -93,12 +104,12 @@ namespace TerrainBrush {
         public int callbackOrder => throw new NotImplementedException();
 
         private BakeState currentState = BakeState.Idle;
+
+        [HideInInspector]
         public TerrainBrushVolume volume = new TerrainBrushVolume();
 
         private List<TerrainWrap> activeTerrainWraps = new List<TerrainWrap>();
 
-        public float pixelPadding = 1f;
-        public int texturePowSize = 10;
         public void OnEnable() {
             if (instance != this && instance != null) {
                 DestroyImmediate(gameObject);
@@ -405,7 +416,7 @@ namespace TerrainBrush {
             //GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
             Assert.IsTrue(terrainWrapPrefab != null);
             Assert.IsTrue(terrainMaterial != null);
-            int numChunks = chunkSizeSquared*chunkSizeSquared;
+            int numChunks = chunkCountSquared*chunkCountSquared;
             for (int i=0; i<activeTerrainWraps.Count; i++) {
                 if (activeTerrainWraps[i]==null) {
                     activeTerrainWraps.RemoveAt(i);
@@ -435,7 +446,7 @@ namespace TerrainBrush {
                     activeTerrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                 }
                 activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
-                activeTerrainWraps[i].SetChunkID(i, chunkSizeSquared, 1<<resolutionPow, smoothness);
+                activeTerrainWraps[i].SetChunkID(i, chunkCountSquared, 1<<resolutionPow, smoothness);
             }
         }
         public void GenerateFoliage() {

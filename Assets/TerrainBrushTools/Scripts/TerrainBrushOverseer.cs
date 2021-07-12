@@ -19,10 +19,7 @@ namespace TerrainBrush {
         public LayerMask meshBrushTargetLayers;
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
-        public Mesh[] foliageMeshesSpillers;
-        public Mesh[] foliageMeshesFillers;
-        public Mesh[] foliageMeshesThrillers;
-        public Mesh[] foliageMeshesGrass;
+        public FoliageData[] foliageMeshes;
         public Material foliageMaterial;
         public int seed = 8008569;
         [Range(2,16)]
@@ -32,6 +29,27 @@ namespace TerrainBrush {
         [Range(0f,1f)]
         public float smoothness = 1f;
         private static TerrainBrushOverseer _instance;
+        public int GetFoliageCount(FoliageData.FoliageAspect aspect) {
+            int count = 0;
+            foreach(FoliageData data in foliageMeshes) {
+                if (data.HasAspect(aspect)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        public Mesh GetFoliage(FoliageData.FoliageAspect aspect, int index) {
+            int count = 0;
+            foreach(FoliageData data in foliageMeshes) {
+                if (data.HasAspect(aspect)) {
+                    if (count == index) {
+                        return data.foliageMesh;
+                    }
+                    count++;
+                }
+            }
+            return null;
+        }
         public static TerrainBrushOverseer instance {
             get {
                 if (Application.isPlaying || !SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
@@ -426,17 +444,15 @@ namespace TerrainBrush {
             }
         }
         public void OnValidate() {
-            foreach(Mesh m in foliageMeshesThrillers) {
-                if (m == null) { return; }
+            if (foliageMeshes == null) {
+                Debug.LogWarning("No foliage specified. Terrain won't bake.");
+                return;
             }
-            foreach(Mesh m in foliageMeshesFillers) {
-                if (m == null) { return; }
-            }
-            foreach(Mesh m in foliageMeshesGrass) {
-                if (m == null) { return; }
-            }
-            foreach(Mesh m in foliageMeshesSpillers) {
-                if (m == null) { return; }
+            foreach(var f in foliageMeshes) {
+                if (f == null || f.foliageMesh == null) {
+                    Debug.LogWarning("Null mesh detected in foliage data. Terrain won't bake.");
+                    return;
+                }
             }
             Bake();
         }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -18,8 +19,6 @@ namespace TerrainBrush {
         private float smooth=1f;
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
-        private MeshFilter meshFilterFoliage;
-        private MeshRenderer meshRendererFoliage;
         private int generateTimer;
         private Texture2D dataTexture;
         [HideInInspector]
@@ -247,30 +246,31 @@ namespace TerrainBrush {
             BuildFoliageMesh(meshFilter.sharedMesh.vertices, meshFilter.sharedMesh.normals, meshFilter.sharedMesh.triangles, meshFilter.sharedMesh.uv);
         }
 
+        private GameObject GetFoliageSubMesh(int index) {
+            GameObject foliage;
+            Transform foliageT = transform.Find("Foliage"+index);
+            if (foliageT!=null) {
+                foliage=foliageT.gameObject;
+            } else {
+                foliage=new GameObject("Foliage"+index, new System.Type[]{typeof(MeshFilter), typeof(MeshRenderer)});
+                foliage.transform.parent=transform;
+            }
+            foliage.transform.localPosition=Vector3.zero;
+            foliage.transform.localRotation=Quaternion.identity;
+            return foliage;
+        }
+
         private void BuildFoliageMesh(Vector3[] verticesTerrain, Vector3[] normalsTerrain, int[] trianglesTerrain, Vector2[] uvTerrain) {
             dataTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, false);
             RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;
             dataTexture.ReadPixels(new Rect(0, 0, TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height), 0, 0);
             dataTexture.Apply();
-            GameObject foliage;
-            Transform foliageT = transform.Find("Foliage");
-            if (foliageT!=null) {
-                foliage=foliageT.gameObject;
-            } else {
-                foliage=new GameObject("Foliage");
-                foliage.transform.parent=transform;
-            }
-            foliage.transform.localPosition=Vector3.zero;
-            foliage.transform.localRotation=Quaternion.identity;
-            meshFilterFoliage=foliage.GetComponent<MeshFilter>();
-            if (meshFilterFoliage==null) meshFilterFoliage=foliage.AddComponent<MeshFilter>();
-            meshRendererFoliage=foliage.GetComponent<MeshRenderer>();
-            if (meshRendererFoliage==null) meshRendererFoliage=foliage.AddComponent<MeshRenderer>();
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
             List<int> triangles = new List<int>();
             List<Color> colors = new List<Color>();
             List<Vector3> uv2 = new List<Vector3>();
+            int foliageIndex = 0;
             for (int i=0;i<trianglesTerrain.Length;i+=3) {
                 AddFoliageAtTriangle(
                     ref vertices,
@@ -283,18 +283,54 @@ namespace TerrainBrush {
                     verticesTerrain[trianglesTerrain[i+2]],
                     Vector3.Cross((verticesTerrain[trianglesTerrain[i+1]]-verticesTerrain[trianglesTerrain[i]]).normalized, (verticesTerrain[trianglesTerrain[i+2]]-verticesTerrain[trianglesTerrain[i]]).normalized),
                     TerrainBrushOverseer.instance.foliageRecursiveCount);
+                if (vertices.Count > 50000) { // Create a submesh! We hit the vertex limit
+                    GameObject target = GetFoliageSubMesh(foliageIndex++);
+                    MeshFilter meshFilterFoliage = target.GetComponent<MeshFilter>();
+                    MeshRenderer meshRendererFoliage = target.GetComponent<MeshRenderer>();
+                    meshFilterFoliage.sharedMesh=new Mesh();
+                    meshFilterFoliage.sharedMesh.name="Foliage";
+                    meshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
+                    meshFilterFoliage.sharedMesh.uv=uv.ToArray();
+                    meshFilterFoliage.sharedMesh.SetUVs(1,uv2);
+                    meshFilterFoliage.sharedMesh.triangles=triangles.ToArray();
+                    meshFilterFoliage.sharedMesh.colors=colors.ToArray();
+                    meshFilterFoliage.sharedMesh.RecalculateNormals();
+                    meshFilterFoliage.sharedMesh.RecalculateTangents();
+                    meshFilterFoliage.sharedMesh.RecalculateBounds();
+                    meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.GetFoliage((FoliageData.FoliageAspect)(~0), 0).foliageMaterial;
+                    vertices = new List<Vector3>();
+                    uv = new List<Vector2>();
+                    triangles = new List<int>();
+                    colors = new List<Color>();
+                    uv2 = new List<Vector3>();
+                }
             }
-            meshFilterFoliage.sharedMesh=new Mesh();
-            meshFilterFoliage.sharedMesh.name="Foliage";
-            meshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
-            meshFilterFoliage.sharedMesh.uv=uv.ToArray();
-            meshFilterFoliage.sharedMesh.SetUVs(1,uv2);
-            meshFilterFoliage.sharedMesh.triangles=triangles.ToArray();
-            meshFilterFoliage.sharedMesh.colors=colors.ToArray();
-            meshFilterFoliage.sharedMesh.RecalculateNormals();
-            meshFilterFoliage.sharedMesh.RecalculateTangents();
-            meshFilterFoliage.sharedMesh.RecalculateBounds();
-            meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.GetFoliage((FoliageData.FoliageAspect)(~0), 0).foliageMaterial;
+            // Write out whatever we have left to an additional submesh.
+            GameObject ftarget = GetFoliageSubMesh(foliageIndex++);
+            MeshFilter fmeshFilterFoliage = ftarget.GetComponent<MeshFilter>();
+            MeshRenderer fmeshRendererFoliage = ftarget.GetComponent<MeshRenderer>();
+            fmeshFilterFoliage.sharedMesh=new Mesh();
+            fmeshFilterFoliage.sharedMesh.name="Foliage";
+            fmeshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
+            fmeshFilterFoliage.sharedMesh.uv=uv.ToArray();
+            fmeshFilterFoliage.sharedMesh.SetUVs(1,uv2);
+            fmeshFilterFoliage.sharedMesh.triangles=triangles.ToArray();
+            fmeshFilterFoliage.sharedMesh.colors=colors.ToArray();
+            fmeshFilterFoliage.sharedMesh.RecalculateNormals();
+            fmeshFilterFoliage.sharedMesh.RecalculateTangents();
+            fmeshFilterFoliage.sharedMesh.RecalculateBounds();
+            fmeshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.GetFoliage((FoliageData.FoliageAspect)(~0), 0).foliageMaterial;
+
+            if (transform.Find("Foliage")) {
+                DestroyImmediate(transform.Find("Foliage").gameObject);
+            }
+            // Finally delete left-over submeshes.
+            int childCount = transform.childCount;
+            for (int i=foliageIndex;i<childCount;i++) {
+                if (transform.Find("Foliage"+i) != null) {
+                    DestroyImmediate(transform.Find("Foliage"+i).gameObject);
+                }
+            }
         }
 
         private Mesh ChooseRandom(float perlinSample, float perlinShift, FoliageData.FoliageAspect aspect) {

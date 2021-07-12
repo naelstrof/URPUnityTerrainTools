@@ -36,7 +36,7 @@ namespace TerrainBrush {
         [Header("Foliage Settings")]
         public FoliageData[] foliageMeshes;
         public int seed = 8008569;
-        [Range(1,3)]
+        [Range(1,4)]
         public int foliageRecursiveCount = 2;
         [Range(0f,1f)]
         public float foliageDensity = 0.2f;
@@ -198,6 +198,16 @@ namespace TerrainBrush {
             }
         }
         public void Bake() {
+            if (foliageMeshes == null || foliageMeshes.Length == 0) {
+                Debug.LogWarning("No foliage specified. Terrain won't bake.");
+                return;
+            }
+            foreach(var f in foliageMeshes) {
+                if (f == null || f.foliageMesh == null) {
+                    Debug.LogWarning("Null mesh detected in foliage data. Terrain won't bake.");
+                    return;
+                }
+            }
             if (terrainWrapPrefab == null || terrainMaterial == null || meshBrushTargetLayers == 0) {
                 Debug.LogWarning("TerrainBrushOverseer is missing the prefab, material, or layermask! Nothing will generate.", gameObject);
                 Debug.Log(gameObject + " " + terrainWrapPrefab + " " + terrainMaterial + " " + meshBrushTargetLayers);
@@ -456,16 +466,6 @@ namespace TerrainBrush {
             }
         }
         public void OnValidate() {
-            if (foliageMeshes == null) {
-                Debug.LogWarning("No foliage specified. Terrain won't bake.");
-                return;
-            }
-            foreach(var f in foliageMeshes) {
-                if (f == null || f.foliageMesh == null) {
-                    Debug.LogWarning("Null mesh detected in foliage data. Terrain won't bake.");
-                    return;
-                }
-            }
             Bake();
         }
         #endif

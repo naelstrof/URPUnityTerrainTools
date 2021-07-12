@@ -302,25 +302,24 @@ namespace TerrainBrush {
 
 
             // Now we know what we're doing, we try to group things up a little-- so similar plants kinda show up near eachother.
-            float randomOffset = Random.Range(0f, 1000f);
-            float perlinSample = Mathf.PerlinNoise(x+randomOffset,y+randomOffset);
+            float perlinSample = Mathf.Clamp01(Mathf.PerlinNoise(x*10f,y*10f));
 
             if (thrillerGauss && TerrainBrushOverseer.instance.foliageMeshesThrillers.Length > 0) {
-                return TerrainBrushOverseer.instance.foliageMeshesThrillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesThrillers.Length-1))];
+                return TerrainBrushOverseer.instance.foliageMeshesThrillers[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesThrillers.Length-1))];
             }
 
             if (grassSpillGauss) {
                 // Choose spillers over grass if the density is low.
                 bool spillerCheck = Random.Range(0f,1f)*density < 0.4f;
                 if (spillerCheck && TerrainBrushOverseer.instance.foliageMeshesSpillers.Length > 0) {
-                    return TerrainBrushOverseer.instance.foliageMeshesSpillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesSpillers.Length-1))];
+                    return TerrainBrushOverseer.instance.foliageMeshesSpillers[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesSpillers.Length-1))];
                 } else if (TerrainBrushOverseer.instance.foliageMeshesGrass.Length > 0) {
-                    return TerrainBrushOverseer.instance.foliageMeshesGrass[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesGrass.Length-1))];
+                    return TerrainBrushOverseer.instance.foliageMeshesGrass[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesGrass.Length-1))];
                 }
             }
 
             if (fillerGauss && TerrainBrushOverseer.instance.foliageMeshesFillers.Length > 0) {
-                return TerrainBrushOverseer.instance.foliageMeshesFillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesFillers.Length-1))];
+                return TerrainBrushOverseer.instance.foliageMeshesFillers[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesFillers.Length-1))];
             }
             return null;
         }
@@ -345,7 +344,7 @@ namespace TerrainBrush {
                 int x = Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width);
                 int y = Mathf.RoundToInt(texPoint.y*TerrainBrushOverseer.instance.volume.texture.height);
                 float foliageDensity = dataTexture.GetPixel(x, y).g;
-                if (Random.Range(0f,100f)>150f-foliageDensity*80f) {
+                if (Random.Range(0f,1f)>1f-foliageDensity*0.2f) {
                     Mesh chosenMesh=ChooseFoliage(foliageDensity, texPoint.x, texPoint.y);
                     if (chosenMesh == null) {
                         return;

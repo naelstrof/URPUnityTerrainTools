@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
-  m_Name: Mtree Wind
+  m_Name: TerrainBrushWind
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
     Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18910\n-59;193;1675;691;4716.526;-2776.495;1.987782;True;True\nNode;AmplifyShaderEditor.CommentaryNode;268;-308.6878,-950.5083;Inherit;False;2739.352;4160.797;;5;172;173;170;167;246;Leafs;1,1,1,1;0;0\nNode;AmplifyShaderEditor.CommentaryNode;20;-3280.717,-1288.265;Inherit;False;1881.55;2300.876;;7;82;39;17;169;81;22;279;Variables;1,0,0.972414,1;0;0\nNode;AmplifyShaderEditor.CommentaryNode;167;-254.6646,748.7791;Inherit;False;2573.015;773.5015;Palm;13;243;211;209;219;235;230;218;212;208;207;206;205;168;;1,0.8896551,0,1;0;0\nNode;AmplifyShaderEditor.CommentaryNode;279;-3249.007,681.5551;Inherit;False;916.0063;244.4617;Wind

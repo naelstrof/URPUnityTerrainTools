@@ -1,0 +1,6 @@
+2020©by Maxime following files are available under a Creative Commons Attribution-ShareAlike 4.0 Licence(international):
+
+- MtreeWind.cs
+- All Shader and Shader Related files in TerrainBrushTools/Thirdparty/Mtree/..
+
+https://creativecommons.org/licenses/by-sa/4.0/legalcode

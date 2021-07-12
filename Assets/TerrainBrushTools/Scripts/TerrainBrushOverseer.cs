@@ -20,12 +20,13 @@ namespace TerrainBrush {
         public Material terrainMaterial;
         public GameObject terrainWrapPrefab;
         public FoliageData[] foliageMeshes;
-        public Material foliageMaterial;
         public int seed = 8008569;
         [Range(2,16)]
         public int chunkSizeSquared = 8;
         [Range(2,6)]
         public int resolutionPow = 4;
+        [Range(1,4)]
+        public int foliageRecursiveCount = 2;
         [Range(0f,1f)]
         public float smoothness = 1f;
         private static TerrainBrushOverseer _instance;
@@ -38,12 +39,12 @@ namespace TerrainBrush {
             }
             return count;
         }
-        public Mesh GetFoliage(FoliageData.FoliageAspect aspect, int index) {
+        public FoliageData GetFoliage(FoliageData.FoliageAspect aspect, int index) {
             int count = 0;
             foreach(FoliageData data in foliageMeshes) {
                 if (data.HasAspect(aspect)) {
                     if (count == index) {
-                        return data.foliageMesh;
+                        return data;
                     }
                     count++;
                 }

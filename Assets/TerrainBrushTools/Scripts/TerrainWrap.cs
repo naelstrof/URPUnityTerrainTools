@@ -282,7 +282,7 @@ namespace TerrainBrush {
                     verticesTerrain[trianglesTerrain[i+1]],
                     verticesTerrain[trianglesTerrain[i+2]],
                     Vector3.Cross((verticesTerrain[trianglesTerrain[i+1]]-verticesTerrain[trianglesTerrain[i]]).normalized, (verticesTerrain[trianglesTerrain[i+2]]-verticesTerrain[trianglesTerrain[i]]).normalized),
-                    2);
+                    TerrainBrushOverseer.instance.foliageRecursiveCount);
             }
             meshFilterFoliage.sharedMesh=new Mesh();
             meshFilterFoliage.sharedMesh.name="Foliage";
@@ -294,7 +294,7 @@ namespace TerrainBrush {
             meshFilterFoliage.sharedMesh.RecalculateNormals();
             meshFilterFoliage.sharedMesh.RecalculateTangents();
             meshFilterFoliage.sharedMesh.RecalculateBounds();
-            meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.foliageMaterial;
+            meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.GetFoliage((FoliageData.FoliageAspect)(~0), 0).foliageMaterial;
         }
 
         private Mesh ChooseRandom(float perlinSample, float perlinShift, FoliageData.FoliageAspect aspect) {
@@ -303,7 +303,7 @@ namespace TerrainBrush {
             int select = Mathf.RoundToInt(perlinSample*(float)(count-1));
             // Shift by up to length of array
             select = (select + Mathf.RoundToInt(perlinShift*(count-1))) % count;
-            return TerrainBrushOverseer.instance.GetFoliage(aspect, select);
+            return TerrainBrushOverseer.instance.GetFoliage(aspect, select).foliageMesh;
         }
 
         private Mesh ChooseFoliage(float density, float x, float y) {

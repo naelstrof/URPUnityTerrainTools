@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 057035472dec4d7479b0549a3d4ec255, type: 3}
   m_Name: Grass4
   m_EditorClassIdentifier: 
-  aspectFlags: 1
+  aspectFlags: 5
   foliageMesh: {fileID: -8085974789787604652, guid: 30b0268b49c86d144b7f305725d0b0bd, type: 3}
   foliageMaterial: {fileID: 2100000, guid: dec2cf93292686a44953c048f0beb255, type: 2}

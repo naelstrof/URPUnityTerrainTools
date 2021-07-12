@@ -285,7 +285,44 @@ namespace TerrainBrush {
             meshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
             meshFilterFoliage.sharedMesh.uv=uv.ToArray();
             meshFilterFoliage.sharedMesh.triangles=triangles.ToArray();
+            meshFilterFoliage.sharedMesh.RecalculateNormals();
+            meshFilterFoliage.sharedMesh.RecalculateTangents();
+            meshFilterFoliage.sharedMesh.RecalculateBounds();
             meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.foliageMaterial;
+        }
+
+        private Mesh ChooseFoliage(float density, float x, float y) {
+
+            float random01 = Random.Range(0f,1f);
+            // Low density biases towards grass. Thrillers don't care about density.
+            bool grassSpillGauss = random01 * density <= 0.68f;
+            bool fillerGauss = random01 * density > 0.68f && random01 * density < 0.95f;
+            // We want thrillers to always show up around 5% of the time, so we don't take density into account.
+            bool thrillerGauss = random01 >= 0.95f;
+
+
+            // Now we know what we're doing, we try to group things up a little-- so similar plants kinda show up near eachother.
+            float randomOffset = Random.Range(0f, 1000f);
+            float perlinSample = Mathf.PerlinNoise(x+randomOffset,y+randomOffset);
+
+            if (thrillerGauss) {
+                return TerrainBrushOverseer.instance.foliageMeshesThrillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesThrillers.Length-1))];
+            }
+
+            if (grassSpillGauss) {
+                // Choose spillers over grass if the density is low.
+                bool spillerCheck = Random.Range(0f,1f)*density < 0.4f;
+                if (spillerCheck) {
+                    return TerrainBrushOverseer.instance.foliageMeshesSpillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesSpillers.Length-1))];
+                } else {
+                    return TerrainBrushOverseer.instance.foliageMeshesGrass[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesGrass.Length-1))];
+                }
+            }
+
+            if (fillerGauss) {
+                return TerrainBrushOverseer.instance.foliageMeshesFillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesFillers.Length-1))];
+            }
+            return null;
         }
 
         private void AddFoliageAtTriangle(ref List<Vector3> vertices, ref List<Vector2> uv, ref List<int> triangles, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, int recurse) {
@@ -305,19 +342,20 @@ namespace TerrainBrush {
                 Vector3 RandomOffset = Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, normal) * Vector3.forward * triSize;
                 Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(triCenter+RandomOffset));
                 //Debug.Log(dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)));
-                float foliageDensity = dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.y*TerrainBrushOverseer.instance.volume.texture.height)).g;
+                int x = Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width);
+                int y = Mathf.RoundToInt(texPoint.y*TerrainBrushOverseer.instance.volume.texture.height);
+                float foliageDensity = dataTexture.GetPixel(x, y).g;
                 if (Random.Range(0f,100f)>150f-foliageDensity*80f) {
-                    Mesh chosenMesh=TerrainBrushOverseer.instance.foliageMeshesSpillers[Random.Range(0,TerrainBrushOverseer.instance.foliageMeshesSpillers.Length)];
-                    if (foliageDensity>0.9f || Random.Range(0f,100f)>150f-foliageDensity*100f) chosenMesh=TerrainBrushOverseer.instance.foliageMeshesFillers[Random.Range(0,TerrainBrushOverseer.instance.foliageMeshesFillers.Length)];
-                    if (foliageDensity>0.9f && Random.Range(0f,100f)>90f) chosenMesh=TerrainBrushOverseer.instance.foliageMeshesThrillers[Random.Range(0,TerrainBrushOverseer.instance.foliageMeshesThrillers.Length)];
+                    Mesh chosenMesh=ChooseFoliage(foliageDensity, texPoint.x, texPoint.y);
                     Vector3[] foliageVerts=chosenMesh.vertices;
                     Vector2[] foliageUv=chosenMesh.uv;
                     int[] foliageTriangles=chosenMesh.triangles;
                     int lastVert = vertices.Count;
                     Quaternion rotationFix=Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, Vector3.Lerp(normal,Vector3.up,0.5f));
                     rotationFix = rotationFix * Quaternion.Euler(-90f, 0f, 0f);
+                    float randomScale = 0.2f * Random.Range(1f,2f);
                     for (int i=0;i<foliageVerts.Length;i++) {
-                        Vector3 newVert = rotationFix * foliageVerts[i] * (0.015f * Random.Range(1f,2f)) + triCenter + RandomOffset;
+                        Vector3 newVert = rotationFix * foliageVerts[i] * randomScale + triCenter + RandomOffset;
                         vertices.Add(newVert);
                         uv.Add(foliageUv[i]);
                     }

@@ -305,21 +305,21 @@ namespace TerrainBrush {
             float randomOffset = Random.Range(0f, 1000f);
             float perlinSample = Mathf.PerlinNoise(x+randomOffset,y+randomOffset);
 
-            if (thrillerGauss) {
+            if (thrillerGauss && TerrainBrushOverseer.instance.foliageMeshesThrillers.Length > 0) {
                 return TerrainBrushOverseer.instance.foliageMeshesThrillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesThrillers.Length-1))];
             }
 
             if (grassSpillGauss) {
                 // Choose spillers over grass if the density is low.
                 bool spillerCheck = Random.Range(0f,1f)*density < 0.4f;
-                if (spillerCheck) {
+                if (spillerCheck && TerrainBrushOverseer.instance.foliageMeshesSpillers.Length > 0) {
                     return TerrainBrushOverseer.instance.foliageMeshesSpillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesSpillers.Length-1))];
-                } else {
+                } else if (TerrainBrushOverseer.instance.foliageMeshesGrass.Length > 0) {
                     return TerrainBrushOverseer.instance.foliageMeshesGrass[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesGrass.Length-1))];
                 }
             }
 
-            if (fillerGauss) {
+            if (fillerGauss && TerrainBrushOverseer.instance.foliageMeshesFillers.Length > 0) {
                 return TerrainBrushOverseer.instance.foliageMeshesFillers[Mathf.RoundToInt(perlinSample*(TerrainBrushOverseer.instance.foliageMeshesFillers.Length-1))];
             }
             return null;
@@ -347,6 +347,9 @@ namespace TerrainBrush {
                 float foliageDensity = dataTexture.GetPixel(x, y).g;
                 if (Random.Range(0f,100f)>150f-foliageDensity*80f) {
                     Mesh chosenMesh=ChooseFoliage(foliageDensity, texPoint.x, texPoint.y);
+                    if (chosenMesh == null) {
+                        return;
+                    }
                     Vector3[] foliageVerts=chosenMesh.vertices;
                     Vector2[] foliageUv=chosenMesh.uv;
                     int[] foliageTriangles=chosenMesh.triangles;

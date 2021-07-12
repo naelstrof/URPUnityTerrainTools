@@ -291,12 +291,13 @@ namespace TerrainBrush {
             meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.foliageMaterial;
         }
 
-        private Mesh ChooseRandom(float perlinSample, float perlinShift, Mesh[] array) {
+        private Mesh ChooseRandom(float perlinSample, float perlinShift, FoliageData.FoliageAspect aspect) {
+            int count = TerrainBrushOverseer.instance.GetFoliageCount(aspect);
             // Select random mesh
-            int select = Mathf.RoundToInt(perlinSample*(float)(array.Length-1));
+            int select = Mathf.RoundToInt(perlinSample*(float)(count-1));
             // Shift by up to length of array
-            select = (select + Mathf.RoundToInt(perlinShift*(array.Length-1))) % array.Length;
-            return array[select];
+            select = (select + Mathf.RoundToInt(perlinShift*(count-1))) % count;
+            return TerrainBrushOverseer.instance.GetFoliage(aspect, select);
         }
 
         private Mesh ChooseFoliage(float density, float x, float y) {
@@ -313,22 +314,22 @@ namespace TerrainBrush {
             float perlinSample = Mathf.Clamp01(Mathf.PerlinNoise(x*10f,y*10f));
             float perlinShiftSample= Mathf.Clamp01(Mathf.PerlinNoise((x+10f)*10f,(y+10f)*10f));
 
-            if (thrillerGauss && TerrainBrushOverseer.instance.foliageMeshesThrillers.Length > 0) {
-                return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesThrillers);
+            if (thrillerGauss && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Thriller) > 0) {
+                return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Thriller);
             }
 
             if (grassSpillGauss) {
                 // Choose spillers over grass if the density is low.
                 bool spillerCheck = Random.Range(0f,1f)*density < 0.4f;
-                if (spillerCheck && TerrainBrushOverseer.instance.foliageMeshesSpillers.Length > 0) {
-                    return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesSpillers);
-                } else if (TerrainBrushOverseer.instance.foliageMeshesGrass.Length > 0) {
-                    return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesGrass);
+                if (spillerCheck && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Spiller) > 0) {
+                    return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Spiller);
+                } else if (TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Grass) > 0) {
+                    return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Grass);
                 }
             }
 
-            if (fillerGauss && TerrainBrushOverseer.instance.foliageMeshesFillers.Length > 0) {
-                return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesFillers);
+            if (fillerGauss && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Filler) > 0) {
+                return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Filler);
             }
             return null;
         }

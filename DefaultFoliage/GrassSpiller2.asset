@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 057035472dec4d7479b0549a3d4ec255, type: 3}
+  m_Name: GrassSpiller2
+  m_EditorClassIdentifier: 
+  aspectFlags: 3
+  foliageMesh: {fileID: -9081756700024998392, guid: 30b0268b49c86d144b7f305725d0b0bd, type: 3}
+  foliageMaterial: {fileID: 2100000, guid: dec2cf93292686a44953c048f0beb255, type: 2}

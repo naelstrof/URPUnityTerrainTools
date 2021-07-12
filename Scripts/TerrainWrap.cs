@@ -291,6 +291,14 @@ namespace TerrainBrush {
             meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.foliageMaterial;
         }
 
+        private Mesh ChooseRandom(float perlinSample, float perlinShift, Mesh[] array) {
+            // Select random mesh
+            int select = Mathf.RoundToInt(perlinSample*(float)(array.Length-1));
+            // Shift by up to length of array
+            select = (select + Mathf.RoundToInt(perlinShift*(array.Length-1))) % array.Length;
+            return array[select];
+        }
+
         private Mesh ChooseFoliage(float density, float x, float y) {
 
             float random01 = Random.Range(0f,1f);
@@ -303,23 +311,24 @@ namespace TerrainBrush {
 
             // Now we know what we're doing, we try to group things up a little-- so similar plants kinda show up near eachother.
             float perlinSample = Mathf.Clamp01(Mathf.PerlinNoise(x*10f,y*10f));
+            float perlinShiftSample= Mathf.Clamp01(Mathf.PerlinNoise((x+10f)*10f,(y+10f)*10f));
 
             if (thrillerGauss && TerrainBrushOverseer.instance.foliageMeshesThrillers.Length > 0) {
-                return TerrainBrushOverseer.instance.foliageMeshesThrillers[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesThrillers.Length-1))];
+                return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesThrillers);
             }
 
             if (grassSpillGauss) {
                 // Choose spillers over grass if the density is low.
                 bool spillerCheck = Random.Range(0f,1f)*density < 0.4f;
                 if (spillerCheck && TerrainBrushOverseer.instance.foliageMeshesSpillers.Length > 0) {
-                    return TerrainBrushOverseer.instance.foliageMeshesSpillers[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesSpillers.Length-1))];
+                    return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesSpillers);
                 } else if (TerrainBrushOverseer.instance.foliageMeshesGrass.Length > 0) {
-                    return TerrainBrushOverseer.instance.foliageMeshesGrass[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesGrass.Length-1))];
+                    return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesGrass);
                 }
             }
 
             if (fillerGauss && TerrainBrushOverseer.instance.foliageMeshesFillers.Length > 0) {
-                return TerrainBrushOverseer.instance.foliageMeshesFillers[Mathf.RoundToInt(perlinSample*(float)(TerrainBrushOverseer.instance.foliageMeshesFillers.Length-1))];
+                return ChooseRandom(perlinSample, perlinShiftSample, TerrainBrushOverseer.instance.foliageMeshesFillers);
             }
             return null;
         }

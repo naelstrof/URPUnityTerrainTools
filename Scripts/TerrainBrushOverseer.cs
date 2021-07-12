@@ -23,7 +23,9 @@ namespace TerrainBrush {
         public Mesh[] foliageMeshesSpillers;
         public Mesh[] foliageMeshesFillers;
         public Mesh[] foliageMeshesThrillers;
+        public Mesh[] foliageMeshesGrass;
         public Material foliageMaterial;
+        public int seed = 8008569;
         [Range(2,16)]
         public int chunkSizeSquared = 8;
         [Range(2,6)]
@@ -419,6 +421,7 @@ namespace TerrainBrush {
             }
         }
         public void GenerateFoliage() {
+            UnityEngine.Random.InitState(seed);
             for (int i=0;i<activeTerrainWraps.Count;i++) {
                 activeTerrainWraps[i].GenerateFoliage();
             }

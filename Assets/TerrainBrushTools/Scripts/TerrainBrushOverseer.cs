@@ -17,6 +17,12 @@ namespace TerrainBrush {
         private static TerrainBrushOverseer _instance;
         [SerializeField, HideInInspector]
         private bool locked = false;
+        [SerializeField, HideInInspector]
+        private Texture2D cachedMaskMap;
+        [SerializeField, HideInInspector]
+        private Texture2D cachedNormals;
+        [SerializeField, HideInInspector]
+        private Texture2D cachedDepth;
 
         [Header("Mesh Generation Settings")]
         public LayerMask meshBrushTargetLayers;
@@ -64,7 +70,7 @@ namespace TerrainBrush {
         }
         public static TerrainBrushOverseer instance {
             get {
-                if (Application.isPlaying || !SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
+                if (!SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
                     _instance = null;
                     return null;
                 }
@@ -121,6 +127,44 @@ namespace TerrainBrush {
             if (volume != null) {
                 Shader.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
             }
+            foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
+                if (!activeTerrainWraps.Contains(t)) {
+                    activeTerrainWraps.Add(t);
+                }
+            }
+            // Editor doesn't run Start(), so we generate our foliage here
+            if (Application.isEditor) {
+                GenerateFoliage();
+            }
+        }
+        public void Start() {
+            // Application doesn't run OnEnable at the right time, so we run GenerateFoliage here...
+            if (Application.isPlaying) {
+                GenerateFoliage();
+            }
+        }
+        public void GenerateFoliage() {
+            UnityEngine.Random.InitState(seed);
+            if (!locked && Application.isPlaying) {
+                Debug.LogError("TerrainBrushOverseer must be in `locked` mode in order to generate foliage during playmode.");
+                return;
+            }
+            if (!locked) {
+                Texture2D cpuMaskCopy = new Texture2D(volume.texture.width, volume.texture.height, TextureFormat.RGBA32, 0, true);
+                RenderTexture old = RenderTexture.active;
+                RenderTexture.active = volume.texture;
+                cpuMaskCopy.ReadPixels(new Rect(0,0,volume.texture.width, volume.texture.height), 0, 0);
+                cpuMaskCopy.Apply();
+                RenderTexture.active = old;
+
+                for (int i=0;i<activeTerrainWraps.Count;i++) {
+                    activeTerrainWraps[i].GenerateFoliage(i, cpuMaskCopy);
+                }
+            } else {
+                for (int i=0;i<activeTerrainWraps.Count;i++) {
+                    activeTerrainWraps[i].GenerateFoliage(i, cachedMaskMap);
+                }
+            }
         }
 #if UNITY_EDITOR
         private RenderTexture GetNewTexture() {
@@ -149,13 +193,6 @@ namespace TerrainBrush {
             AssetDatabase.CreateAsset (texture, texturePath);
             AssetDatabase.SaveAssets();
             return texture;
-        }
-        public void Start() {
-            foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
-                if (!activeTerrainWraps.Contains(t)) {
-                    activeTerrainWraps.Add(t);
-                }
-            }
         }
         private void BakeTick() {
             if (Application.isPlaying) {
@@ -322,6 +359,7 @@ namespace TerrainBrush {
             TextureImporter importer = (TextureImporter)TextureImporter.GetAtPath( filename );
             importer.sRGBTexture = false;
             importer.mipmapEnabled = false;
+            importer.isReadable = true;
             EditorUtility.SetDirty(importer);
             importer.SaveAndReimport();
 
@@ -329,6 +367,7 @@ namespace TerrainBrush {
             normalImporter.sRGBTexture = false;
             normalImporter.alphaSource = TextureImporterAlphaSource.None;
             normalImporter.mipmapEnabled = false;
+            normalImporter.isReadable = true;
             EditorUtility.SetDirty(normalImporter);
             normalImporter.SaveAndReimport();
 
@@ -337,18 +376,19 @@ namespace TerrainBrush {
             depthImporter.alphaSource = TextureImporterAlphaSource.None;
             depthImporter.textureType = TextureImporterType.SingleChannel;
             depthImporter.mipmapEnabled = false;
+            depthImporter.isReadable = true;
             EditorUtility.SetDirty(depthImporter);
             depthImporter.SaveAndReimport();
 
-            Texture2D realTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(filename);
-            Texture2D realNormalsTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(normalsFilename);
-            Texture2D realDepthTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(depthFilename);
-            TerrainBrushOverseer.instance.terrainMaterial?.SetTexture("_TerrainBlendMap", realTexture);
+            TerrainBrushOverseer.instance.cachedMaskMap = AssetDatabase.LoadAssetAtPath<Texture2D>(filename);
+            TerrainBrushOverseer.instance.cachedNormals = AssetDatabase.LoadAssetAtPath<Texture2D>(normalsFilename);
+            TerrainBrushOverseer.instance.cachedDepth = AssetDatabase.LoadAssetAtPath<Texture2D>(depthFilename);
+            TerrainBrushOverseer.instance.terrainMaterial?.SetTexture("_TerrainBlendMap", TerrainBrushOverseer.instance.cachedMaskMap);
 
             foreach(BlendedBrush b in UnityEngine.Object.FindObjectsOfType<BlendedBrush>()) {
-                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainBlendMap", realTexture);
-                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainDepth", realDepthTexture);
-                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainNormals", realNormalsTexture);
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainBlendMap", TerrainBrushOverseer.instance.cachedMaskMap);
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainDepth", TerrainBrushOverseer.instance.cachedDepth);
+                b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainNormals", TerrainBrushOverseer.instance.cachedNormals);
             }
         }
 
@@ -459,20 +499,6 @@ namespace TerrainBrush {
                 }
                 activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
                 activeTerrainWraps[i].SetChunkID(i, chunkCountSquared, 1<<resolutionPow, smoothness);
-            }
-        }
-        public void GenerateFoliage() {
-            UnityEngine.Random.InitState(seed);
-
-            Texture2D cpuMaskCopy = new Texture2D(volume.texture.width, volume.texture.height, TextureFormat.RGBA32, 0, true);
-            RenderTexture old = RenderTexture.active;
-            RenderTexture.active = volume.texture;
-            cpuMaskCopy.ReadPixels(new Rect(0,0,volume.texture.width, volume.texture.height), 0, 0);
-            cpuMaskCopy.Apply();
-            RenderTexture.active = old;
-
-            for (int i=0;i<activeTerrainWraps.Count;i++) {
-                activeTerrainWraps[i].GenerateFoliage(i, cpuMaskCopy);
             }
         }
         public void OnValidate() {

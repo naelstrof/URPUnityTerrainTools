@@ -396,13 +396,13 @@ namespace TerrainBrush {
                 b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainDepth", TerrainBrushOverseer.instance.cachedDepth);
                 b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainNormals", TerrainBrushOverseer.instance.cachedNormals);
             }
-            TerrainBrushOverseer.instance.Bake();
+            TerrainBrushOverseer.instance.GenerateFoliage();
         }
 
         [MenuItem("Tools/TerrainBrush/Unlock Changes")]
         public static void Unlock() {
             TerrainBrushOverseer.instance.locked = false;
-            TerrainBrushOverseer.instance.Bake();
+            TerrainBrushOverseer.instance.GenerateFoliage();
         }
 
         [ContextMenu("Generate Texture")]

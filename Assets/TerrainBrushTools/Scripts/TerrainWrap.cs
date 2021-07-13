@@ -43,16 +43,16 @@ namespace TerrainBrush {
             if (!generated) {
                 generateTimer-=1;
                 if (generateTimer<=0) {
-                    Generate();
                     generated=true;
+                    Generate();
                 }
                 SceneView.RepaintAll();
             }
-            if (!generatedFoliage) {
+            if (!generatedFoliage && maskTexture != null) {
                 generateFoliageTimer-=1;
                 if (generateFoliageTimer<=0) {
-                    GenerateFoliageImmediate();
                     generatedFoliage=true;
+                    GenerateFoliageImmediate();
                 }
                 SceneView.RepaintAll();
             }

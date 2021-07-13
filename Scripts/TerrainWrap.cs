@@ -21,6 +21,7 @@ namespace TerrainBrush {
         private MeshRenderer meshRenderer;
         private int generateTimer;
         private int generateFoliageTimer;
+        [SerializeField]
         private Texture2D maskTexture;
         [HideInInspector]
         public bool generated=false;
@@ -40,6 +41,10 @@ namespace TerrainBrush {
 		}
 
 		void OnSceneGUI(SceneView sceneView) {
+            Update();
+		}
+#endif
+        void Update() {
             if (!generated) {
                 generateTimer-=1;
                 if (generateTimer<=0) {
@@ -52,11 +57,16 @@ namespace TerrainBrush {
                 generateFoliageTimer-=1;
                 if (generateFoliageTimer<=0) {
                     generatedFoliage=true;
-                    GenerateFoliageImmediate();
+                    GenerateFoliageImmediate(maskTexture);
                 }
                 SceneView.RepaintAll();
             }
-		}
+        }
+        void Start() {
+            if(!Application.isEditor && maskTexture != null) {
+                GenerateFoliageImmediate(maskTexture);
+            }
+        }
 
         [ContextMenu("Generate")]
         public void Generate() {
@@ -253,7 +263,9 @@ namespace TerrainBrush {
             //BuildFoliageMesh(vertices, normals, triangles, uv);
         }
 
-        private void GenerateFoliageImmediate() {
+        public void GenerateFoliageImmediate(Texture2D maskTexture) {
+            this.maskTexture = maskTexture;
+            meshFilter = GetComponent<MeshFilter>();
             BuildFoliageMesh(meshFilter.sharedMesh.vertices, meshFilter.sharedMesh.normals, meshFilter.sharedMesh.triangles, meshFilter.sharedMesh.uv);
         }
         public void GenerateFoliage(int chunkID, Texture2D maskTexture) {
@@ -267,8 +279,10 @@ namespace TerrainBrush {
             Transform foliageT = transform.Find("Foliage"+index);
             if (foliageT!=null) {
                 foliage=foliageT.gameObject;
+                foliage.hideFlags = HideFlags.HideAndDontSave;
             } else {
                 foliage=new GameObject("Foliage"+index, new System.Type[]{typeof(MeshFilter), typeof(MeshRenderer)});
+                foliage.hideFlags = HideFlags.HideAndDontSave;
                 foliage.transform.parent=transform;
             }
             foliage.transform.localPosition=Vector3.zero;
@@ -436,7 +450,6 @@ namespace TerrainBrush {
                 }
             }
         }
-#endif
     }
 
 }

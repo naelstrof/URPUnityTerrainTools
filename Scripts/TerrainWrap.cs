@@ -82,7 +82,7 @@ namespace TerrainBrush {
                 group.ForceLOD(1);
                 return;
             }
-            if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center) > TerrainBrushOverseer.instance.foliageFadeDistance) {
+            if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center)-meshRenderer.bounds.extents.magnitude > TerrainBrushOverseer.instance.foliageFadeDistance) {
                 group.ForceLOD(1);
             } else {
                 group.ForceLOD(0);

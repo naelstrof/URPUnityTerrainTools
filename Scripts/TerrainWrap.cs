@@ -67,6 +67,26 @@ namespace TerrainBrush {
                 }
                 SceneView.RepaintAll();
             }
+            Camera cam = Camera.main;
+            if (Application.isEditor && !Application.isPlaying) {
+                group.ForceLOD(0);
+                return;
+            }
+            if (cam == null) {
+                cam = Camera.current;
+            }
+            if (meshRenderer == null) {
+                meshRenderer = GetComponent<MeshRenderer>();
+            }
+            if (cam == null) {
+                group.ForceLOD(1);
+                return;
+            }
+            if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center) > TerrainBrushOverseer.instance.foliageFadeDistance) {
+                group.ForceLOD(1);
+            } else {
+                group.ForceLOD(0);
+            }
         }
 
         [ContextMenu("Generate")]

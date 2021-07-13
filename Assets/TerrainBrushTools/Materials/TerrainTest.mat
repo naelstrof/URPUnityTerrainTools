@@ -148,7 +148,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainBlendMap:
-        m_Texture: {fileID: 8400000, guid: 8760a5df4ec7c484e9f1c18125b7184a, type: 2}
+        m_Texture: {fileID: 2800000, guid: ca58dbb6f7c7d8645b76ec3b786035b8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:

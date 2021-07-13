@@ -9,6 +9,7 @@ using UnityEditor;
 namespace TerrainBrush {
 
     [ExecuteAlways]
+    [RequireComponent(typeof(LODGroup))]
     public class TerrainWrap : MonoBehaviour {
 
         [SerializeField] private float size=40f;
@@ -20,6 +21,8 @@ namespace TerrainBrush {
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
         private int generateTimer;
+        [SerializeField, HideInInspector]
+        private LODGroup group;
         private int generateFoliageTimer;
         [SerializeField]
         private Texture2D maskTexture;
@@ -44,6 +47,9 @@ namespace TerrainBrush {
             Update();
 		}
 #endif
+        public void Start() {
+            group = GetComponent<LODGroup>();
+        }
         void Update() {
             if (!generated) {
                 generateTimer-=1;
@@ -60,11 +66,6 @@ namespace TerrainBrush {
                     GenerateFoliageImmediate(maskTexture);
                 }
                 SceneView.RepaintAll();
-            }
-        }
-        void Start() {
-            if(!Application.isEditor && maskTexture != null) {
-                GenerateFoliageImmediate(maskTexture);
             }
         }
 
@@ -291,6 +292,7 @@ namespace TerrainBrush {
         }
 
         private void BuildFoliageMesh(Vector3[] verticesTerrain, Vector3[] normalsTerrain, int[] trianglesTerrain, Vector2[] uvTerrain) {
+            List<Renderer> renderers = new List<Renderer>();
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
             List<int> triangles = new List<int>();
@@ -313,6 +315,7 @@ namespace TerrainBrush {
                     GameObject target = GetFoliageSubMesh(foliageIndex++);
                     MeshFilter meshFilterFoliage = target.GetComponent<MeshFilter>();
                     MeshRenderer meshRendererFoliage = target.GetComponent<MeshRenderer>();
+                    renderers.Add(meshRendererFoliage);
                     meshFilterFoliage.sharedMesh=new Mesh();
                     meshFilterFoliage.sharedMesh.name="Foliage";
                     meshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
@@ -335,6 +338,7 @@ namespace TerrainBrush {
             GameObject ftarget = GetFoliageSubMesh(foliageIndex++);
             MeshFilter fmeshFilterFoliage = ftarget.GetComponent<MeshFilter>();
             MeshRenderer fmeshRendererFoliage = ftarget.GetComponent<MeshRenderer>();
+            renderers.Add(fmeshRendererFoliage);
             fmeshFilterFoliage.sharedMesh=new Mesh();
             fmeshFilterFoliage.sharedMesh.name="Foliage";
             fmeshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
@@ -346,6 +350,11 @@ namespace TerrainBrush {
             fmeshFilterFoliage.sharedMesh.RecalculateTangents();
             fmeshFilterFoliage.sharedMesh.RecalculateBounds();
             fmeshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.GetFoliage((FoliageData.FoliageAspect)(~0), 0).foliageMaterial;
+
+            LOD newLod = new LOD();
+            newLod.renderers = renderers.ToArray();
+            newLod.screenRelativeTransitionHeight = 0.25f;
+            group.SetLODs(new LOD[]{newLod, new LOD()});
 
             if (transform.Find("Foliage")) {
                 DestroyImmediate(transform.Find("Foliage").gameObject);
@@ -389,7 +398,7 @@ namespace TerrainBrush {
 
             if (grassSpillGauss) {
                 // Choose spillers over grass if the density is low.
-                bool spillerCheck = Random.Range(0f,1f)*density < 0.4f;
+                bool spillerCheck = Random.Range(0f,1f)*density < 0.2f;
                 if (spillerCheck && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Spiller) > 0) {
                     return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Spiller);
                 } else if (TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Grass) > 0) {

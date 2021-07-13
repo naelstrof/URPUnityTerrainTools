@@ -16,7 +16,7 @@ namespace TerrainBrush {
     public class TerrainBrushOverseer : MonoBehaviour {
         private static TerrainBrushOverseer _instance;
         [SerializeField, HideInInspector]
-        private bool locked = false;
+        public bool locked = false;
         [SerializeField, HideInInspector]
         private Texture2D cachedMaskMap;
         [SerializeField, HideInInspector]
@@ -144,7 +144,7 @@ namespace TerrainBrush {
         }
         public void Start() {
             // Application doesn't run OnEnable at the right time, so we run GenerateFoliage here...
-            if (Application.isPlaying) {
+            if (Application.isPlaying && locked) {
                 Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
                 GenerateFoliage();
             }
@@ -396,11 +396,13 @@ namespace TerrainBrush {
                 b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainDepth", TerrainBrushOverseer.instance.cachedDepth);
                 b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainNormals", TerrainBrushOverseer.instance.cachedNormals);
             }
+            TerrainBrushOverseer.instance.Bake();
         }
 
         [MenuItem("Tools/TerrainBrush/Unlock Changes")]
         public static void Unlock() {
             TerrainBrushOverseer.instance.locked = false;
+            TerrainBrushOverseer.instance.Bake();
         }
 
         [ContextMenu("Generate Texture")]

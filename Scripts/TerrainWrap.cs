@@ -300,11 +300,14 @@ namespace TerrainBrush {
             Transform foliageT = transform.Find("Foliage"+index);
             if (foliageT!=null) {
                 foliage=foliageT.gameObject;
-                foliage.hideFlags = HideFlags.HideAndDontSave;
             } else {
                 foliage=new GameObject("Foliage"+index, new System.Type[]{typeof(MeshFilter), typeof(MeshRenderer)});
-                foliage.hideFlags = HideFlags.HideAndDontSave;
                 foliage.transform.parent=transform;
+            }
+            if (TerrainBrushOverseer.instance.locked) {
+                foliage.hideFlags = HideFlags.HideAndDontSave;
+            } else {
+                foliage.hideFlags = HideFlags.HideInHierarchy;
             }
             foliage.transform.localPosition=Vector3.zero;
             foliage.transform.localRotation=Quaternion.identity;

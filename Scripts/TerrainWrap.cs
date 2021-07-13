@@ -20,9 +20,12 @@ namespace TerrainBrush {
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
         private int generateTimer;
-        private Texture2D dataTexture;
+        private int generateFoliageTimer;
+        private Texture2D maskTexture;
         [HideInInspector]
         public bool generated=false;
+        [HideInInspector]
+        public bool generatedFoliage=false;
         public void SetChunkID(int value, int chunks, int resolution, float smooth) { chunkID=value; this.chunks = chunks; this.resolution = resolution; this.smooth=smooth; generateTimer=value; generated=false; }
 
 #if UNITY_EDITOR
@@ -42,6 +45,14 @@ namespace TerrainBrush {
                 if (generateTimer<=0) {
                     Generate();
                     generated=true;
+                }
+                SceneView.RepaintAll();
+            }
+            if (!generatedFoliage) {
+                generateFoliageTimer-=1;
+                if (generateFoliageTimer<=0) {
+                    GenerateFoliageImmediate();
+                    generatedFoliage=true;
                 }
                 SceneView.RepaintAll();
             }
@@ -242,8 +253,13 @@ namespace TerrainBrush {
             //BuildFoliageMesh(vertices, normals, triangles, uv);
         }
 
-        public void GenerateFoliage() {
+        private void GenerateFoliageImmediate() {
             BuildFoliageMesh(meshFilter.sharedMesh.vertices, meshFilter.sharedMesh.normals, meshFilter.sharedMesh.triangles, meshFilter.sharedMesh.uv);
+        }
+        public void GenerateFoliage(int chunkID, Texture2D maskTexture) {
+            generatedFoliage = false;
+            generateFoliageTimer=chunkID;
+            this.maskTexture = maskTexture;
         }
 
         private GameObject GetFoliageSubMesh(int index) {
@@ -261,10 +277,6 @@ namespace TerrainBrush {
         }
 
         private void BuildFoliageMesh(Vector3[] verticesTerrain, Vector3[] normalsTerrain, int[] trianglesTerrain, Vector2[] uvTerrain) {
-            dataTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, false);
-            RenderTexture.active = TerrainBrushOverseer.instance.volume.texture;
-            dataTexture.ReadPixels(new Rect(0, 0, TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height), 0, 0);
-            dataTexture.Apply();
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
             List<int> triangles = new List<int>();
@@ -395,7 +407,7 @@ namespace TerrainBrush {
                 //Debug.Log(dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)));
                 int x = Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width);
                 int y = Mathf.RoundToInt(texPoint.y*TerrainBrushOverseer.instance.volume.texture.height);
-                float foliageDensity = dataTexture.GetPixel(x, y).g;
+                float foliageDensity = maskTexture.GetPixel(x, y).g;
                 if (Random.Range(0f,1f)>1f-foliageDensity*TerrainBrushOverseer.instance.foliageDensity) {
                     Mesh chosenMesh=ChooseFoliage(foliageDensity, texPoint.x, texPoint.y);
                     if (chosenMesh == null) {

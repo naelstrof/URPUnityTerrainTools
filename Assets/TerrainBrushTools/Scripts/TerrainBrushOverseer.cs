@@ -78,6 +78,8 @@ namespace TerrainBrush {
                 return _instance;
             }
         }
+        private RenderTargetHandle temporaryDepth = new RenderTargetHandle();
+        private RenderTargetHandle temporaryMask = new RenderTargetHandle();
         public enum BakeState {
             Idle = 0,
             Prepass,
@@ -111,6 +113,8 @@ namespace TerrainBrush {
         private List<TerrainWrap> activeTerrainWraps = new List<TerrainWrap>();
 
         public void OnEnable() {
+            temporaryDepth.Init("_TemporaryTerrainBrushDepth");
+            temporaryMask.Init("_TemporaryTerrainBrushMask");
             if (instance != this && instance != null) {
                 DestroyImmediate(gameObject);
             }
@@ -185,9 +189,11 @@ namespace TerrainBrush {
                         break;
                     }
                     case BakeState.FoliageGeneration: {
-                        GenerateTexture(GenerateDepthNormals());
-                        currentState = BakeState.Finished;
-                        EditorApplication.update -= BakeTick;
+                        Assert.IsTrue(activeTerrainWraps.Count > 0);
+                        if (activeTerrainWraps[activeTerrainWraps.Count-1].generatedFoliage) {
+                            currentState = BakeState.Finished;
+                            EditorApplication.update -= BakeTick;
+                        }
                         break;
                     }
                 }
@@ -224,18 +230,16 @@ namespace TerrainBrush {
             EditorApplication.update += BakeTick;
         }
         private void RenderTerrainMeshWithMaterial(CommandBuffer cmd, RenderTexture outputTexture, Material withMaterial, Color clearColor) {
-            RenderTargetHandle temporaryTexture = new RenderTargetHandle();
-            temporaryTexture.Init("_TerrainBrushNormalGenerate");
             cmd.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
-            cmd.GetTemporaryRT(temporaryTexture.id, outputTexture.width, outputTexture.height, 0, FilterMode.Bilinear, outputTexture.graphicsFormat, 1, false, RenderTextureMemoryless.None, false);
-            cmd.SetRenderTarget(temporaryTexture.id);
+            cmd.GetTemporaryRT(temporaryDepth.id, outputTexture.width, outputTexture.height, 0, FilterMode.Bilinear, outputTexture.graphicsFormat, 1, false, RenderTextureMemoryless.None, false);
+            cmd.SetRenderTarget(temporaryDepth.Identifier());
             cmd.ClearRenderTarget(true, true, clearColor);
             cmd.SetViewProjectionMatrices(view, projection);
             foreach(TerrainWrap wrap in activeTerrainWraps) {
                 cmd.DrawMesh(wrap.GetComponent<MeshFilter>().sharedMesh, wrap.transform.localToWorldMatrix, withMaterial);
             }
-            cmd.Blit(temporaryTexture.id, outputTexture);
-            cmd.ReleaseTemporaryRT(temporaryTexture.id);
+            cmd.Blit(temporaryDepth.Identifier(), outputTexture);
+            cmd.ReleaseTemporaryRT(temporaryDepth.id);
         }
         public CommandBuffer GenerateDepthNormals() {
             CommandBuffer cmd = new CommandBuffer();
@@ -400,26 +404,24 @@ namespace TerrainBrush {
             }
 
             // Now prepare a temporary buffer to render to
-            RenderTargetHandle temporaryTexture = new RenderTargetHandle();
-            temporaryTexture.Init("_TerrainBrushTemporaryTexture");
-
-            cmd.GetTemporaryRT(temporaryTexture.id, volume.texture.descriptor);
-            cmd.SetRenderTarget(temporaryTexture.id);
+            cmd.GetTemporaryRT(temporaryMask.id, volume.texture.descriptor);
+            cmd.SetRenderTarget(temporaryMask.Identifier());
             cmd.ClearRenderTarget(true, true, Color.clear);
 
             cmd.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
             cmd.SetViewProjectionMatrices(view, projection);
             // Finally queue up the render commands
             foreach(Brush b in activeBrushes) {
-                b.Execute(cmd, temporaryTexture, volume, view, projection);
+                b.Execute(cmd, temporaryMask, volume, view, projection);
             }
             // After the render, we blit directly into the texture
-            cmd.Blit(temporaryTexture.id, volume.texture);
+            cmd.Blit(temporaryMask.Identifier(), volume.texture);
             // Then clean up our stuffs.
-            cmd.ReleaseTemporaryRT(temporaryTexture.id);
+            cmd.ReleaseTemporaryRT(temporaryMask.id);
 
             Graphics.ExecuteCommandBuffer(cmd);
             cmd.Release();
+            terrainMaterial.SetTexture("_TerrainBlendMap", volume.texture);
         }
         [ContextMenu("Generate Mesh")]
         public void GenerateMesh() {
@@ -461,8 +463,16 @@ namespace TerrainBrush {
         }
         public void GenerateFoliage() {
             UnityEngine.Random.InitState(seed);
+
+            Texture2D cpuMaskCopy = new Texture2D(volume.texture.width, volume.texture.height, TextureFormat.RGBA32, 0, true);
+            RenderTexture old = RenderTexture.active;
+            RenderTexture.active = volume.texture;
+            cpuMaskCopy.ReadPixels(new Rect(0,0,volume.texture.width, volume.texture.height), 0, 0);
+            cpuMaskCopy.Apply();
+            RenderTexture.active = old;
+
             for (int i=0;i<activeTerrainWraps.Count;i++) {
-                activeTerrainWraps[i].GenerateFoliage();
+                activeTerrainWraps[i].GenerateFoliage(i, cpuMaskCopy);
             }
         }
         public void OnValidate() {

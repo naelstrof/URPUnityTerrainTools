@@ -354,6 +354,12 @@ namespace TerrainBrush {
             LOD newLod = new LOD();
             newLod.renderers = renderers.ToArray();
             newLod.screenRelativeTransitionHeight = 0.25f;
+            if (group == null) {
+                group = GetComponent<LODGroup>();
+            }
+            if (group == null) {
+                group = gameObject.AddComponent<LODGroup>();
+            }
             group.SetLODs(new LOD[]{newLod, new LOD()});
 
             if (transform.Find("Foliage")) {

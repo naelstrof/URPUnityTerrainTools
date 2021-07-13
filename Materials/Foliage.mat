@@ -96,6 +96,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
+    - _FadeDistance: 25
     - _GlobalTurbulenceInfluence: 1
     - _GlobalWindInfluence: 1
     - _GlossMapScale: 0

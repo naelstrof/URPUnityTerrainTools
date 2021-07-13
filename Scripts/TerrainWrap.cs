@@ -379,8 +379,9 @@ namespace TerrainBrush {
 
 
             // Now we know what we're doing, we try to group things up a little-- so similar plants kinda show up near eachother.
-            float perlinSample = Mathf.Clamp01(Mathf.PerlinNoise(x*10f,y*10f));
-            float perlinShiftSample= Mathf.Clamp01(Mathf.PerlinNoise((x+10f)*10f,(y+10f)*10f));
+            float perlinScale = 10f*TerrainBrushOverseer.instance.foliagePerlinScale;
+            float perlinSample = Mathf.Clamp01(Mathf.PerlinNoise(x*perlinScale,y*perlinScale));
+            float perlinShiftSample= Mathf.Clamp01(Mathf.PerlinNoise((x+perlinScale)*perlinScale,(y+perlinScale)*perlinScale));
 
             if (thrillerGauss && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Thriller) > 0) {
                 return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Thriller);

@@ -9,7 +9,6 @@ Shader "TerrainBrush/Foliage"
 		[ASEBegin]_BaseColorMap("BaseColorMap", 2D) = "white" {}
 		[Header(Wind)]_GlobalWindInfluence("Global Wind Influence", Range( 0 , 1)) = 1
 		_GlobalTurbulenceInfluence("Global Turbulence Influence", Range( 0 , 1)) = 1
-		_FadeDistance("FadeDistance", Range( 0 , 100)) = 0
 		[ASEEnd]_AlphaClip("AlphaClip", Range( 0 , 1)) = 0.5
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
 
@@ -242,7 +241,6 @@ Shader "TerrainBrush/Foliage"
 			float4 _BaseColorMap_ST;
 			float _GlobalWindInfluence;
 			float _GlobalTurbulenceInfluence;
-			float _FadeDistance;
 			float _AlphaClip;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
@@ -269,6 +267,7 @@ Shader "TerrainBrush/Foliage"
 			float _WindPulse;
 			float _WindDirection;
 			float _WindTurbulence;
+			float _FoliageFadeDistance;
 			sampler2D _BaseColorMap;
 
 
@@ -330,7 +329,7 @@ Shader "TerrainBrush/Foliage"
 				texCoord34.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord7.xy = v.texcoord.xy;
 				
@@ -755,7 +754,6 @@ Shader "TerrainBrush/Foliage"
 			float4 _BaseColorMap_ST;
 			float _GlobalWindInfluence;
 			float _GlobalTurbulenceInfluence;
-			float _FadeDistance;
 			float _AlphaClip;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
@@ -782,6 +780,7 @@ Shader "TerrainBrush/Foliage"
 			float _WindPulse;
 			float _WindDirection;
 			float _WindTurbulence;
+			float _FoliageFadeDistance;
 			sampler2D _BaseColorMap;
 
 
@@ -845,7 +844,7 @@ Shader "TerrainBrush/Foliage"
 				texCoord34.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
@@ -1098,7 +1097,6 @@ Shader "TerrainBrush/Foliage"
 			float4 _BaseColorMap_ST;
 			float _GlobalWindInfluence;
 			float _GlobalTurbulenceInfluence;
-			float _FadeDistance;
 			float _AlphaClip;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
@@ -1125,6 +1123,7 @@ Shader "TerrainBrush/Foliage"
 			float _WindPulse;
 			float _WindDirection;
 			float _WindTurbulence;
+			float _FoliageFadeDistance;
 			sampler2D _BaseColorMap;
 
 
@@ -1186,7 +1185,7 @@ Shader "TerrainBrush/Foliage"
 				texCoord34.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
@@ -1427,7 +1426,6 @@ Shader "TerrainBrush/Foliage"
 			float4 _BaseColorMap_ST;
 			float _GlobalWindInfluence;
 			float _GlobalTurbulenceInfluence;
-			float _FadeDistance;
 			float _AlphaClip;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
@@ -1454,6 +1452,7 @@ Shader "TerrainBrush/Foliage"
 			float _WindPulse;
 			float _WindDirection;
 			float _WindTurbulence;
+			float _FoliageFadeDistance;
 			sampler2D _BaseColorMap;
 
 
@@ -1515,7 +1514,7 @@ Shader "TerrainBrush/Foliage"
 				texCoord34.xy = v.texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
@@ -1751,7 +1750,6 @@ Shader "TerrainBrush/Foliage"
 			float4 _BaseColorMap_ST;
 			float _GlobalWindInfluence;
 			float _GlobalTurbulenceInfluence;
-			float _FadeDistance;
 			float _AlphaClip;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
@@ -1778,6 +1776,7 @@ Shader "TerrainBrush/Foliage"
 			float _WindPulse;
 			float _WindDirection;
 			float _WindTurbulence;
+			float _FoliageFadeDistance;
 			sampler2D _BaseColorMap;
 
 
@@ -1839,7 +1838,7 @@ Shader "TerrainBrush/Foliage"
 				texCoord34.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
@@ -2069,7 +2068,6 @@ Shader "TerrainBrush/Foliage"
 			float4 _BaseColorMap_ST;
 			float _GlobalWindInfluence;
 			float _GlobalTurbulenceInfluence;
-			float _FadeDistance;
 			float _AlphaClip;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
@@ -2096,6 +2094,7 @@ Shader "TerrainBrush/Foliage"
 			float _WindPulse;
 			float _WindDirection;
 			float _WindTurbulence;
+			float _FoliageFadeDistance;
 			sampler2D _BaseColorMap;
 
 
@@ -2157,7 +2156,7 @@ Shader "TerrainBrush/Foliage"
 				texCoord34.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord3.xy = v.ase_texcoord.xy;
 				
@@ -2431,7 +2430,6 @@ Shader "TerrainBrush/Foliage"
 			float4 _BaseColorMap_ST;
 			float _GlobalWindInfluence;
 			float _GlobalTurbulenceInfluence;
-			float _FadeDistance;
 			float _AlphaClip;
 			#ifdef _TRANSMISSION_ASE
 				float _TransmissionShadow;
@@ -2458,6 +2456,7 @@ Shader "TerrainBrush/Foliage"
 			float _WindPulse;
 			float _WindDirection;
 			float _WindTurbulence;
+			float _FoliageFadeDistance;
 			sampler2D _BaseColorMap;
 
 
@@ -2519,7 +2518,7 @@ Shader "TerrainBrush/Foliage"
 				texCoord34.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord7.xy = v.texcoord.xy;
 				
@@ -2875,10 +2874,10 @@ Shader "TerrainBrush/Foliage"
 }
 /*ASEBEGIN
 Version=18910
-7;196;1675;675;1433.291;-22.25513;1.3;True;True
+252;16;1675;675;1143.819;-424.4002;1;True;True
 Node;AmplifyShaderEditor.TextureCoordinatesNode;34;-746.5017,396.9616;Inherit;False;1;-1;3;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.WorldSpaceCameraPos;37;-814.1573,680.6986;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
-Node;AmplifyShaderEditor.RangedFloatNode;43;-543.7305,856.9772;Inherit;False;Property;_FadeDistance;FadeDistance;12;0;Create;True;0;0;0;False;0;False;0;25;0;100;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;43;-544.7305,856.9772;Inherit;False;Global;_FoliageFadeDistance;_FoliageFadeDistance;12;0;Create;True;0;0;0;False;0;False;25;0;0;100;0;1;FLOAT;0
 Node;AmplifyShaderEditor.DistanceOpNode;36;-518.3016,611.6617;Inherit;False;2;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleSubtractOpNode;38;-362.1574,611.6986;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;25;False;1;FLOAT;0
 Node;AmplifyShaderEditor.DynamicAppendNode;41;-527.3719,377.9482;Inherit;False;FLOAT4;4;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;1;False;1;FLOAT4;0
@@ -2886,16 +2885,16 @@ Node;AmplifyShaderEditor.SimpleMultiplyOpNode;42;-213.3721,613.0482;Inherit;Fals
 Node;AmplifyShaderEditor.SaturateNode;39;-72.5574,615.3986;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.WorldToObjectTransfNode;40;-369.604,339.8297;Inherit;False;1;0;FLOAT4;0,0,0,1;False;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.FunctionNode;32;-374.5562,231.1413;Inherit;False;TerrainBrushWind;3;;5;75293bf4dc8064f4889e6a7c1ab50374;7,269,1,281,0,272,0,255,2,278,0,280,0,282,0;0;1;FLOAT4;0
+Node;AmplifyShaderEditor.SwitchByFaceNode;15;-509.0906,-83.56586;Inherit;False;2;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.SamplerNode;8;-579.2173,-323.3586;Inherit;True;Property;_BaseColorMap;BaseColorMap;0;0;Create;True;0;0;0;False;0;False;-1;None;ac93f3feddfe1824da6ae203ffbc3cac;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SamplerNode;9;-1068.26,83.30882;Inherit;True;Property;_NormalMap;NormalMap;1;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SamplerNode;10;-1076.823,344.4591;Inherit;True;Property;_MaskMap;MaskMap;2;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RangedFloatNode;21;-318.3557,6.848858;Inherit;False;Constant;_Float4;Float 4;5;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SwitchByFaceNode;15;-509.0906,-83.56586;Inherit;False;2;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.SamplerNode;10;-1076.823,344.4591;Inherit;True;Property;_MaskMap;MaskMap;2;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.VertexColorNode;23;7.594411,-426.7626;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.NegateNode;18;-666.091,-32.56586;Inherit;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
-Node;AmplifyShaderEditor.RangedFloatNode;13;-392.0833,106.2875;Inherit;False;Property;_AlphaClip;AlphaClip;13;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;13;-392.0833,106.2875;Inherit;False;Property;_AlphaClip;AlphaClip;12;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.LerpOp;35;-150.5017,327.9616;Inherit;False;3;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0,0,0,0;False;2;FLOAT;0;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.Vector3Node;20;-965.844,-174.9742;Inherit;False;Constant;_Vector1;Vector 1;5;0;Create;True;0;0;0;False;0;False;0,0,1;0,0,0;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.NegateNode;18;-666.091,-32.56586;Inherit;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;7;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalGBuffer;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;5;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=Universal2D;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;0,0;Float;False;True;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;TerrainBrush/Foliage;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;18;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;2;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalForward;False;0;Hidden/InternalErrorShader;0;0;Standard;38;Workflow;1;Surface;0;  Refraction Model;0;  Blend;0;Two Sided;0;Fragment Normal Space,InvertActionOnDeselection;0;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;1;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;_FinalColorxAlpha;0;Meta Pass;1;Override Baked GI;0;Extra Pre Pass;0;DOTS Instancing;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Write Depth;0;  Early Z;0;Vertex Position,InvertActionOnDeselection;0;0;8;False;True;True;True;True;True;True;True;False;;False;0
@@ -2914,10 +2913,10 @@ WireConnection;39;0;42;0
 WireConnection;40;0;41;0
 WireConnection;15;0;20;0
 WireConnection;15;1;18;0
-WireConnection;18;0;20;0
 WireConnection;35;0;32;0
 WireConnection;35;1;40;0
 WireConnection;35;2;39;0
+WireConnection;18;0;20;0
 WireConnection;1;0;8;0
 WireConnection;1;1;15;0
 WireConnection;1;3;21;0
@@ -2926,4 +2925,4 @@ WireConnection;1;6;8;4
 WireConnection;1;7;13;0
 WireConnection;1;8;35;0
 ASEEND*/
-//CHKSM=B27B071EE6888D552052CA9B54F6BDBF569C4B96
+//CHKSM=ECA3B94E0E05E8A0FA118A04ED76C0BEEBB75998

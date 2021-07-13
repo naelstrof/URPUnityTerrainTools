@@ -48,6 +48,8 @@ namespace TerrainBrush {
         public float foliageDensity = 0.2f;
         [Range(0f,10f)]
         public float foliagePerlinScale = 1f;
+        [Range(0f,200f)]
+        public float foliageFadeDistance = 25f;
 
         public int GetFoliageCount(FoliageData.FoliageAspect aspect) {
             int count = 0;
@@ -128,6 +130,7 @@ namespace TerrainBrush {
             }
             if (volume != null) {
                 Shader.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
+                Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
             }
             foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
                 if (!activeTerrainWraps.Contains(t)) {
@@ -142,6 +145,7 @@ namespace TerrainBrush {
         public void Start() {
             // Application doesn't run OnEnable at the right time, so we run GenerateFoliage here...
             if (Application.isPlaying) {
+                Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
                 GenerateFoliage();
             }
         }
@@ -504,6 +508,7 @@ namespace TerrainBrush {
             }
         }
         public void OnValidate() {
+            Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
             Bake();
         }
         #endif

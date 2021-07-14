@@ -321,12 +321,14 @@ namespace TerrainBrush {
             List<int> triangles = new List<int>();
             List<Color> colors = new List<Color>();
             List<Vector3> uv2 = new List<Vector3>();
+            List<Vector3> uv3 = new List<Vector3>();
             int foliageIndex = 0;
             for (int i=0;i<trianglesTerrain.Length;i+=3) {
                 AddFoliageAtTriangle(
                     ref vertices,
                     ref uv,
                     ref uv2,
+                    ref uv3,
                     ref triangles,
                     ref colors,
                     verticesTerrain[trianglesTerrain[i]],
@@ -344,6 +346,7 @@ namespace TerrainBrush {
                     meshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
                     meshFilterFoliage.sharedMesh.uv=uv.ToArray();
                     meshFilterFoliage.sharedMesh.SetUVs(1,uv2);
+                    meshFilterFoliage.sharedMesh.SetUVs(2,uv3);
                     meshFilterFoliage.sharedMesh.triangles=triangles.ToArray();
                     meshFilterFoliage.sharedMesh.colors=colors.ToArray();
                     meshFilterFoliage.sharedMesh.RecalculateNormals();
@@ -355,6 +358,7 @@ namespace TerrainBrush {
                     triangles = new List<int>();
                     colors = new List<Color>();
                     uv2 = new List<Vector3>();
+                    uv3 = new List<Vector3>();
                 }
             }
             // Write out whatever we have left to an additional submesh.
@@ -367,6 +371,7 @@ namespace TerrainBrush {
             fmeshFilterFoliage.sharedMesh.vertices=vertices.ToArray();
             fmeshFilterFoliage.sharedMesh.uv=uv.ToArray();
             fmeshFilterFoliage.sharedMesh.SetUVs(1,uv2);
+            fmeshFilterFoliage.sharedMesh.SetUVs(2,uv3);
             fmeshFilterFoliage.sharedMesh.triangles=triangles.ToArray();
             fmeshFilterFoliage.sharedMesh.colors=colors.ToArray();
             fmeshFilterFoliage.sharedMesh.RecalculateNormals();
@@ -441,15 +446,15 @@ namespace TerrainBrush {
             return null;
         }
 
-        private void AddFoliageAtTriangle(ref List<Vector3> vertices, ref List<Vector2> uv, ref List<Vector3> uv2, ref List<int> triangles, ref List<Color> colors, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, int recurse) {
+        private void AddFoliageAtTriangle(ref List<Vector3> vertices, ref List<Vector2> uv, ref List<Vector3> uv2, ref List<Vector3> uv3, ref List<int> triangles, ref List<Color> colors, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, int recurse) {
             if (recurse>0) {
                 Vector3 pm1 = (p1+p2)/2f;
                 Vector3 pm2 = (p2+p3)/2f;
                 Vector3 pm3 = (p3+p1)/2f;
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref triangles, ref colors, p1, pm1, pm3, normal, recurse-1);
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref triangles, ref colors, pm1, p2, pm2, normal, recurse-1);
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref triangles, ref colors, pm1, pm2, pm3, normal, recurse-1);
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref triangles, ref colors, pm2, p3, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, p1, pm1, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm1, p2, pm2, normal, recurse-1);
+                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm1, pm2, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm2, p3, pm3, normal, recurse-1);
             } else {
                 Vector3 triCenter = (p1+p2+p3) / 3f;
                 float triSize=Mathf.Min(Vector3.Distance(p1,p2), Vector3.Distance(p2,p3));
@@ -482,6 +487,7 @@ namespace TerrainBrush {
                         windAmount *= chosenMesh.bounds.extents.z;
                         colors.Add(new Color(windAmount*0.01f, windAmount, windAmount, 0f));
                         uv2.Add(transform.TransformPoint(foliageCenter));
+                        uv3.Add(normal.normalized);
                     }
                     for (int i=0;i<foliageTriangles.Length;i++) {
                         triangles.Add(foliageTriangles[i]+lastVert);

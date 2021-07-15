@@ -10,6 +10,8 @@ namespace TerrainBrush {
 
     [ExecuteAlways]
     [RequireComponent(typeof(LODGroup))]
+    [RequireComponent(typeof(MeshFilter))]
+    [RequireComponent(typeof(MeshRenderer))]
     public class TerrainWrap : MonoBehaviour {
         [HideInInspector]
         public int chunkID=0;
@@ -17,10 +19,16 @@ namespace TerrainBrush {
         private MeshRenderer meshRenderer;
         [SerializeField, HideInInspector]
         private LODGroup group;
+        [HideInInspector]
+        public float foliageFadeDistance;
+        void Start() {
+            foliageFadeDistance = Shader.GetGlobalFloat("_FoliageFadeDistance");
+            group = GetComponent<LODGroup>();
+        }
         void Update() {
             Camera cam = Camera.main;
             if (Application.isEditor && !Application.isPlaying) {
-                group.ForceLOD(0);
+                group?.ForceLOD(0);
                 return;
             }
             if (cam == null) {
@@ -33,13 +41,13 @@ namespace TerrainBrush {
                 group.ForceLOD(1);
                 return;
             }
-            if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center)-meshRenderer.bounds.extents.magnitude > TerrainBrushOverseer.instance.foliageFadeDistance) {
+            if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center)-meshRenderer.bounds.extents.magnitude > foliageFadeDistance) {
                 group.ForceLOD(1);
             } else {
                 group.ForceLOD(0);
             }
         }
-        public void Generate(int chunkID, Bounds encapsulatedBounds, int resolution, int chunks, float smooth ) {
+        public void Generate(int chunkID, Matrix4x4 worldToTexture, LayerMask colliderMask, Bounds encapsulatedBounds, int resolution, int chunks, float smooth ) {
             this.chunkID = chunkID;
             transform.position=encapsulatedBounds.min;
             transform.rotation=Quaternion.identity;
@@ -60,7 +68,7 @@ namespace TerrainBrush {
                     float chunkX=(chunkID%chunks)*size/chunks;
                     float chunkY=Mathf.Floor(chunkID/chunks)*size/chunks;
                     Vector3 point = new Vector3(indexX * (size/chunks)/resolution + chunkX, 0, indexY * (size/chunks)/resolution + chunkY);
-                    if (Physics.Raycast(transform.TransformPoint(point)+Vector3.up*encapsulatedBounds.size.y, -Vector3.up, out hit, encapsulatedBounds.size.y, TerrainBrushOverseer.instance.meshBrushTargetLayers)) {
+                    if (Physics.Raycast(transform.TransformPoint(point)+Vector3.up*encapsulatedBounds.size.y, -Vector3.up, out hit, encapsulatedBounds.size.y, colliderMask)) {
                         float y = transform.InverseTransformPoint(hit.point).y;
                         surfaceLattice.Add(new Vector3(point.x, y, point.z));
                     } else {
@@ -142,7 +150,7 @@ namespace TerrainBrush {
             List<Vector2> uv2 = new List<Vector2>();
             for (int indexY=0; indexY<resolution+1; indexY++) {
                 for (int indexX=0; indexX<resolution+1; indexX++) {
-                    Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*(resolution+1)+indexX]));
+                    Vector3 texPoint = worldToTexture.MultiplyPoint(transform.TransformPoint(vertices[indexY*(resolution+1)+indexX]));
                     uv.Add(new Vector2(texPoint.x, texPoint.y));
                     uv2.Add(new Vector2((float)indexX/(float)resolution, (float)indexY/(float)resolution));
                 }
@@ -222,7 +230,7 @@ namespace TerrainBrush {
             //BuildFoliageMesh(vertices, normals, triangles, uv);
         }
 
-        private GameObject GetFoliageSubMesh(int index) {
+        private GameObject GetFoliageSubMesh(int index, bool saveInScene) {
             GameObject foliage;
             Transform foliageT = transform.Find("Foliage"+index);
             if (foliageT!=null) {
@@ -231,7 +239,7 @@ namespace TerrainBrush {
                 foliage=new GameObject("Foliage"+index, new System.Type[]{typeof(MeshFilter), typeof(MeshRenderer)});
                 foliage.transform.parent=transform;
             }
-            if (TerrainBrushOverseer.instance.locked) {
+            if (!saveInScene) {
                 foliage.hideFlags = HideFlags.HideAndDontSave;
             } else {
                 foliage.hideFlags = HideFlags.HideInHierarchy;
@@ -241,7 +249,7 @@ namespace TerrainBrush {
             return foliage;
         }
 
-        public void GenerateFoliage(float foliagePerlinScale, float density, int recurseCount, FoliageData[] foliageData, Matrix4x4 worldToTexture, Texture2D maskTexture) {
+        public void GenerateFoliage(bool saveInScene, float foliagePerlinScale, float density, int recurseCount, FoliageData[] foliageData, Matrix4x4 worldToTexture, Texture2D maskTexture) {
             if (meshFilter == null) {
                 meshFilter = GetComponent<MeshFilter>();
             }
@@ -281,7 +289,7 @@ namespace TerrainBrush {
                     Vector3.Cross((verticesTerrain[trianglesTerrain[i+1]]-verticesTerrain[trianglesTerrain[i]]).normalized, (verticesTerrain[trianglesTerrain[i+2]]-verticesTerrain[trianglesTerrain[i]]).normalized),
                     recurseCount);
                 if (vertices.Count > 50000) { // Create a submesh! We hit the vertex limit
-                    GameObject target = GetFoliageSubMesh(foliageIndex++);
+                    GameObject target = GetFoliageSubMesh(foliageIndex++, saveInScene);
                     MeshFilter meshFilterFoliage = target.GetComponent<MeshFilter>();
                     MeshRenderer meshRendererFoliage = target.GetComponent<MeshRenderer>();
                     renderers.Add(meshRendererFoliage);
@@ -306,7 +314,7 @@ namespace TerrainBrush {
                 }
             }
             // Write out whatever we have left to an additional submesh.
-            GameObject ftarget = GetFoliageSubMesh(foliageIndex++);
+            GameObject ftarget = GetFoliageSubMesh(foliageIndex++, saveInScene);
             MeshFilter fmeshFilterFoliage = ftarget.GetComponent<MeshFilter>();
             MeshRenderer fmeshRendererFoliage = ftarget.GetComponent<MeshRenderer>();
             renderers.Add(fmeshRendererFoliage);
@@ -405,7 +413,6 @@ namespace TerrainBrush {
                 triSize/=50f;
                 Vector3 RandomOffset = Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, normal) * Vector3.forward * triSize;
                 Vector3 texPoint = worldToTexture.MultiplyPoint(transform.TransformPoint(triCenter+RandomOffset));
-                //Debug.Log(dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)));
                 int x = Mathf.RoundToInt(texPoint.x*maskTexture.width);
                 int y = Mathf.RoundToInt(texPoint.y*maskTexture.height);
                 float groundDensity = maskTexture.GetPixel(x, y).g;

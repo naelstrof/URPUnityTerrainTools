@@ -148,7 +148,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainBlendMap:
-        m_Texture: {fileID: 8400000, guid: 8760a5df4ec7c484e9f1c18125b7184a, type: 2}
+        m_Texture: {fileID: 2800000, guid: ca58dbb6f7c7d8645b76ec3b786035b8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:
@@ -196,16 +196,16 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _Tiling: 0.64
+    - _Tiling: 0.3
     - _Tiling1: 0.1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorADark: {r: 0.4824804, g: 0.6509434, b: 0.41451585, a: 0}
+    - _ColorADark: {r: 0.28235292, g: 0.38039213, b: 0.14117643, a: 1}
     - _ColorADark1: {r: 0.058844, g: 0.4811321, b: 0, a: 0}
-    - _ColorALight: {r: 0.6650071, g: 0.7075472, b: 0.4772606, a: 0}
+    - _ColorALight: {r: 0.39607847, g: 0.49803925, b: 0.19215688, a: 1}
     - _ColorALight1: {r: 1, g: 0.9480466, b: 0.495283, a: 0}
     - _ColorBDark: {r: 0.4433962, g: 0.40581468, b: 0.2990833, a: 0}
     - _ColorBDark1: {r: 0.058844, g: 0.4811321, b: 0, a: 0}

@@ -31,6 +31,8 @@ namespace TerrainBrush {
             public Material terrainMaterial;
             public Transform parent;
             public GameObject terrainWrapPrefab;
+            public Matrix4x4 worldToTexture;
+            public LayerMask collidersMask;
             public override void IncrementalWork() {
                 int numChunks = chunkCountSquared*chunkCountSquared;
                 if (terrainWraps != null && currentChunk < numChunks) {
@@ -40,7 +42,7 @@ namespace TerrainBrush {
                         terrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                     }
                     terrainWraps[currentChunk].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
-                    terrainWraps[currentChunk].Generate(currentChunk, encapsulatedBounds, 1<<resolutionPow, chunkCountSquared, smoothness);
+                    terrainWraps[currentChunk].Generate(currentChunk, worldToTexture, collidersMask, encapsulatedBounds, 1<<resolutionPow, chunkCountSquared, smoothness);
                 }
                 currentChunk++;
             }
@@ -52,9 +54,10 @@ namespace TerrainBrush {
             public Texture2D maskTexture;
             public FoliageData[] foliageDatas;
             public float foliagePerlinScale;
+            public bool saveInScene;
             public override void IncrementalWork() {
                 if (terrainWraps != null) {
-                    terrainWraps[currentChunk].GenerateFoliage(foliagePerlinScale, density, recurseCount, foliageDatas, worldToTexture, maskTexture);
+                    terrainWraps[currentChunk].GenerateFoliage(saveInScene, foliagePerlinScale, density, recurseCount, foliageDatas, worldToTexture, maskTexture);
                 }
                 currentChunk++;
             }
@@ -103,7 +106,7 @@ namespace TerrainBrush {
                 }
             }
         }
-        public TerrainBrushFoliageSchedule GenerateFoliage(int seed, float foliagePerlinScale, float density, int recurseCount, Matrix4x4 worldToTexture, Texture maskTexture, FoliageData[] foliageDatas) {
+        public TerrainBrushFoliageSchedule GenerateFoliage(bool saveInScene, int seed, float foliagePerlinScale, float density, int recurseCount, Matrix4x4 worldToTexture, Texture maskTexture, FoliageData[] foliageDatas) {
             for(int i=0;i<schedules.Count;i++){
                 if (schedules[i] is TerrainBrushFoliageSchedule) {
                     schedules.Remove(schedules[i]);
@@ -127,6 +130,7 @@ namespace TerrainBrush {
                 recurseCount = recurseCount,
                 worldToTexture = worldToTexture,
                 foliageDatas = foliageDatas,
+                saveInScene = saveInScene,
             };
             // We automatically handle being given a RenderTexture or a Texture2D. We need it to be accessible from the CPU.
             if (maskTexture is RenderTexture) {
@@ -145,7 +149,7 @@ namespace TerrainBrush {
             schedules.Add(schedule);
             return schedule;
         }
-        public TerrainBrushMeshSchedule GenerateMesh(Transform parent, LayerMask colliderMask, Material terrainMaterial, GameObject terrainWrapPrefab, int chunkCountSquared, int resolutionPow, float smoothness) {
+        public TerrainBrushMeshSchedule GenerateMesh(Transform parent, Matrix4x4 worldToTexture, LayerMask colliderMask, Material terrainMaterial, GameObject terrainWrapPrefab, int chunkCountSquared, int resolutionPow, float smoothness) {
             for(int i=0;i<schedules.Count;i++){
                 if (schedules[i] is TerrainBrushMeshSchedule) {
                     schedules.Remove(schedules[i]);
@@ -176,6 +180,8 @@ namespace TerrainBrush {
                 chunkCountSquared = chunkCountSquared,
                 resolutionPow = resolutionPow,
                 smoothness = smoothness,
+                collidersMask = colliderMask,
+                worldToTexture = worldToTexture,
                 terrainWrapPrefab = terrainWrapPrefab,
                 encapsulatedBounds = encapsulatedBounds,
                 terrainWraps = terrainWraps,

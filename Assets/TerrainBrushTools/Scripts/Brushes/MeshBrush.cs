@@ -24,26 +24,19 @@ namespace TerrainBrush {
             }
         }
         public void OnEnable() {
-        // This probably shouldn't happen without the user knowing.
-            /*int mask = 1;
-            for (int i=0;i<31;i++) {
-                if ((mask & TerrainBrushOverseer.instance.meshBrushTargetLayers) != 0) {
-                    gameObject.layer = i;
-                    break;
-                }
-                mask <<= 1;
-            }*/
-            TerrainBrushOverseer.instance?.Bake();
+            transform.hasChanged = false;
+        }
+        public void Start() {
+            transform.hasChanged = false;
         }
         public void OnDrawGizmos() {
-            if (transform.hasChanged) {
-                TerrainBrushOverseer.instance?.Bake();
-                transform.hasChanged = false;
-            }
             Gizmos.DrawIcon(transform.position, gizmoPath, true);
         }
-        public void OnDisable() {
-            TerrainBrushOverseer.instance?.Bake();
+        public void OnDrawGizmosSelected() {
+            if (transform.hasChanged) {
+                TerrainBrushOverseer.instance?.Bake();
+                transform.hasChanged=false;
+            }
         }
         #endif
     }

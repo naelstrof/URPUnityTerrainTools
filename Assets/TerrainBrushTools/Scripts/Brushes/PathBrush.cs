@@ -139,10 +139,8 @@ namespace TerrainBrush {
                 }
                 line.SetPosition(currentPoint++, JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, 1f));
             }
-            TerrainBrushOverseer.instance?.Bake();
         }
-        public override void OnDrawGizmos() {
-            base.OnDrawGizmos();
+        public void OnDrawGizmos() {
             for(int i=0;i<transform.childCount;i++) {
                 Transform t = transform.GetChild(i);
                 PathNode pathNode = t.GetComponent<PathNode>();
@@ -152,6 +150,7 @@ namespace TerrainBrush {
                 if (t.hasChanged) {
                     t.hasChanged = false;
                     OnValidate();
+                    TerrainBrushOverseer.instance?.Bake();
                 }
                 //float mw = maxWidth;
                 //Gizmos.DrawWireSphere(t.position, mw*0.5f);

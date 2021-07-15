@@ -9,12 +9,6 @@ namespace TerrainBrush {
     [ExecuteInEditMode]
     public class BlendedBrush : Brush {
 #if UNITY_EDITOR
-        public void OnEnable() {
-            TerrainBrushOverseer.instance?.Bake();
-        }
-        public void OnDisable() {
-            TerrainBrushOverseer.instance?.Bake();
-        }
         public override Bounds brushBounds {
             get {
                 return GetComponent<Renderer>().bounds;

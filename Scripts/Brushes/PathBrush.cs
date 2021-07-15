@@ -140,6 +140,13 @@ namespace TerrainBrush {
                 line.SetPosition(currentPoint++, JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, 1f));
             }
         }
+        public override void OnEnable() {
+            base.OnEnable();
+            for(int i=0;i<transform.childCount;i++) {
+                Transform t = transform.GetChild(i);
+                t.hasChanged = false;
+            }
+        }
         public void OnDrawGizmos() {
             for(int i=0;i<transform.childCount;i++) {
                 Transform t = transform.GetChild(i);

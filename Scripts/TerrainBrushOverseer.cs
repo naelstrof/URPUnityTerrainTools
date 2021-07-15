@@ -51,27 +51,6 @@ namespace TerrainBrush {
         [Range(0f,200f)]
         public float foliageFadeDistance = 25f;
 
-        public int GetFoliageCount(FoliageData.FoliageAspect aspect) {
-            int count = 0;
-            foreach(FoliageData data in foliageMeshes) {
-                if (data.HasAspect(aspect)) {
-                    count++;
-                }
-            }
-            return count;
-        }
-        public FoliageData GetFoliage(FoliageData.FoliageAspect aspect, int index) {
-            int count = 0;
-            foreach(FoliageData data in foliageMeshes) {
-                if (data.HasAspect(aspect)) {
-                    if (count == index) {
-                        return data;
-                    }
-                    count++;
-                }
-            }
-            return null;
-        }
         public static TerrainBrushOverseer instance {
             get {
                 if (!SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
@@ -90,14 +69,6 @@ namespace TerrainBrush {
         }
         private RenderTargetHandle temporaryDepth = new RenderTargetHandle();
         private RenderTargetHandle temporaryMask = new RenderTargetHandle();
-        public enum BakeState {
-            Idle = 0,
-            Prepass,
-            MeshGeneration,
-            TextureGeneration,
-            FoliageGeneration,
-            Finished,
-        }
         // Generate our projection/view matrix
         public Matrix4x4 projection {
             get {
@@ -115,12 +86,9 @@ namespace TerrainBrush {
 
         public int callbackOrder => throw new NotImplementedException();
 
-        private BakeState currentState = BakeState.Idle;
 
         [HideInInspector]
         public TerrainBrushVolume volume = new TerrainBrushVolume();
-
-        private List<TerrainWrap> activeTerrainWraps = new List<TerrainWrap>();
 
         public void OnEnable() {
             temporaryDepth.Init("_TemporaryTerrainBrushDepth");
@@ -132,45 +100,9 @@ namespace TerrainBrush {
                 Shader.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
                 Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
             }
-            foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
-                if (!activeTerrainWraps.Contains(t)) {
-                    activeTerrainWraps.Add(t);
-                }
-            }
-            // Editor doesn't run Start(), so we generate our foliage here
-            if (Application.isEditor) {
-                GenerateFoliage();
-            }
         }
         public void Start() {
-            // Application doesn't run OnEnable at the right time, so we run GenerateFoliage here...
-            if (Application.isPlaying && locked) {
-                Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
-                GenerateFoliage();
-            }
-        }
-        public void GenerateFoliage() {
-            UnityEngine.Random.InitState(seed);
-            if (!locked && Application.isPlaying) {
-                Debug.LogError("TerrainBrushOverseer must be in `locked` mode in order to generate foliage during playmode.");
-                return;
-            }
-            if (!locked) {
-                Texture2D cpuMaskCopy = new Texture2D(volume.texture.width, volume.texture.height, TextureFormat.RGBA32, 0, true);
-                RenderTexture old = RenderTexture.active;
-                RenderTexture.active = volume.texture;
-                cpuMaskCopy.ReadPixels(new Rect(0,0,volume.texture.width, volume.texture.height), 0, 0);
-                cpuMaskCopy.Apply();
-                RenderTexture.active = old;
-
-                for (int i=0;i<activeTerrainWraps.Count;i++) {
-                    activeTerrainWraps[i].GenerateFoliage(i, cpuMaskCopy);
-                }
-            } else {
-                for (int i=0;i<activeTerrainWraps.Count;i++) {
-                    activeTerrainWraps[i].GenerateFoliage(i, cachedMaskMap);
-                }
-            }
+            Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
         }
 #if UNITY_EDITOR
         private RenderTexture GetNewTexture() {
@@ -200,52 +132,6 @@ namespace TerrainBrush {
             AssetDatabase.SaveAssets();
             return texture;
         }
-        private void BakeTick() {
-            if (Application.isPlaying) {
-                currentState = BakeState.Idle;
-                EditorApplication.update -= BakeTick;
-                return;
-            }
-            try {
-                switch(currentState) {
-                    case BakeState.Idle: {
-                        currentState = BakeState.Prepass;
-                        GenerateTexture();
-                        break;
-                    } 
-                    case BakeState.Prepass: {
-                        currentState = BakeState.MeshGeneration;
-                        GenerateMesh();
-                        break;
-                    }
-                    case BakeState.MeshGeneration: {
-                        Assert.IsTrue(activeTerrainWraps.Count > 0);
-                        if (activeTerrainWraps[activeTerrainWraps.Count-1].generated) {
-                            currentState = BakeState.TextureGeneration;
-                        }
-                        break;
-                    }
-                    case BakeState.TextureGeneration: {
-                        GenerateTexture(GenerateDepthNormals());
-                        GenerateFoliage();
-                        currentState = BakeState.FoliageGeneration;
-                        break;
-                    }
-                    case BakeState.FoliageGeneration: {
-                        Assert.IsTrue(activeTerrainWraps.Count > 0);
-                        if (activeTerrainWraps[activeTerrainWraps.Count-1].generatedFoliage) {
-                            currentState = BakeState.Finished;
-                            EditorApplication.update -= BakeTick;
-                        }
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                Debug.LogException(e);
-                currentState = BakeState.Idle;
-                EditorApplication.update -= BakeTick;
-            }
-        }
         public void Bake() {
             if (foliageMeshes == null || foliageMeshes.Length == 0) {
                 Debug.LogWarning("No foliage specified. Terrain won't bake.");
@@ -268,9 +154,11 @@ namespace TerrainBrush {
             if (!SceneManager.GetActiveScene().IsValid() || !SceneManager.GetActiveScene().isLoaded) {
                 return;
             }
-            currentState = BakeState.Idle;
-            EditorApplication.update -= BakeTick;
-            EditorApplication.update += BakeTick;
+            GenerateTexture();
+            TerrainBrushScheduler.instance.GenerateMesh(transform, meshBrushTargetLayers, terrainMaterial, terrainWrapPrefab, chunkCountSquared, resolutionPow, smoothness).OnFinish += () => {
+                GenerateTexture(GenerateDepthNormals());
+                TerrainBrushScheduler.instance.GenerateFoliage(seed, foliagePerlinScale, foliageDensity, foliageRecursiveCount, volume.worldToTexture, volume.texture, foliageMeshes);
+            };
         }
         private void RenderTerrainMeshWithMaterial(CommandBuffer cmd, RenderTexture outputTexture, Material withMaterial, Color clearColor) {
             cmd.SetGlobalMatrix("_WorldToTexture", volume.worldToTexture);
@@ -278,6 +166,7 @@ namespace TerrainBrush {
             cmd.SetRenderTarget(temporaryDepth.Identifier());
             cmd.ClearRenderTarget(true, true, clearColor);
             cmd.SetViewProjectionMatrices(view, projection);
+            TerrainWrap[] activeTerrainWraps = UnityEngine.Object.FindObjectsOfType<TerrainWrap>();
             foreach(TerrainWrap wrap in activeTerrainWraps) {
                 cmd.DrawMesh(wrap.GetComponent<MeshFilter>().sharedMesh, wrap.transform.localToWorldMatrix, withMaterial);
             }
@@ -396,13 +285,26 @@ namespace TerrainBrush {
                 b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainDepth", TerrainBrushOverseer.instance.cachedDepth);
                 b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainNormals", TerrainBrushOverseer.instance.cachedNormals);
             }
-            TerrainBrushOverseer.instance.GenerateFoliage();
+            //TerrainBrushOverseer.instance.GenerateFoliage();
+            TerrainBrushScheduler.instance.GenerateFoliage(TerrainBrushOverseer.instance.seed,
+                                                           TerrainBrushOverseer.instance.foliagePerlinScale,
+                                                           TerrainBrushOverseer.instance.foliageDensity,
+                                                           TerrainBrushOverseer.instance.foliageRecursiveCount,
+                                                           TerrainBrushOverseer.instance.volume.textureToWorld,
+                                                           TerrainBrushOverseer.instance.cachedMaskMap,
+                                                           TerrainBrushOverseer.instance.foliageMeshes);
         }
 
         [MenuItem("Tools/TerrainBrush/Unlock Changes")]
         public static void Unlock() {
             TerrainBrushOverseer.instance.locked = false;
-            TerrainBrushOverseer.instance.GenerateFoliage();
+            TerrainBrushScheduler.instance.GenerateFoliage(TerrainBrushOverseer.instance.seed,
+                                                           TerrainBrushOverseer.instance.foliagePerlinScale,
+                                                           TerrainBrushOverseer.instance.foliageDensity,
+                                                           TerrainBrushOverseer.instance.foliageRecursiveCount,
+                                                           TerrainBrushOverseer.instance.volume.textureToWorld,
+                                                           TerrainBrushOverseer.instance.cachedMaskMap,
+                                                           TerrainBrushOverseer.instance.foliageMeshes);
         }
 
         [ContextMenu("Generate Texture")]
@@ -472,46 +374,8 @@ namespace TerrainBrush {
             terrainMaterial.SetTexture("_TerrainBlendMap", volume.texture);
         }
         [ContextMenu("Generate Mesh")]
-        public void GenerateMesh() {
-            //GameObject terrainWrapPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("f63f0a5e964e419408e9f8f5bce8b9dd"));
-            Assert.IsTrue(terrainWrapPrefab != null);
-            Assert.IsTrue(terrainMaterial != null);
-            int numChunks = chunkCountSquared*chunkCountSquared;
-            for (int i=0; i<activeTerrainWraps.Count; i++) {
-                if (activeTerrainWraps[i]==null) {
-                    activeTerrainWraps.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-                if (i>=numChunks) {
-                    DestroyImmediate(activeTerrainWraps[i].gameObject);
-                    activeTerrainWraps.RemoveAt(i);
-                    i--;
-                }
-            }
-            if (activeTerrainWraps.Count<numChunks) {
-                foreach(TerrainWrap t in UnityEngine.Object.FindObjectsOfType<TerrainWrap>()) {
-                    if (!activeTerrainWraps.Contains(t)) {
-                        activeTerrainWraps.Add(t);
-                    }
-                }
-            }
-            // If we've recently baked, we'll have a non-render texture in this slot. So we update it.
-            terrainMaterial.SetTexture("_TerrainBlendMap", volume.texture);
-            activeTerrainWraps.Sort((a,b)=>(a.chunkID.CompareTo(b.chunkID)));
-            for (int i=0;i<numChunks;i++) {
-                if (activeTerrainWraps.Count<=i) {
-                    GameObject newTerrainWrapObject = GameObject.Instantiate(terrainWrapPrefab, Vector3.zero, Quaternion.identity);
-                    newTerrainWrapObject.transform.parent = transform;
-                    activeTerrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
-                }
-                activeTerrainWraps[i].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
-                activeTerrainWraps[i].SetChunkID(i, chunkCountSquared, 1<<resolutionPow, smoothness);
-            }
-        }
         public void OnValidate() {
             Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
-            Bake();
         }
         #endif
     }

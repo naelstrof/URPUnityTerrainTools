@@ -15,7 +15,13 @@ namespace TerrainBrush {
             }
         }
         public abstract void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection);
-        public virtual void OnDrawGizmos() {
+        public virtual void Start() {
+            transform.hasChanged = false;
+        }
+        public virtual void OnEnable() {
+            transform.hasChanged = false;
+        }
+        public virtual void OnDrawGizmosSelected() {
             if (transform.hasChanged) {
                 TerrainBrushOverseer.instance?.Bake();
                 transform.hasChanged=false;

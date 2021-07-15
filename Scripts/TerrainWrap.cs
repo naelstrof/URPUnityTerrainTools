@@ -11,62 +11,13 @@ namespace TerrainBrush {
     [ExecuteAlways]
     [RequireComponent(typeof(LODGroup))]
     public class TerrainWrap : MonoBehaviour {
-
-        [SerializeField] private float size=40f;
-        [SerializeField] private int resolution=128;
-        [SerializeField] private int chunks=4;
         [HideInInspector]
         public int chunkID=0;
-        private float smooth=1f;
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
-        private int generateTimer;
         [SerializeField, HideInInspector]
         private LODGroup group;
-        private int generateFoliageTimer;
-        [SerializeField]
-        private Texture2D maskTexture;
-        [HideInInspector]
-        public bool generated=false;
-        [HideInInspector]
-        public bool generatedFoliage=false;
-        public void SetChunkID(int value, int chunks, int resolution, float smooth) { chunkID=value; this.chunks = chunks; this.resolution = resolution; this.smooth=smooth; generateTimer=value; generated=false; }
-
-#if UNITY_EDITOR
-		void OnEnable() {
-			SceneView.duringSceneGui -= this.OnSceneGUI;
-			SceneView.duringSceneGui += this.OnSceneGUI;
-			UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
-		}
-
-		void OnDisable() {
-			SceneView.duringSceneGui -= this.OnSceneGUI;
-		}
-
-		void OnSceneGUI(SceneView sceneView) {
-            Update();
-		}
-#endif
-        public void Start() {
-            group = GetComponent<LODGroup>();
-        }
         void Update() {
-            if (!generated) {
-                generateTimer-=1;
-                if (generateTimer<=0) {
-                    generated=true;
-                    Generate();
-                }
-                SceneView.RepaintAll();
-            }
-            if (!generatedFoliage && maskTexture != null) {
-                generateFoliageTimer-=1;
-                if (generateFoliageTimer<=0) {
-                    generatedFoliage=true;
-                    GenerateFoliageImmediate(maskTexture);
-                }
-                SceneView.RepaintAll();
-            }
             Camera cam = Camera.main;
             if (Application.isEditor && !Application.isPlaying) {
                 group.ForceLOD(0);
@@ -88,24 +39,11 @@ namespace TerrainBrush {
                 group.ForceLOD(0);
             }
         }
-
-        [ContextMenu("Generate")]
-        public void Generate() {
-            List<Collider> colliders = new List<Collider>(Object.FindObjectsOfType<Collider>());
-            if (colliders.Count == 0) {
-                Debug.Log("No colliders found.");
-                return;
-            }
-            // Generate the volume that the textures exist on.
-            Bounds encapsulatedBounds = new Bounds(colliders[0].bounds.center, colliders[0].bounds.size);
-            foreach(Collider c in colliders) {
-                if (((1<<c.gameObject.layer)&TerrainBrushOverseer.instance.meshBrushTargetLayers) != 0) {
-                    encapsulatedBounds.EncapsulateTransformedBounds(c.bounds);
-                }
-            }
+        public void Generate(int chunkID, Bounds encapsulatedBounds, int resolution, int chunks, float smooth ) {
+            this.chunkID = chunkID;
             transform.position=encapsulatedBounds.min;
             transform.rotation=Quaternion.identity;
-            size=Mathf.Max(encapsulatedBounds.size.x, encapsulatedBounds.size.z);
+            float size=Mathf.Max(encapsulatedBounds.size.x, encapsulatedBounds.size.z);
             // BLOOD SACRIFICES WERE MADE FOR THIS
             // NEVER TOUCH IT AGAIN
             // THIS MAGIC HAS BEEN LOST TO TIME
@@ -284,17 +222,6 @@ namespace TerrainBrush {
             //BuildFoliageMesh(vertices, normals, triangles, uv);
         }
 
-        public void GenerateFoliageImmediate(Texture2D maskTexture) {
-            this.maskTexture = maskTexture;
-            meshFilter = GetComponent<MeshFilter>();
-            BuildFoliageMesh(meshFilter.sharedMesh.vertices, meshFilter.sharedMesh.normals, meshFilter.sharedMesh.triangles, meshFilter.sharedMesh.uv);
-        }
-        public void GenerateFoliage(int chunkID, Texture2D maskTexture) {
-            generatedFoliage = false;
-            generateFoliageTimer=chunkID;
-            this.maskTexture = maskTexture;
-        }
-
         private GameObject GetFoliageSubMesh(int index) {
             GameObject foliage;
             Transform foliageT = transform.Find("Foliage"+index);
@@ -314,7 +241,19 @@ namespace TerrainBrush {
             return foliage;
         }
 
-        private void BuildFoliageMesh(Vector3[] verticesTerrain, Vector3[] normalsTerrain, int[] trianglesTerrain, Vector2[] uvTerrain) {
+        public void GenerateFoliage(float foliagePerlinScale, float density, int recurseCount, FoliageData[] foliageData, Matrix4x4 worldToTexture, Texture2D maskTexture) {
+            if (meshFilter == null) {
+                meshFilter = GetComponent<MeshFilter>();
+            }
+            if (meshFilter == null || meshFilter.sharedMesh == null) {
+                Debug.LogError("Failed to generate foliage, there was no terrain to generate it on!");
+                return;
+            }
+            Vector3[] verticesTerrain = meshFilter.sharedMesh.vertices;
+            Vector3[] normalsTerrain = meshFilter.sharedMesh.normals;
+            int[] trianglesTerrain = meshFilter.sharedMesh.triangles;
+            Vector2[] uvTerrain = meshFilter.sharedMesh.uv;
+
             List<Renderer> renderers = new List<Renderer>();
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
@@ -325,6 +264,11 @@ namespace TerrainBrush {
             int foliageIndex = 0;
             for (int i=0;i<trianglesTerrain.Length;i+=3) {
                 AddFoliageAtTriangle(
+                    foliagePerlinScale,
+                    density,
+                    foliageData,
+                    worldToTexture,
+                    maskTexture,
                     ref vertices,
                     ref uv,
                     ref uv2,
@@ -335,7 +279,7 @@ namespace TerrainBrush {
                     verticesTerrain[trianglesTerrain[i+1]],
                     verticesTerrain[trianglesTerrain[i+2]],
                     Vector3.Cross((verticesTerrain[trianglesTerrain[i+1]]-verticesTerrain[trianglesTerrain[i]]).normalized, (verticesTerrain[trianglesTerrain[i+2]]-verticesTerrain[trianglesTerrain[i]]).normalized),
-                    TerrainBrushOverseer.instance.foliageRecursiveCount);
+                    recurseCount);
                 if (vertices.Count > 50000) { // Create a submesh! We hit the vertex limit
                     GameObject target = GetFoliageSubMesh(foliageIndex++);
                     MeshFilter meshFilterFoliage = target.GetComponent<MeshFilter>();
@@ -352,7 +296,7 @@ namespace TerrainBrush {
                     meshFilterFoliage.sharedMesh.RecalculateNormals();
                     meshFilterFoliage.sharedMesh.RecalculateTangents();
                     meshFilterFoliage.sharedMesh.RecalculateBounds();
-                    meshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.GetFoliage((FoliageData.FoliageAspect)(~0), 0).foliageMaterial;
+                    meshRendererFoliage.sharedMaterial=foliageData[0].foliageMaterial;
                     vertices = new List<Vector3>();
                     uv = new List<Vector2>();
                     triangles = new List<int>();
@@ -377,7 +321,7 @@ namespace TerrainBrush {
             fmeshFilterFoliage.sharedMesh.RecalculateNormals();
             fmeshFilterFoliage.sharedMesh.RecalculateTangents();
             fmeshFilterFoliage.sharedMesh.RecalculateBounds();
-            fmeshRendererFoliage.sharedMaterial=TerrainBrushOverseer.instance.GetFoliage((FoliageData.FoliageAspect)(~0), 0).foliageMaterial;
+            fmeshRendererFoliage.sharedMaterial=foliageData[0].foliageMaterial;
 
             LOD newLod = new LOD();
             newLod.renderers = renderers.ToArray();
@@ -402,17 +346,16 @@ namespace TerrainBrush {
             }
         }
 
-        private Mesh ChooseRandom(float perlinSample, float perlinShift, FoliageData.FoliageAspect aspect) {
-            int count = TerrainBrushOverseer.instance.GetFoliageCount(aspect);
+        private Mesh ChooseRandom(FoliageData[] foliageData, float perlinSample, float perlinShift, FoliageData.FoliageAspect aspect) {
+            int count = FoliageData.GetFoliageCount(foliageData, aspect);
             // Select random mesh
             int select = Mathf.RoundToInt(perlinSample*(float)(count-1));
             // Shift by up to length of array
             select = (select + Mathf.RoundToInt(perlinShift*(count-1))) % count;
-            return TerrainBrushOverseer.instance.GetFoliage(aspect, select).foliageMesh;
+            return FoliageData.GetFoliage(foliageData, aspect, select).foliageMesh;
         }
 
-        private Mesh ChooseFoliage(float density, float x, float y) {
-
+        private Mesh ChooseFoliage(FoliageData[] foliageData, float foliagePerlinScale, float density, float x, float y) {
             float random01 = Random.Range(0f,1f);
             // Low density biases towards grass. Thrillers don't care about density.
             bool grassSpillGauss = random01 * density <= 0.68f;
@@ -422,52 +365,52 @@ namespace TerrainBrush {
 
 
             // Now we know what we're doing, we try to group things up a little-- so similar plants kinda show up near eachother.
-            float perlinScale = 10f*TerrainBrushOverseer.instance.foliagePerlinScale;
+            float perlinScale = 10f*foliagePerlinScale;
             float perlinSample = Mathf.Clamp01(Mathf.PerlinNoise(x*perlinScale,y*perlinScale));
             float perlinShiftSample= Mathf.Clamp01(Mathf.PerlinNoise((x+perlinScale)*perlinScale,(y+perlinScale)*perlinScale));
 
-            if (thrillerGauss && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Thriller) > 0) {
-                return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Thriller);
+            if (thrillerGauss && FoliageData.GetFoliageCount(foliageData, FoliageData.FoliageAspect.Thriller) > 0) {
+                return ChooseRandom(foliageData, perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Thriller);
             }
 
             if (grassSpillGauss) {
                 // Choose spillers over grass if the density is low.
                 bool spillerCheck = Random.Range(0f,1f)*density < 0.2f;
-                if (spillerCheck && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Spiller) > 0) {
-                    return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Spiller);
-                } else if (TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Grass) > 0) {
-                    return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Grass);
+                if (spillerCheck && FoliageData.GetFoliageCount(foliageData, FoliageData.FoliageAspect.Spiller) > 0) {
+                    return ChooseRandom(foliageData, perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Spiller);
+                } else if (FoliageData.GetFoliageCount(foliageData, FoliageData.FoliageAspect.Grass) > 0) {
+                    return ChooseRandom(foliageData, perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Grass);
                 }
             }
 
-            if (fillerGauss && TerrainBrushOverseer.instance.GetFoliageCount(FoliageData.FoliageAspect.Filler) > 0) {
-                return ChooseRandom(perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Filler);
+            if (fillerGauss && FoliageData.GetFoliageCount(foliageData, FoliageData.FoliageAspect.Filler) > 0) {
+                return ChooseRandom(foliageData, perlinSample, perlinShiftSample, FoliageData.FoliageAspect.Filler);
             }
             return null;
         }
 
-        private void AddFoliageAtTriangle(ref List<Vector3> vertices, ref List<Vector2> uv, ref List<Vector3> uv2, ref List<Vector3> uv3, ref List<int> triangles, ref List<Color> colors, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, int recurse) {
+        private void AddFoliageAtTriangle(float foliagePerlinScale, float density, FoliageData[] foliageData, Matrix4x4 worldToTexture, Texture2D maskTexture, ref List<Vector3> vertices, ref List<Vector2> uv, ref List<Vector3> uv2, ref List<Vector3> uv3, ref List<int> triangles, ref List<Color> colors, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 normal, int recurse) {
             if (recurse>0) {
                 Vector3 pm1 = (p1+p2)/2f;
                 Vector3 pm2 = (p2+p3)/2f;
                 Vector3 pm3 = (p3+p1)/2f;
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, p1, pm1, pm3, normal, recurse-1);
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm1, p2, pm2, normal, recurse-1);
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm1, pm2, pm3, normal, recurse-1);
-                AddFoliageAtTriangle(ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm2, p3, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(foliagePerlinScale, density, foliageData, worldToTexture, maskTexture, ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, p1, pm1, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(foliagePerlinScale, density, foliageData, worldToTexture, maskTexture, ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm1, p2, pm2, normal, recurse-1);
+                AddFoliageAtTriangle(foliagePerlinScale, density, foliageData, worldToTexture, maskTexture, ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm1, pm2, pm3, normal, recurse-1);
+                AddFoliageAtTriangle(foliagePerlinScale, density, foliageData, worldToTexture, maskTexture, ref vertices, ref uv, ref uv2, ref uv3, ref triangles, ref colors, pm2, p3, pm3, normal, recurse-1);
             } else {
                 Vector3 triCenter = (p1+p2+p3) / 3f;
                 float triSize=Mathf.Min(Vector3.Distance(p1,p2), Vector3.Distance(p2,p3));
                 triSize=Mathf.Min(triSize, Vector3.Distance(p1,p3));
                 triSize/=50f;
                 Vector3 RandomOffset = Quaternion.LookRotation(Quaternion.AngleAxis(Random.Range(0f,360f), Vector3.up) * Vector3.forward, normal) * Vector3.forward * triSize;
-                Vector3 texPoint = TerrainBrushOverseer.instance.volume.worldToTexture.MultiplyPoint(transform.TransformPoint(triCenter+RandomOffset));
+                Vector3 texPoint = worldToTexture.MultiplyPoint(transform.TransformPoint(triCenter+RandomOffset));
                 //Debug.Log(dataTexture.GetPixel(Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width), Mathf.RoundToInt(texPoint.z*TerrainBrushOverseer.instance.volume.texture.height)));
-                int x = Mathf.RoundToInt(texPoint.x*TerrainBrushOverseer.instance.volume.texture.width);
-                int y = Mathf.RoundToInt(texPoint.y*TerrainBrushOverseer.instance.volume.texture.height);
-                float foliageDensity = maskTexture.GetPixel(x, y).g;
-                if (Random.Range(0f,1f)>1f-foliageDensity*TerrainBrushOverseer.instance.foliageDensity) {
-                    Mesh chosenMesh=ChooseFoliage(foliageDensity, texPoint.x, texPoint.y);
+                int x = Mathf.RoundToInt(texPoint.x*maskTexture.width);
+                int y = Mathf.RoundToInt(texPoint.y*maskTexture.height);
+                float groundDensity = maskTexture.GetPixel(x, y).g;
+                if (Random.Range(0f,1f)>1f-groundDensity*density) {
+                    Mesh chosenMesh=ChooseFoliage(foliageData, foliagePerlinScale, groundDensity, texPoint.x, texPoint.y);
                     if (chosenMesh == null) {
                         return;
                     }

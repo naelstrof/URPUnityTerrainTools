@@ -53,20 +53,14 @@ namespace TerrainBrush {
             cmd.DrawMesh(renderMesh, transform.localToWorldMatrix, tempMaterial, 0, 0);
         }
 
-        public override void OnDrawGizmos() {
-            base.OnDrawGizmos();
+        public void OnDrawGizmos() {
             Gizmos.DrawIcon(transform.position, gizmoPath, true);
         }
-        public void OnValidate() {
+        public override void OnDrawGizmosSelected() {
             if (renderMesh == null || renderMaterial == null) {
                 return;
             }
-            TerrainBrushOverseer.instance?.Bake();
-        }
-        public void OnDrawGizmosSelected() {
-            if (renderMesh == null || renderMaterial == null) {
-                return;
-            }
+            base.OnDrawGizmosSelected();
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.color = renderMaterial.color;
             Gizmos.DrawWireMesh(renderMesh, 0, Vector3.zero, Quaternion.identity, Vector3.one);

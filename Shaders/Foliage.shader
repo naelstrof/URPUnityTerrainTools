@@ -158,12 +158,12 @@ Shader "TerrainBrush/Foliage"
 			
 
 			HLSLPROGRAM
+			#define _NORMAL_DROPOFF_WS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _NORMAL_DROPOFF_WS 1
 			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 100500
@@ -289,49 +289,49 @@ Shader "TerrainBrush/Foliage"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 appendResult299_g5 = (float4(v.vertex.xyz , 1.0));
-				float4 transform298_g5 = mul(GetObjectToWorldMatrix(),appendResult299_g5);
-				float4 VAR_VertexPosition21_g5 = transform298_g5;
-				float3 texCoord306_g5 = v.texcoord1.xyzw.xyz;
-				texCoord306_g5.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 temp_output_307_0_g5 = ( VAR_VertexPosition21_g5 - float4( texCoord306_g5 , 0.0 ) );
-				float4 break109_g5 = temp_output_307_0_g5;
-				float VAR_WindStrength43_g5 = ( _WindStrength * _GlobalWindInfluence );
-				float4 break304_g5 = VAR_VertexPosition21_g5;
-				float2 appendResult38_g5 = (float2(break304_g5.x , break304_g5.z));
-				float dotResult2_g6 = dot( appendResult38_g5 , float2( 12.9898,78.233 ) );
-				float lerpResult8_g6 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g6 ) * 43758.55 ) ));
-				float VAR_RandomTime16_g5 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g6 );
-				float FUNC_Turbulence36_g5 = ( sin( ( ( VAR_RandomTime16_g5 * 40.0 ) - ( VAR_VertexPosition21_g5.z / 15.0 ) ) ) * 0.5 );
-				float VAR_WindPulse274_g5 = _WindPulse;
-				float FUNC_Angle73_g5 = ( VAR_WindStrength43_g5 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g5 * 2.0 ) + FUNC_Turbulence36_g5 ) - ( VAR_VertexPosition21_g5.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g5 );
-				float VAR_SinA80_g5 = sin( FUNC_Angle73_g5 );
-				float VAR_CosA78_g5 = cos( FUNC_Angle73_g5 );
-				float _WindDirection164_g5 = _WindDirection;
-				float2 localDirectionalEquation164_g5 = DirectionalEquation( _WindDirection164_g5 );
-				float2 break165_g5 = localDirectionalEquation164_g5;
-				float VAR_xLerp83_g5 = break165_g5.x;
-				float lerpResult118_g5 = lerp( break109_g5.x , ( ( break109_g5.y * VAR_SinA80_g5 ) + ( break109_g5.x * VAR_CosA78_g5 ) ) , VAR_xLerp83_g5);
-				float4 break98_g5 = temp_output_307_0_g5;
-				float4 break105_g5 = temp_output_307_0_g5;
-				float VAR_zLerp95_g5 = break165_g5.y;
-				float lerpResult120_g5 = lerp( break105_g5.z , ( ( break105_g5.y * VAR_SinA80_g5 ) + ( break105_g5.z * VAR_CosA78_g5 ) ) , VAR_zLerp95_g5);
-				float3 appendResult122_g5 = (float3(lerpResult118_g5 , ( ( break98_g5.y * VAR_CosA78_g5 ) - ( break98_g5.z * VAR_SinA80_g5 ) ) , lerpResult120_g5));
-				float3 texCoord309_g5 = v.texcoord1.xyzw.xyz;
-				texCoord309_g5.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float3 FUNC_vertexPos123_g5 = ( appendResult122_g5 + texCoord309_g5 );
-				float3 break236_g5 = FUNC_vertexPos123_g5;
-				half FUNC_SinFunction195_g5 = sin( ( ( VAR_RandomTime16_g5 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g5 + ( VAR_VertexPosition21_g5.z / 2.0 ) ) );
-				float VAR_GlobalWindTurbulence194_g5 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
-				float3 appendResult237_g5 = (float3(break236_g5.x , ( break236_g5.y + ( FUNC_SinFunction195_g5 * v.ase_color.b * ( FUNC_Angle73_g5 + ( VAR_WindStrength43_g5 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g5 ) ) , break236_g5.z));
-				float3 OUT_Leafs_Standalone244_g5 = appendResult237_g5;
-				float4 appendResult301_g5 = (float4(OUT_Leafs_Standalone244_g5 , 1.0));
-				float4 transform300_g5 = mul(GetWorldToObjectMatrix(),appendResult301_g5);
+				float4 appendResult299_g9 = (float4(v.vertex.xyz , 1.0));
+				float4 transform298_g9 = mul(GetObjectToWorldMatrix(),appendResult299_g9);
+				float4 VAR_VertexPosition21_g9 = transform298_g9;
+				float3 texCoord306_g9 = v.texcoord1.xyzw.xyz;
+				texCoord306_g9.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 temp_output_307_0_g9 = ( VAR_VertexPosition21_g9 - float4( texCoord306_g9 , 0.0 ) );
+				float4 break109_g9 = temp_output_307_0_g9;
+				float VAR_WindStrength43_g9 = ( _WindStrength * _GlobalWindInfluence );
+				float4 break304_g9 = VAR_VertexPosition21_g9;
+				float2 appendResult38_g9 = (float2(break304_g9.x , break304_g9.z));
+				float dotResult2_g10 = dot( appendResult38_g9 , float2( 12.9898,78.233 ) );
+				float lerpResult8_g10 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g10 ) * 43758.55 ) ));
+				float VAR_RandomTime16_g9 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g10 );
+				float FUNC_Turbulence36_g9 = ( sin( ( ( VAR_RandomTime16_g9 * 40.0 ) - ( VAR_VertexPosition21_g9.z / 15.0 ) ) ) * 0.5 );
+				float VAR_WindPulse274_g9 = _WindPulse;
+				float FUNC_Angle73_g9 = ( VAR_WindStrength43_g9 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g9 * 2.0 ) + FUNC_Turbulence36_g9 ) - ( VAR_VertexPosition21_g9.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g9 );
+				float VAR_SinA80_g9 = sin( FUNC_Angle73_g9 );
+				float VAR_CosA78_g9 = cos( FUNC_Angle73_g9 );
+				float _WindDirection164_g9 = _WindDirection;
+				float2 localDirectionalEquation164_g9 = DirectionalEquation( _WindDirection164_g9 );
+				float2 break165_g9 = localDirectionalEquation164_g9;
+				float VAR_xLerp83_g9 = break165_g9.x;
+				float lerpResult118_g9 = lerp( break109_g9.x , ( ( break109_g9.y * VAR_SinA80_g9 ) + ( break109_g9.x * VAR_CosA78_g9 ) ) , VAR_xLerp83_g9);
+				float4 break98_g9 = temp_output_307_0_g9;
+				float4 break105_g9 = temp_output_307_0_g9;
+				float VAR_zLerp95_g9 = break165_g9.y;
+				float lerpResult120_g9 = lerp( break105_g9.z , ( ( break105_g9.y * VAR_SinA80_g9 ) + ( break105_g9.z * VAR_CosA78_g9 ) ) , VAR_zLerp95_g9);
+				float3 appendResult122_g9 = (float3(lerpResult118_g9 , ( ( break98_g9.y * VAR_CosA78_g9 ) - ( break98_g9.z * VAR_SinA80_g9 ) ) , lerpResult120_g9));
+				float3 texCoord309_g9 = v.texcoord1.xyzw.xyz;
+				texCoord309_g9.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float3 FUNC_vertexPos123_g9 = ( appendResult122_g9 + texCoord309_g9 );
+				float3 break236_g9 = FUNC_vertexPos123_g9;
+				half FUNC_SinFunction195_g9 = sin( ( ( VAR_RandomTime16_g9 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g9 + ( VAR_VertexPosition21_g9.z / 2.0 ) ) );
+				float VAR_GlobalWindTurbulence194_g9 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
+				float3 appendResult237_g9 = (float3(break236_g9.x , ( break236_g9.y + ( FUNC_SinFunction195_g9 * v.ase_color.b * ( FUNC_Angle73_g9 + ( VAR_WindStrength43_g9 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g9 ) ) , break236_g9.z));
+				float3 OUT_Leafs_Standalone244_g9 = appendResult237_g9;
+				float4 appendResult301_g9 = (float4(OUT_Leafs_Standalone244_g9 , 1.0));
+				float4 transform300_g9 = mul(GetWorldToObjectMatrix(),appendResult301_g9);
 				float3 texCoord34 = v.texcoord1.xyzw.xyz;
 				texCoord34.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g9 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord7.xy = v.texcoord.xy;
 				o.ase_texcoord8.xyz = v.ase_texcoord2.xyz;
@@ -709,12 +709,12 @@ Shader "TerrainBrush/Foliage"
 			AlphaToMask Off
 
 			HLSLPROGRAM
+			#define _NORMAL_DROPOFF_WS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _NORMAL_DROPOFF_WS 1
 			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 100500
@@ -809,49 +809,49 @@ Shader "TerrainBrush/Foliage"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 appendResult299_g5 = (float4(v.vertex.xyz , 1.0));
-				float4 transform298_g5 = mul(GetObjectToWorldMatrix(),appendResult299_g5);
-				float4 VAR_VertexPosition21_g5 = transform298_g5;
-				float3 texCoord306_g5 = v.ase_texcoord1.xyz;
-				texCoord306_g5.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 temp_output_307_0_g5 = ( VAR_VertexPosition21_g5 - float4( texCoord306_g5 , 0.0 ) );
-				float4 break109_g5 = temp_output_307_0_g5;
-				float VAR_WindStrength43_g5 = ( _WindStrength * _GlobalWindInfluence );
-				float4 break304_g5 = VAR_VertexPosition21_g5;
-				float2 appendResult38_g5 = (float2(break304_g5.x , break304_g5.z));
-				float dotResult2_g6 = dot( appendResult38_g5 , float2( 12.9898,78.233 ) );
-				float lerpResult8_g6 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g6 ) * 43758.55 ) ));
-				float VAR_RandomTime16_g5 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g6 );
-				float FUNC_Turbulence36_g5 = ( sin( ( ( VAR_RandomTime16_g5 * 40.0 ) - ( VAR_VertexPosition21_g5.z / 15.0 ) ) ) * 0.5 );
-				float VAR_WindPulse274_g5 = _WindPulse;
-				float FUNC_Angle73_g5 = ( VAR_WindStrength43_g5 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g5 * 2.0 ) + FUNC_Turbulence36_g5 ) - ( VAR_VertexPosition21_g5.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g5 );
-				float VAR_SinA80_g5 = sin( FUNC_Angle73_g5 );
-				float VAR_CosA78_g5 = cos( FUNC_Angle73_g5 );
-				float _WindDirection164_g5 = _WindDirection;
-				float2 localDirectionalEquation164_g5 = DirectionalEquation( _WindDirection164_g5 );
-				float2 break165_g5 = localDirectionalEquation164_g5;
-				float VAR_xLerp83_g5 = break165_g5.x;
-				float lerpResult118_g5 = lerp( break109_g5.x , ( ( break109_g5.y * VAR_SinA80_g5 ) + ( break109_g5.x * VAR_CosA78_g5 ) ) , VAR_xLerp83_g5);
-				float4 break98_g5 = temp_output_307_0_g5;
-				float4 break105_g5 = temp_output_307_0_g5;
-				float VAR_zLerp95_g5 = break165_g5.y;
-				float lerpResult120_g5 = lerp( break105_g5.z , ( ( break105_g5.y * VAR_SinA80_g5 ) + ( break105_g5.z * VAR_CosA78_g5 ) ) , VAR_zLerp95_g5);
-				float3 appendResult122_g5 = (float3(lerpResult118_g5 , ( ( break98_g5.y * VAR_CosA78_g5 ) - ( break98_g5.z * VAR_SinA80_g5 ) ) , lerpResult120_g5));
-				float3 texCoord309_g5 = v.ase_texcoord1.xyz;
-				texCoord309_g5.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float3 FUNC_vertexPos123_g5 = ( appendResult122_g5 + texCoord309_g5 );
-				float3 break236_g5 = FUNC_vertexPos123_g5;
-				half FUNC_SinFunction195_g5 = sin( ( ( VAR_RandomTime16_g5 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g5 + ( VAR_VertexPosition21_g5.z / 2.0 ) ) );
-				float VAR_GlobalWindTurbulence194_g5 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
-				float3 appendResult237_g5 = (float3(break236_g5.x , ( break236_g5.y + ( FUNC_SinFunction195_g5 * v.ase_color.b * ( FUNC_Angle73_g5 + ( VAR_WindStrength43_g5 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g5 ) ) , break236_g5.z));
-				float3 OUT_Leafs_Standalone244_g5 = appendResult237_g5;
-				float4 appendResult301_g5 = (float4(OUT_Leafs_Standalone244_g5 , 1.0));
-				float4 transform300_g5 = mul(GetWorldToObjectMatrix(),appendResult301_g5);
+				float4 appendResult299_g9 = (float4(v.vertex.xyz , 1.0));
+				float4 transform298_g9 = mul(GetObjectToWorldMatrix(),appendResult299_g9);
+				float4 VAR_VertexPosition21_g9 = transform298_g9;
+				float3 texCoord306_g9 = v.ase_texcoord1.xyz;
+				texCoord306_g9.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 temp_output_307_0_g9 = ( VAR_VertexPosition21_g9 - float4( texCoord306_g9 , 0.0 ) );
+				float4 break109_g9 = temp_output_307_0_g9;
+				float VAR_WindStrength43_g9 = ( _WindStrength * _GlobalWindInfluence );
+				float4 break304_g9 = VAR_VertexPosition21_g9;
+				float2 appendResult38_g9 = (float2(break304_g9.x , break304_g9.z));
+				float dotResult2_g10 = dot( appendResult38_g9 , float2( 12.9898,78.233 ) );
+				float lerpResult8_g10 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g10 ) * 43758.55 ) ));
+				float VAR_RandomTime16_g9 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g10 );
+				float FUNC_Turbulence36_g9 = ( sin( ( ( VAR_RandomTime16_g9 * 40.0 ) - ( VAR_VertexPosition21_g9.z / 15.0 ) ) ) * 0.5 );
+				float VAR_WindPulse274_g9 = _WindPulse;
+				float FUNC_Angle73_g9 = ( VAR_WindStrength43_g9 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g9 * 2.0 ) + FUNC_Turbulence36_g9 ) - ( VAR_VertexPosition21_g9.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g9 );
+				float VAR_SinA80_g9 = sin( FUNC_Angle73_g9 );
+				float VAR_CosA78_g9 = cos( FUNC_Angle73_g9 );
+				float _WindDirection164_g9 = _WindDirection;
+				float2 localDirectionalEquation164_g9 = DirectionalEquation( _WindDirection164_g9 );
+				float2 break165_g9 = localDirectionalEquation164_g9;
+				float VAR_xLerp83_g9 = break165_g9.x;
+				float lerpResult118_g9 = lerp( break109_g9.x , ( ( break109_g9.y * VAR_SinA80_g9 ) + ( break109_g9.x * VAR_CosA78_g9 ) ) , VAR_xLerp83_g9);
+				float4 break98_g9 = temp_output_307_0_g9;
+				float4 break105_g9 = temp_output_307_0_g9;
+				float VAR_zLerp95_g9 = break165_g9.y;
+				float lerpResult120_g9 = lerp( break105_g9.z , ( ( break105_g9.y * VAR_SinA80_g9 ) + ( break105_g9.z * VAR_CosA78_g9 ) ) , VAR_zLerp95_g9);
+				float3 appendResult122_g9 = (float3(lerpResult118_g9 , ( ( break98_g9.y * VAR_CosA78_g9 ) - ( break98_g9.z * VAR_SinA80_g9 ) ) , lerpResult120_g9));
+				float3 texCoord309_g9 = v.ase_texcoord1.xyz;
+				texCoord309_g9.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float3 FUNC_vertexPos123_g9 = ( appendResult122_g9 + texCoord309_g9 );
+				float3 break236_g9 = FUNC_vertexPos123_g9;
+				half FUNC_SinFunction195_g9 = sin( ( ( VAR_RandomTime16_g9 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g9 + ( VAR_VertexPosition21_g9.z / 2.0 ) ) );
+				float VAR_GlobalWindTurbulence194_g9 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
+				float3 appendResult237_g9 = (float3(break236_g9.x , ( break236_g9.y + ( FUNC_SinFunction195_g9 * v.ase_color.b * ( FUNC_Angle73_g9 + ( VAR_WindStrength43_g9 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g9 ) ) , break236_g9.z));
+				float3 OUT_Leafs_Standalone244_g9 = appendResult237_g9;
+				float4 appendResult301_g9 = (float4(OUT_Leafs_Standalone244_g9 , 1.0));
+				float4 transform300_g9 = mul(GetWorldToObjectMatrix(),appendResult301_g9);
 				float3 texCoord34 = v.ase_texcoord1.xyz;
 				texCoord34.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g9 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
@@ -1035,12 +1035,12 @@ Shader "TerrainBrush/Foliage"
 			Cull Off
 
 			HLSLPROGRAM
+			#define _NORMAL_DROPOFF_WS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _NORMAL_DROPOFF_WS 1
 			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 100500
@@ -1138,49 +1138,49 @@ Shader "TerrainBrush/Foliage"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 appendResult299_g5 = (float4(v.vertex.xyz , 1.0));
-				float4 transform298_g5 = mul(GetObjectToWorldMatrix(),appendResult299_g5);
-				float4 VAR_VertexPosition21_g5 = transform298_g5;
-				float3 texCoord306_g5 = v.texcoord1.xyz;
-				texCoord306_g5.xy = v.texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 temp_output_307_0_g5 = ( VAR_VertexPosition21_g5 - float4( texCoord306_g5 , 0.0 ) );
-				float4 break109_g5 = temp_output_307_0_g5;
-				float VAR_WindStrength43_g5 = ( _WindStrength * _GlobalWindInfluence );
-				float4 break304_g5 = VAR_VertexPosition21_g5;
-				float2 appendResult38_g5 = (float2(break304_g5.x , break304_g5.z));
-				float dotResult2_g6 = dot( appendResult38_g5 , float2( 12.9898,78.233 ) );
-				float lerpResult8_g6 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g6 ) * 43758.55 ) ));
-				float VAR_RandomTime16_g5 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g6 );
-				float FUNC_Turbulence36_g5 = ( sin( ( ( VAR_RandomTime16_g5 * 40.0 ) - ( VAR_VertexPosition21_g5.z / 15.0 ) ) ) * 0.5 );
-				float VAR_WindPulse274_g5 = _WindPulse;
-				float FUNC_Angle73_g5 = ( VAR_WindStrength43_g5 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g5 * 2.0 ) + FUNC_Turbulence36_g5 ) - ( VAR_VertexPosition21_g5.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g5 );
-				float VAR_SinA80_g5 = sin( FUNC_Angle73_g5 );
-				float VAR_CosA78_g5 = cos( FUNC_Angle73_g5 );
-				float _WindDirection164_g5 = _WindDirection;
-				float2 localDirectionalEquation164_g5 = DirectionalEquation( _WindDirection164_g5 );
-				float2 break165_g5 = localDirectionalEquation164_g5;
-				float VAR_xLerp83_g5 = break165_g5.x;
-				float lerpResult118_g5 = lerp( break109_g5.x , ( ( break109_g5.y * VAR_SinA80_g5 ) + ( break109_g5.x * VAR_CosA78_g5 ) ) , VAR_xLerp83_g5);
-				float4 break98_g5 = temp_output_307_0_g5;
-				float4 break105_g5 = temp_output_307_0_g5;
-				float VAR_zLerp95_g5 = break165_g5.y;
-				float lerpResult120_g5 = lerp( break105_g5.z , ( ( break105_g5.y * VAR_SinA80_g5 ) + ( break105_g5.z * VAR_CosA78_g5 ) ) , VAR_zLerp95_g5);
-				float3 appendResult122_g5 = (float3(lerpResult118_g5 , ( ( break98_g5.y * VAR_CosA78_g5 ) - ( break98_g5.z * VAR_SinA80_g5 ) ) , lerpResult120_g5));
-				float3 texCoord309_g5 = v.texcoord1.xyz;
-				texCoord309_g5.xy = v.texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float3 FUNC_vertexPos123_g5 = ( appendResult122_g5 + texCoord309_g5 );
-				float3 break236_g5 = FUNC_vertexPos123_g5;
-				half FUNC_SinFunction195_g5 = sin( ( ( VAR_RandomTime16_g5 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g5 + ( VAR_VertexPosition21_g5.z / 2.0 ) ) );
-				float VAR_GlobalWindTurbulence194_g5 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
-				float3 appendResult237_g5 = (float3(break236_g5.x , ( break236_g5.y + ( FUNC_SinFunction195_g5 * v.ase_color.b * ( FUNC_Angle73_g5 + ( VAR_WindStrength43_g5 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g5 ) ) , break236_g5.z));
-				float3 OUT_Leafs_Standalone244_g5 = appendResult237_g5;
-				float4 appendResult301_g5 = (float4(OUT_Leafs_Standalone244_g5 , 1.0));
-				float4 transform300_g5 = mul(GetWorldToObjectMatrix(),appendResult301_g5);
+				float4 appendResult299_g9 = (float4(v.vertex.xyz , 1.0));
+				float4 transform298_g9 = mul(GetObjectToWorldMatrix(),appendResult299_g9);
+				float4 VAR_VertexPosition21_g9 = transform298_g9;
+				float3 texCoord306_g9 = v.texcoord1.xyz;
+				texCoord306_g9.xy = v.texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 temp_output_307_0_g9 = ( VAR_VertexPosition21_g9 - float4( texCoord306_g9 , 0.0 ) );
+				float4 break109_g9 = temp_output_307_0_g9;
+				float VAR_WindStrength43_g9 = ( _WindStrength * _GlobalWindInfluence );
+				float4 break304_g9 = VAR_VertexPosition21_g9;
+				float2 appendResult38_g9 = (float2(break304_g9.x , break304_g9.z));
+				float dotResult2_g10 = dot( appendResult38_g9 , float2( 12.9898,78.233 ) );
+				float lerpResult8_g10 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g10 ) * 43758.55 ) ));
+				float VAR_RandomTime16_g9 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g10 );
+				float FUNC_Turbulence36_g9 = ( sin( ( ( VAR_RandomTime16_g9 * 40.0 ) - ( VAR_VertexPosition21_g9.z / 15.0 ) ) ) * 0.5 );
+				float VAR_WindPulse274_g9 = _WindPulse;
+				float FUNC_Angle73_g9 = ( VAR_WindStrength43_g9 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g9 * 2.0 ) + FUNC_Turbulence36_g9 ) - ( VAR_VertexPosition21_g9.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g9 );
+				float VAR_SinA80_g9 = sin( FUNC_Angle73_g9 );
+				float VAR_CosA78_g9 = cos( FUNC_Angle73_g9 );
+				float _WindDirection164_g9 = _WindDirection;
+				float2 localDirectionalEquation164_g9 = DirectionalEquation( _WindDirection164_g9 );
+				float2 break165_g9 = localDirectionalEquation164_g9;
+				float VAR_xLerp83_g9 = break165_g9.x;
+				float lerpResult118_g9 = lerp( break109_g9.x , ( ( break109_g9.y * VAR_SinA80_g9 ) + ( break109_g9.x * VAR_CosA78_g9 ) ) , VAR_xLerp83_g9);
+				float4 break98_g9 = temp_output_307_0_g9;
+				float4 break105_g9 = temp_output_307_0_g9;
+				float VAR_zLerp95_g9 = break165_g9.y;
+				float lerpResult120_g9 = lerp( break105_g9.z , ( ( break105_g9.y * VAR_SinA80_g9 ) + ( break105_g9.z * VAR_CosA78_g9 ) ) , VAR_zLerp95_g9);
+				float3 appendResult122_g9 = (float3(lerpResult118_g9 , ( ( break98_g9.y * VAR_CosA78_g9 ) - ( break98_g9.z * VAR_SinA80_g9 ) ) , lerpResult120_g9));
+				float3 texCoord309_g9 = v.texcoord1.xyz;
+				texCoord309_g9.xy = v.texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float3 FUNC_vertexPos123_g9 = ( appendResult122_g9 + texCoord309_g9 );
+				float3 break236_g9 = FUNC_vertexPos123_g9;
+				half FUNC_SinFunction195_g9 = sin( ( ( VAR_RandomTime16_g9 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g9 + ( VAR_VertexPosition21_g9.z / 2.0 ) ) );
+				float VAR_GlobalWindTurbulence194_g9 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
+				float3 appendResult237_g9 = (float3(break236_g9.x , ( break236_g9.y + ( FUNC_SinFunction195_g9 * v.ase_color.b * ( FUNC_Angle73_g9 + ( VAR_WindStrength43_g9 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g9 ) ) , break236_g9.z));
+				float3 OUT_Leafs_Standalone244_g9 = appendResult237_g9;
+				float4 appendResult301_g9 = (float4(OUT_Leafs_Standalone244_g9 , 1.0));
+				float4 transform300_g9 = mul(GetWorldToObjectMatrix(),appendResult301_g9);
 				float3 texCoord34 = v.texcoord1.xyz;
 				texCoord34.xy = v.texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g9 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
@@ -1359,12 +1359,12 @@ Shader "TerrainBrush/Foliage"
 			ColorMask RGBA
 
 			HLSLPROGRAM
+			#define _NORMAL_DROPOFF_WS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _NORMAL_DROPOFF_WS 1
 			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 100500
@@ -1462,49 +1462,49 @@ Shader "TerrainBrush/Foliage"
 				UNITY_TRANSFER_INSTANCE_ID( v, o );
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( o );
 
-				float4 appendResult299_g5 = (float4(v.vertex.xyz , 1.0));
-				float4 transform298_g5 = mul(GetObjectToWorldMatrix(),appendResult299_g5);
-				float4 VAR_VertexPosition21_g5 = transform298_g5;
-				float3 texCoord306_g5 = v.ase_texcoord1.xyz;
-				texCoord306_g5.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 temp_output_307_0_g5 = ( VAR_VertexPosition21_g5 - float4( texCoord306_g5 , 0.0 ) );
-				float4 break109_g5 = temp_output_307_0_g5;
-				float VAR_WindStrength43_g5 = ( _WindStrength * _GlobalWindInfluence );
-				float4 break304_g5 = VAR_VertexPosition21_g5;
-				float2 appendResult38_g5 = (float2(break304_g5.x , break304_g5.z));
-				float dotResult2_g6 = dot( appendResult38_g5 , float2( 12.9898,78.233 ) );
-				float lerpResult8_g6 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g6 ) * 43758.55 ) ));
-				float VAR_RandomTime16_g5 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g6 );
-				float FUNC_Turbulence36_g5 = ( sin( ( ( VAR_RandomTime16_g5 * 40.0 ) - ( VAR_VertexPosition21_g5.z / 15.0 ) ) ) * 0.5 );
-				float VAR_WindPulse274_g5 = _WindPulse;
-				float FUNC_Angle73_g5 = ( VAR_WindStrength43_g5 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g5 * 2.0 ) + FUNC_Turbulence36_g5 ) - ( VAR_VertexPosition21_g5.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g5 );
-				float VAR_SinA80_g5 = sin( FUNC_Angle73_g5 );
-				float VAR_CosA78_g5 = cos( FUNC_Angle73_g5 );
-				float _WindDirection164_g5 = _WindDirection;
-				float2 localDirectionalEquation164_g5 = DirectionalEquation( _WindDirection164_g5 );
-				float2 break165_g5 = localDirectionalEquation164_g5;
-				float VAR_xLerp83_g5 = break165_g5.x;
-				float lerpResult118_g5 = lerp( break109_g5.x , ( ( break109_g5.y * VAR_SinA80_g5 ) + ( break109_g5.x * VAR_CosA78_g5 ) ) , VAR_xLerp83_g5);
-				float4 break98_g5 = temp_output_307_0_g5;
-				float4 break105_g5 = temp_output_307_0_g5;
-				float VAR_zLerp95_g5 = break165_g5.y;
-				float lerpResult120_g5 = lerp( break105_g5.z , ( ( break105_g5.y * VAR_SinA80_g5 ) + ( break105_g5.z * VAR_CosA78_g5 ) ) , VAR_zLerp95_g5);
-				float3 appendResult122_g5 = (float3(lerpResult118_g5 , ( ( break98_g5.y * VAR_CosA78_g5 ) - ( break98_g5.z * VAR_SinA80_g5 ) ) , lerpResult120_g5));
-				float3 texCoord309_g5 = v.ase_texcoord1.xyz;
-				texCoord309_g5.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float3 FUNC_vertexPos123_g5 = ( appendResult122_g5 + texCoord309_g5 );
-				float3 break236_g5 = FUNC_vertexPos123_g5;
-				half FUNC_SinFunction195_g5 = sin( ( ( VAR_RandomTime16_g5 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g5 + ( VAR_VertexPosition21_g5.z / 2.0 ) ) );
-				float VAR_GlobalWindTurbulence194_g5 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
-				float3 appendResult237_g5 = (float3(break236_g5.x , ( break236_g5.y + ( FUNC_SinFunction195_g5 * v.ase_color.b * ( FUNC_Angle73_g5 + ( VAR_WindStrength43_g5 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g5 ) ) , break236_g5.z));
-				float3 OUT_Leafs_Standalone244_g5 = appendResult237_g5;
-				float4 appendResult301_g5 = (float4(OUT_Leafs_Standalone244_g5 , 1.0));
-				float4 transform300_g5 = mul(GetWorldToObjectMatrix(),appendResult301_g5);
+				float4 appendResult299_g9 = (float4(v.vertex.xyz , 1.0));
+				float4 transform298_g9 = mul(GetObjectToWorldMatrix(),appendResult299_g9);
+				float4 VAR_VertexPosition21_g9 = transform298_g9;
+				float3 texCoord306_g9 = v.ase_texcoord1.xyz;
+				texCoord306_g9.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 temp_output_307_0_g9 = ( VAR_VertexPosition21_g9 - float4( texCoord306_g9 , 0.0 ) );
+				float4 break109_g9 = temp_output_307_0_g9;
+				float VAR_WindStrength43_g9 = ( _WindStrength * _GlobalWindInfluence );
+				float4 break304_g9 = VAR_VertexPosition21_g9;
+				float2 appendResult38_g9 = (float2(break304_g9.x , break304_g9.z));
+				float dotResult2_g10 = dot( appendResult38_g9 , float2( 12.9898,78.233 ) );
+				float lerpResult8_g10 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g10 ) * 43758.55 ) ));
+				float VAR_RandomTime16_g9 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g10 );
+				float FUNC_Turbulence36_g9 = ( sin( ( ( VAR_RandomTime16_g9 * 40.0 ) - ( VAR_VertexPosition21_g9.z / 15.0 ) ) ) * 0.5 );
+				float VAR_WindPulse274_g9 = _WindPulse;
+				float FUNC_Angle73_g9 = ( VAR_WindStrength43_g9 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g9 * 2.0 ) + FUNC_Turbulence36_g9 ) - ( VAR_VertexPosition21_g9.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g9 );
+				float VAR_SinA80_g9 = sin( FUNC_Angle73_g9 );
+				float VAR_CosA78_g9 = cos( FUNC_Angle73_g9 );
+				float _WindDirection164_g9 = _WindDirection;
+				float2 localDirectionalEquation164_g9 = DirectionalEquation( _WindDirection164_g9 );
+				float2 break165_g9 = localDirectionalEquation164_g9;
+				float VAR_xLerp83_g9 = break165_g9.x;
+				float lerpResult118_g9 = lerp( break109_g9.x , ( ( break109_g9.y * VAR_SinA80_g9 ) + ( break109_g9.x * VAR_CosA78_g9 ) ) , VAR_xLerp83_g9);
+				float4 break98_g9 = temp_output_307_0_g9;
+				float4 break105_g9 = temp_output_307_0_g9;
+				float VAR_zLerp95_g9 = break165_g9.y;
+				float lerpResult120_g9 = lerp( break105_g9.z , ( ( break105_g9.y * VAR_SinA80_g9 ) + ( break105_g9.z * VAR_CosA78_g9 ) ) , VAR_zLerp95_g9);
+				float3 appendResult122_g9 = (float3(lerpResult118_g9 , ( ( break98_g9.y * VAR_CosA78_g9 ) - ( break98_g9.z * VAR_SinA80_g9 ) ) , lerpResult120_g9));
+				float3 texCoord309_g9 = v.ase_texcoord1.xyz;
+				texCoord309_g9.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float3 FUNC_vertexPos123_g9 = ( appendResult122_g9 + texCoord309_g9 );
+				float3 break236_g9 = FUNC_vertexPos123_g9;
+				half FUNC_SinFunction195_g9 = sin( ( ( VAR_RandomTime16_g9 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g9 + ( VAR_VertexPosition21_g9.z / 2.0 ) ) );
+				float VAR_GlobalWindTurbulence194_g9 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
+				float3 appendResult237_g9 = (float3(break236_g9.x , ( break236_g9.y + ( FUNC_SinFunction195_g9 * v.ase_color.b * ( FUNC_Angle73_g9 + ( VAR_WindStrength43_g9 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g9 ) ) , break236_g9.z));
+				float3 OUT_Leafs_Standalone244_g9 = appendResult237_g9;
+				float4 appendResult301_g9 = (float4(OUT_Leafs_Standalone244_g9 , 1.0));
+				float4 transform300_g9 = mul(GetWorldToObjectMatrix(),appendResult301_g9);
 				float3 texCoord34 = v.ase_texcoord1.xyz;
 				texCoord34.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g9 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 				
@@ -1679,12 +1679,12 @@ Shader "TerrainBrush/Foliage"
             ZWrite On
 
 			HLSLPROGRAM
+			#define _NORMAL_DROPOFF_WS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _NORMAL_DROPOFF_WS 1
 			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 100500
@@ -1780,49 +1780,49 @@ Shader "TerrainBrush/Foliage"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 appendResult299_g5 = (float4(v.vertex.xyz , 1.0));
-				float4 transform298_g5 = mul(GetObjectToWorldMatrix(),appendResult299_g5);
-				float4 VAR_VertexPosition21_g5 = transform298_g5;
-				float3 texCoord306_g5 = v.ase_texcoord1.xyz;
-				texCoord306_g5.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 temp_output_307_0_g5 = ( VAR_VertexPosition21_g5 - float4( texCoord306_g5 , 0.0 ) );
-				float4 break109_g5 = temp_output_307_0_g5;
-				float VAR_WindStrength43_g5 = ( _WindStrength * _GlobalWindInfluence );
-				float4 break304_g5 = VAR_VertexPosition21_g5;
-				float2 appendResult38_g5 = (float2(break304_g5.x , break304_g5.z));
-				float dotResult2_g6 = dot( appendResult38_g5 , float2( 12.9898,78.233 ) );
-				float lerpResult8_g6 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g6 ) * 43758.55 ) ));
-				float VAR_RandomTime16_g5 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g6 );
-				float FUNC_Turbulence36_g5 = ( sin( ( ( VAR_RandomTime16_g5 * 40.0 ) - ( VAR_VertexPosition21_g5.z / 15.0 ) ) ) * 0.5 );
-				float VAR_WindPulse274_g5 = _WindPulse;
-				float FUNC_Angle73_g5 = ( VAR_WindStrength43_g5 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g5 * 2.0 ) + FUNC_Turbulence36_g5 ) - ( VAR_VertexPosition21_g5.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g5 );
-				float VAR_SinA80_g5 = sin( FUNC_Angle73_g5 );
-				float VAR_CosA78_g5 = cos( FUNC_Angle73_g5 );
-				float _WindDirection164_g5 = _WindDirection;
-				float2 localDirectionalEquation164_g5 = DirectionalEquation( _WindDirection164_g5 );
-				float2 break165_g5 = localDirectionalEquation164_g5;
-				float VAR_xLerp83_g5 = break165_g5.x;
-				float lerpResult118_g5 = lerp( break109_g5.x , ( ( break109_g5.y * VAR_SinA80_g5 ) + ( break109_g5.x * VAR_CosA78_g5 ) ) , VAR_xLerp83_g5);
-				float4 break98_g5 = temp_output_307_0_g5;
-				float4 break105_g5 = temp_output_307_0_g5;
-				float VAR_zLerp95_g5 = break165_g5.y;
-				float lerpResult120_g5 = lerp( break105_g5.z , ( ( break105_g5.y * VAR_SinA80_g5 ) + ( break105_g5.z * VAR_CosA78_g5 ) ) , VAR_zLerp95_g5);
-				float3 appendResult122_g5 = (float3(lerpResult118_g5 , ( ( break98_g5.y * VAR_CosA78_g5 ) - ( break98_g5.z * VAR_SinA80_g5 ) ) , lerpResult120_g5));
-				float3 texCoord309_g5 = v.ase_texcoord1.xyz;
-				texCoord309_g5.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float3 FUNC_vertexPos123_g5 = ( appendResult122_g5 + texCoord309_g5 );
-				float3 break236_g5 = FUNC_vertexPos123_g5;
-				half FUNC_SinFunction195_g5 = sin( ( ( VAR_RandomTime16_g5 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g5 + ( VAR_VertexPosition21_g5.z / 2.0 ) ) );
-				float VAR_GlobalWindTurbulence194_g5 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
-				float3 appendResult237_g5 = (float3(break236_g5.x , ( break236_g5.y + ( FUNC_SinFunction195_g5 * v.ase_color.b * ( FUNC_Angle73_g5 + ( VAR_WindStrength43_g5 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g5 ) ) , break236_g5.z));
-				float3 OUT_Leafs_Standalone244_g5 = appendResult237_g5;
-				float4 appendResult301_g5 = (float4(OUT_Leafs_Standalone244_g5 , 1.0));
-				float4 transform300_g5 = mul(GetWorldToObjectMatrix(),appendResult301_g5);
+				float4 appendResult299_g9 = (float4(v.vertex.xyz , 1.0));
+				float4 transform298_g9 = mul(GetObjectToWorldMatrix(),appendResult299_g9);
+				float4 VAR_VertexPosition21_g9 = transform298_g9;
+				float3 texCoord306_g9 = v.ase_texcoord1.xyz;
+				texCoord306_g9.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 temp_output_307_0_g9 = ( VAR_VertexPosition21_g9 - float4( texCoord306_g9 , 0.0 ) );
+				float4 break109_g9 = temp_output_307_0_g9;
+				float VAR_WindStrength43_g9 = ( _WindStrength * _GlobalWindInfluence );
+				float4 break304_g9 = VAR_VertexPosition21_g9;
+				float2 appendResult38_g9 = (float2(break304_g9.x , break304_g9.z));
+				float dotResult2_g10 = dot( appendResult38_g9 , float2( 12.9898,78.233 ) );
+				float lerpResult8_g10 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g10 ) * 43758.55 ) ));
+				float VAR_RandomTime16_g9 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g10 );
+				float FUNC_Turbulence36_g9 = ( sin( ( ( VAR_RandomTime16_g9 * 40.0 ) - ( VAR_VertexPosition21_g9.z / 15.0 ) ) ) * 0.5 );
+				float VAR_WindPulse274_g9 = _WindPulse;
+				float FUNC_Angle73_g9 = ( VAR_WindStrength43_g9 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g9 * 2.0 ) + FUNC_Turbulence36_g9 ) - ( VAR_VertexPosition21_g9.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g9 );
+				float VAR_SinA80_g9 = sin( FUNC_Angle73_g9 );
+				float VAR_CosA78_g9 = cos( FUNC_Angle73_g9 );
+				float _WindDirection164_g9 = _WindDirection;
+				float2 localDirectionalEquation164_g9 = DirectionalEquation( _WindDirection164_g9 );
+				float2 break165_g9 = localDirectionalEquation164_g9;
+				float VAR_xLerp83_g9 = break165_g9.x;
+				float lerpResult118_g9 = lerp( break109_g9.x , ( ( break109_g9.y * VAR_SinA80_g9 ) + ( break109_g9.x * VAR_CosA78_g9 ) ) , VAR_xLerp83_g9);
+				float4 break98_g9 = temp_output_307_0_g9;
+				float4 break105_g9 = temp_output_307_0_g9;
+				float VAR_zLerp95_g9 = break165_g9.y;
+				float lerpResult120_g9 = lerp( break105_g9.z , ( ( break105_g9.y * VAR_SinA80_g9 ) + ( break105_g9.z * VAR_CosA78_g9 ) ) , VAR_zLerp95_g9);
+				float3 appendResult122_g9 = (float3(lerpResult118_g9 , ( ( break98_g9.y * VAR_CosA78_g9 ) - ( break98_g9.z * VAR_SinA80_g9 ) ) , lerpResult120_g9));
+				float3 texCoord309_g9 = v.ase_texcoord1.xyz;
+				texCoord309_g9.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float3 FUNC_vertexPos123_g9 = ( appendResult122_g9 + texCoord309_g9 );
+				float3 break236_g9 = FUNC_vertexPos123_g9;
+				half FUNC_SinFunction195_g9 = sin( ( ( VAR_RandomTime16_g9 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g9 + ( VAR_VertexPosition21_g9.z / 2.0 ) ) );
+				float VAR_GlobalWindTurbulence194_g9 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
+				float3 appendResult237_g9 = (float3(break236_g9.x , ( break236_g9.y + ( FUNC_SinFunction195_g9 * v.ase_color.b * ( FUNC_Angle73_g9 + ( VAR_WindStrength43_g9 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g9 ) ) , break236_g9.z));
+				float3 OUT_Leafs_Standalone244_g9 = appendResult237_g9;
+				float4 appendResult301_g9 = (float4(OUT_Leafs_Standalone244_g9 , 1.0));
+				float4 transform300_g9 = mul(GetWorldToObjectMatrix(),appendResult301_g9);
 				float3 texCoord34 = v.ase_texcoord1.xyz;
 				texCoord34.xy = v.ase_texcoord1.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g9 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord3.xy = v.ase_texcoord.xy;
 				
@@ -2015,12 +2015,12 @@ Shader "TerrainBrush/Foliage"
 			
 
 			HLSLPROGRAM
+			#define _NORMAL_DROPOFF_WS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define ASE_ABSOLUTE_VERTEX_POS 1
-			#define _NORMAL_DROPOFF_WS 1
 			#define _ALPHATEST_ON 1
 			#define _NORMALMAP 1
 			#define ASE_SRP_VERSION 100500
@@ -2142,49 +2142,49 @@ Shader "TerrainBrush/Foliage"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				float4 appendResult299_g5 = (float4(v.vertex.xyz , 1.0));
-				float4 transform298_g5 = mul(GetObjectToWorldMatrix(),appendResult299_g5);
-				float4 VAR_VertexPosition21_g5 = transform298_g5;
-				float3 texCoord306_g5 = v.texcoord1.xyzw.xyz;
-				texCoord306_g5.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 temp_output_307_0_g5 = ( VAR_VertexPosition21_g5 - float4( texCoord306_g5 , 0.0 ) );
-				float4 break109_g5 = temp_output_307_0_g5;
-				float VAR_WindStrength43_g5 = ( _WindStrength * _GlobalWindInfluence );
-				float4 break304_g5 = VAR_VertexPosition21_g5;
-				float2 appendResult38_g5 = (float2(break304_g5.x , break304_g5.z));
-				float dotResult2_g6 = dot( appendResult38_g5 , float2( 12.9898,78.233 ) );
-				float lerpResult8_g6 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g6 ) * 43758.55 ) ));
-				float VAR_RandomTime16_g5 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g6 );
-				float FUNC_Turbulence36_g5 = ( sin( ( ( VAR_RandomTime16_g5 * 40.0 ) - ( VAR_VertexPosition21_g5.z / 15.0 ) ) ) * 0.5 );
-				float VAR_WindPulse274_g5 = _WindPulse;
-				float FUNC_Angle73_g5 = ( VAR_WindStrength43_g5 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g5 * 2.0 ) + FUNC_Turbulence36_g5 ) - ( VAR_VertexPosition21_g5.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g5 );
-				float VAR_SinA80_g5 = sin( FUNC_Angle73_g5 );
-				float VAR_CosA78_g5 = cos( FUNC_Angle73_g5 );
-				float _WindDirection164_g5 = _WindDirection;
-				float2 localDirectionalEquation164_g5 = DirectionalEquation( _WindDirection164_g5 );
-				float2 break165_g5 = localDirectionalEquation164_g5;
-				float VAR_xLerp83_g5 = break165_g5.x;
-				float lerpResult118_g5 = lerp( break109_g5.x , ( ( break109_g5.y * VAR_SinA80_g5 ) + ( break109_g5.x * VAR_CosA78_g5 ) ) , VAR_xLerp83_g5);
-				float4 break98_g5 = temp_output_307_0_g5;
-				float4 break105_g5 = temp_output_307_0_g5;
-				float VAR_zLerp95_g5 = break165_g5.y;
-				float lerpResult120_g5 = lerp( break105_g5.z , ( ( break105_g5.y * VAR_SinA80_g5 ) + ( break105_g5.z * VAR_CosA78_g5 ) ) , VAR_zLerp95_g5);
-				float3 appendResult122_g5 = (float3(lerpResult118_g5 , ( ( break98_g5.y * VAR_CosA78_g5 ) - ( break98_g5.z * VAR_SinA80_g5 ) ) , lerpResult120_g5));
-				float3 texCoord309_g5 = v.texcoord1.xyzw.xyz;
-				texCoord309_g5.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
-				float3 FUNC_vertexPos123_g5 = ( appendResult122_g5 + texCoord309_g5 );
-				float3 break236_g5 = FUNC_vertexPos123_g5;
-				half FUNC_SinFunction195_g5 = sin( ( ( VAR_RandomTime16_g5 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g5 + ( VAR_VertexPosition21_g5.z / 2.0 ) ) );
-				float VAR_GlobalWindTurbulence194_g5 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
-				float3 appendResult237_g5 = (float3(break236_g5.x , ( break236_g5.y + ( FUNC_SinFunction195_g5 * v.ase_color.b * ( FUNC_Angle73_g5 + ( VAR_WindStrength43_g5 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g5 ) ) , break236_g5.z));
-				float3 OUT_Leafs_Standalone244_g5 = appendResult237_g5;
-				float4 appendResult301_g5 = (float4(OUT_Leafs_Standalone244_g5 , 1.0));
-				float4 transform300_g5 = mul(GetWorldToObjectMatrix(),appendResult301_g5);
+				float4 appendResult299_g9 = (float4(v.vertex.xyz , 1.0));
+				float4 transform298_g9 = mul(GetObjectToWorldMatrix(),appendResult299_g9);
+				float4 VAR_VertexPosition21_g9 = transform298_g9;
+				float3 texCoord306_g9 = v.texcoord1.xyzw.xyz;
+				texCoord306_g9.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float4 temp_output_307_0_g9 = ( VAR_VertexPosition21_g9 - float4( texCoord306_g9 , 0.0 ) );
+				float4 break109_g9 = temp_output_307_0_g9;
+				float VAR_WindStrength43_g9 = ( _WindStrength * _GlobalWindInfluence );
+				float4 break304_g9 = VAR_VertexPosition21_g9;
+				float2 appendResult38_g9 = (float2(break304_g9.x , break304_g9.z));
+				float dotResult2_g10 = dot( appendResult38_g9 , float2( 12.9898,78.233 ) );
+				float lerpResult8_g10 = lerp( 0.8 , ( ( _RandomWindOffset / 2.0 ) + 0.9 ) , frac( ( sin( dotResult2_g10 ) * 43758.55 ) ));
+				float VAR_RandomTime16_g9 = ( ( _TimeParameters.x * 0.05 ) * lerpResult8_g10 );
+				float FUNC_Turbulence36_g9 = ( sin( ( ( VAR_RandomTime16_g9 * 40.0 ) - ( VAR_VertexPosition21_g9.z / 15.0 ) ) ) * 0.5 );
+				float VAR_WindPulse274_g9 = _WindPulse;
+				float FUNC_Angle73_g9 = ( VAR_WindStrength43_g9 * ( 1.0 + sin( ( ( ( ( VAR_RandomTime16_g9 * 2.0 ) + FUNC_Turbulence36_g9 ) - ( VAR_VertexPosition21_g9.z / 50.0 ) ) - ( v.ase_color.r / 20.0 ) ) ) ) * sqrt( v.ase_color.r ) * 0.2 * VAR_WindPulse274_g9 );
+				float VAR_SinA80_g9 = sin( FUNC_Angle73_g9 );
+				float VAR_CosA78_g9 = cos( FUNC_Angle73_g9 );
+				float _WindDirection164_g9 = _WindDirection;
+				float2 localDirectionalEquation164_g9 = DirectionalEquation( _WindDirection164_g9 );
+				float2 break165_g9 = localDirectionalEquation164_g9;
+				float VAR_xLerp83_g9 = break165_g9.x;
+				float lerpResult118_g9 = lerp( break109_g9.x , ( ( break109_g9.y * VAR_SinA80_g9 ) + ( break109_g9.x * VAR_CosA78_g9 ) ) , VAR_xLerp83_g9);
+				float4 break98_g9 = temp_output_307_0_g9;
+				float4 break105_g9 = temp_output_307_0_g9;
+				float VAR_zLerp95_g9 = break165_g9.y;
+				float lerpResult120_g9 = lerp( break105_g9.z , ( ( break105_g9.y * VAR_SinA80_g9 ) + ( break105_g9.z * VAR_CosA78_g9 ) ) , VAR_zLerp95_g9);
+				float3 appendResult122_g9 = (float3(lerpResult118_g9 , ( ( break98_g9.y * VAR_CosA78_g9 ) - ( break98_g9.z * VAR_SinA80_g9 ) ) , lerpResult120_g9));
+				float3 texCoord309_g9 = v.texcoord1.xyzw.xyz;
+				texCoord309_g9.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
+				float3 FUNC_vertexPos123_g9 = ( appendResult122_g9 + texCoord309_g9 );
+				float3 break236_g9 = FUNC_vertexPos123_g9;
+				half FUNC_SinFunction195_g9 = sin( ( ( VAR_RandomTime16_g9 * 200.0 * ( 0.2 + v.ase_color.g ) ) + ( v.ase_color.g * 10.0 ) + FUNC_Turbulence36_g9 + ( VAR_VertexPosition21_g9.z / 2.0 ) ) );
+				float VAR_GlobalWindTurbulence194_g9 = ( _WindTurbulence * _GlobalTurbulenceInfluence );
+				float3 appendResult237_g9 = (float3(break236_g9.x , ( break236_g9.y + ( FUNC_SinFunction195_g9 * v.ase_color.b * ( FUNC_Angle73_g9 + ( VAR_WindStrength43_g9 / 200.0 ) ) * VAR_GlobalWindTurbulence194_g9 ) ) , break236_g9.z));
+				float3 OUT_Leafs_Standalone244_g9 = appendResult237_g9;
+				float4 appendResult301_g9 = (float4(OUT_Leafs_Standalone244_g9 , 1.0));
+				float4 transform300_g9 = mul(GetWorldToObjectMatrix(),appendResult301_g9);
 				float3 texCoord34 = v.texcoord1.xyzw.xyz;
 				texCoord34.xy = v.texcoord1.xyzw.xyz.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 appendResult41 = (float4(texCoord34 , 1.0));
 				float4 transform40 = mul(GetWorldToObjectMatrix(),appendResult41);
-				float4 lerpResult35 = lerp( transform300_g5 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
+				float4 lerpResult35 = lerp( transform300_g9 , transform40 , saturate( ( ( distance( texCoord34 , _WorldSpaceCameraPos ) - _FoliageFadeDistance ) * 0.25 ) ));
 				
 				o.ase_texcoord7.xy = v.texcoord.xy;
 				
@@ -2540,7 +2540,7 @@ Shader "TerrainBrush/Foliage"
 }
 /*ASEBEGIN
 Version=18910
-178;239;1920;1029;1886.775;671.1412;1.6;True;True
+7;12;1920;1017;1572.358;280.8409;1.296514;True;True
 Node;AmplifyShaderEditor.TextureCoordinatesNode;34;-746.5017,396.9616;Inherit;False;1;-1;3;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.WorldSpaceCameraPos;37;-814.1573,680.6986;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.RangedFloatNode;43;-544.7305,856.9772;Inherit;False;Global;_FoliageFadeDistance;_FoliageFadeDistance;12;0;Create;True;0;0;0;False;0;False;25;25;0;100;0;1;FLOAT;0
@@ -2548,26 +2548,26 @@ Node;AmplifyShaderEditor.DistanceOpNode;36;-518.3016,611.6617;Inherit;False;2;0;
 Node;AmplifyShaderEditor.SimpleSubtractOpNode;38;-362.1574,611.6986;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;25;False;1;FLOAT;0
 Node;AmplifyShaderEditor.DynamicAppendNode;41;-527.3719,377.9482;Inherit;False;FLOAT4;4;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;1;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;42;-213.3721,613.0482;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0.25;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;32;-374.5562,231.1413;Inherit;False;TerrainBrushWind;3;;5;75293bf4dc8064f4889e6a7c1ab50374;7,269,1,281,0,272,0,255,2,278,0,280,0,282,0;0;1;FLOAT4;0
 Node;AmplifyShaderEditor.WorldToObjectTransfNode;40;-369.604,339.8297;Inherit;False;1;0;FLOAT4;0,0,0,1;False;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.FunctionNode;52;-374.5562,231.1413;Inherit;False;TerrainBrushWind;3;;9;75293bf4dc8064f4889e6a7c1ab50374;7,281,0,272,0,255,2,278,0,269,1,282,0,280,0;0;1;FLOAT4;0
 Node;AmplifyShaderEditor.SaturateNode;39;-72.5574,615.3986;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;9;-1068.26,83.30882;Inherit;True;Property;_NormalMap;NormalMap;1;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode;13;-392.0833,106.2875;Inherit;False;Property;_AlphaClip;AlphaClip;12;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;21;-318.3557,6.848858;Inherit;False;Constant;_Float4;Float 4;5;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;10;-1076.823,344.4591;Inherit;True;Property;_MaskMap;MaskMap;2;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.LerpOp;35;-150.5017,327.9616;Inherit;False;3;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0,0,0,0;False;2;FLOAT;0;False;1;FLOAT4;0
-Node;AmplifyShaderEditor.SamplerNode;8;-475.2173,-520.1586;Inherit;True;Property;_BaseColorMap;BaseColorMap;0;0;Create;True;0;0;0;False;0;False;-1;None;ac93f3feddfe1824da6ae203ffbc3cac;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.VertexColorNode;23;7.594411,-426.7626;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.VertexColorNode;50;-749.1468,-12.17997;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.TextureCoordinatesNode;44;-392.7614,-206.9393;Inherit;False;2;-1;3;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.VertexColorNode;50;-749.1468,-12.17997;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.VertexColorNode;23;7.594411,-426.7626;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;8;-475.2173,-520.1586;Inherit;True;Property;_BaseColorMap;BaseColorMap;0;0;Create;True;0;0;0;False;0;False;-1;None;ac93f3feddfe1824da6ae203ffbc3cac;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;10;-1076.823,344.4591;Inherit;True;Property;_MaskMap;MaskMap;2;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;black;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode;21;-318.3557,6.848858;Inherit;False;Constant;_Float4;Float 4;5;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;13;-392.0833,106.2875;Inherit;False;Property;_AlphaClip;AlphaClip;12;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;9;-1068.26,83.30882;Inherit;True;Property;_NormalMap;NormalMap;1;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.LerpOp;35;-150.5017,327.9616;Inherit;False;3;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0,0,0,0;False;2;FLOAT;0;False;1;FLOAT4;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;2;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;0;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;0;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;4;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;6;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthNormals;0;6;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=DepthNormals;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;7;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalGBuffer;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;5;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=Universal2D;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;3;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;True;False;False;False;False;0;False;-1;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;False;True;1;LightMode=DepthOnly;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;2;0,0;Float;False;False;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;0;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;0;Hidden/InternalErrorShader;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;264,-107.2;Float;False;True;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;TerrainBrush/Foliage;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;18;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;2;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalForward;False;0;Hidden/InternalErrorShader;0;0;Standard;38;Workflow;1;Surface;0;  Refraction Model;0;  Blend;0;Two Sided;0;Fragment Normal Space,InvertActionOnDeselection;2;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;1;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;_FinalColorxAlpha;0;Meta Pass;1;Override Baked GI;0;Extra Pre Pass;0;DOTS Instancing;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Write Depth;0;  Early Z;0;Vertex Position,InvertActionOnDeselection;0;0;8;False;True;False;True;True;True;True;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;264,-107.2;Float;False;True;-1;2;UnityEditor.ShaderGraph.PBRMasterGUI;0;2;TerrainBrush/Foliage;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;18;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;True;2;0;False;True;1;1;False;-1;0;False;-1;1;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=UniversalForward;False;0;Hidden/InternalErrorShader;0;0;Standard;38;Workflow;1;Surface;0;  Refraction Model;0;  Blend;0;Two Sided;0;Fragment Normal Space,InvertActionOnDeselection;2;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;0;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;_FinalColorxAlpha;0;Meta Pass;1;Override Baked GI;0;Extra Pre Pass;0;DOTS Instancing;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Write Depth;0;  Early Z;0;Vertex Position,InvertActionOnDeselection;0;0;8;False;True;False;True;True;True;True;True;False;;False;0
 WireConnection;36;0;34;0
 WireConnection;36;1;37;0
 WireConnection;38;0;36;0
@@ -2576,7 +2576,7 @@ WireConnection;41;0;34;0
 WireConnection;42;0;38;0
 WireConnection;40;0;41;0
 WireConnection;39;0;42;0
-WireConnection;35;0;32;0
+WireConnection;35;0;52;0
 WireConnection;35;1;40;0
 WireConnection;35;2;39;0
 WireConnection;1;0;8;0
@@ -2587,4 +2587,4 @@ WireConnection;1;6;8;4
 WireConnection;1;7;13;0
 WireConnection;1;8;35;0
 ASEEND*/
-//CHKSM=B7A90920138929EDEF6B1EAE66E27438FF700E27
+//CHKSM=27F7F580C3951966ACB983AD2B0F5A820E99BF8F

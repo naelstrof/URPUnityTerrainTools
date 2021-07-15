@@ -130,6 +130,28 @@ namespace TerrainBrush {
             Filler = (1 << 2),
             Thriller = (1 << 3),
         }
+        public static int GetFoliageCount(FoliageData[] foliageMeshes, FoliageData.FoliageAspect aspect) {
+            int count = 0;
+            foreach(FoliageData data in foliageMeshes) {
+                if (data.HasAspect(aspect)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        public static FoliageData GetFoliage(FoliageData[] foliageMeshes, FoliageData.FoliageAspect aspect, int index) {
+            int count = 0;
+            foreach(FoliageData data in foliageMeshes) {
+                if (data.HasAspect(aspect)) {
+                    if (count == index) {
+                        return data;
+                    }
+                    count++;
+                }
+            }
+            return null;
+        }
+
         [EnumFlagsAttribute]
         public FoliageAspect aspectFlags;
         public bool HasAspect(FoliageAspect aspectFlags) {

@@ -36,7 +36,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMapColor:
-        m_Texture: {fileID: 2800000, guid: 6ad254ad68bd71c4eb496aded9cb31bb, type: 3}
+        m_Texture: {fileID: 2800000, guid: 2de0d72a6700bd94ea57111b29e246fc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BlendMap:
@@ -88,7 +88,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
-        m_Texture: {fileID: 2800000, guid: 4931849867af8dc419e1eb54ab3463c2, type: 3}
+        m_Texture: {fileID: 2800000, guid: ca084ebab0cef7c4ba746cdb442f9c1e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -96,7 +96,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 11f905438ab9e0642abb604d13775c6c, type: 3}
+        m_Texture: {fileID: 2800000, guid: ac80c335ebd6dde4fa54a82050064545, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -124,15 +124,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainBlendMap:
-        m_Texture: {fileID: 2800000, guid: ca58dbb6f7c7d8645b76ec3b786035b8, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainDepth:
-        m_Texture: {fileID: 2800000, guid: b6d7a86bf08b511499b9d49a0e830dc2, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainNormals:
-        m_Texture: {fileID: 2800000, guid: eed1479276d3f8440a8fc8f981ac084e, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:
@@ -155,7 +155,7 @@ Material:
     - _AlphaClip: 0
     - _AlphaCutoff: 0.5
     - _Blend: 0
-    - _BlendDistance01: 0.148
+    - _BlendDistance01: 0.058
     - _BlendPercent: 0.081
     - _BlendPercent1: 0.05
     - _BumpScale: 1
@@ -165,15 +165,15 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DistanceBlendBias: -0.14
-    - _DistanceBlendSmooth: 0.5
+    - _DistanceBlendBias: 1
+    - _DistanceBlendSmooth: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _HeightBlendFactor: 10
-    - _HeightBlendSmoothing: 0.151
+    - _HeightBlendSmoothing: 0.182
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -184,7 +184,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _Tiling: 0.64
+    - _Tiling: 0.3
     - _WorkflowMode: 1
     - _ZWrite: 1
     - __dirty: 0
@@ -192,8 +192,8 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorADark: {r: 0.4824804, g: 0.6509434, b: 0.41451582, a: 0}
-    - _ColorALight: {r: 0.6650071, g: 0.7075471, b: 0.47726053, a: 0}
+    - _ColorADark: {r: 0.2823529, g: 0.3803921, b: 0.1411764, a: 1}
+    - _ColorALight: {r: 0.39607844, g: 0.49803925, b: 0.19215685, a: 1}
     - _ColorBDark: {r: 0.44339618, g: 0.40581465, b: 0.29908326, a: 0}
     - _ColorBLight: {r: 0.6132076, g: 0.5773596, b: 0.48304552, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

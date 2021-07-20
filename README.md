@@ -2,7 +2,7 @@
 
 Some brush based tools that procedurally generate both a sealed mesh and texture mask for a terrain.
 
-jverything's designed around the ability to move entire mountains around while keeping the mesh sealed and the texture fidelity maxed.
+Everything's designed around the ability to move entire mountains around while keeping the mesh sealed and the texture fidelity maxed.
 
 ## Usage
 

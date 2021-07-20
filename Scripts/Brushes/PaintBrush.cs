@@ -9,7 +9,6 @@ namespace TerrainBrush {
     // Made to be inherited.
     [ExecuteInEditMode]
     public class PaintBrush : Brush {
-        #if UNITY_EDITOR
         private static string gizmoName = "ico_brush.png";
         private string internalGizmoPath = "";
         private string gizmoPath { 
@@ -65,6 +64,5 @@ namespace TerrainBrush {
             Gizmos.color = renderMaterial.color;
             Gizmos.DrawWireMesh(renderMesh, 0, Vector3.zero, Quaternion.identity, Vector3.one);
         }
-        #endif
     }
 }

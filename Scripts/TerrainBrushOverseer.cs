@@ -110,16 +110,22 @@ namespace TerrainBrush {
                 Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
             }
         }
+        public void RegenerateTerrain() {
+            // We do a dry run to ensure stuff is initialized correctly.
+            GenerateTexture();
+            TerrainBrushScheduler.instance.GenerateMesh(transform, volume.worldToTexture, meshBrushTargetLayers, terrainMaterial, terrainWrapPrefab, chunkCountSquared, resolutionPow, smoothness).OnFinish += () => {
+                GenerateTexture(GenerateDepthNormals());
+                if (!foliageSaveInScene) {
+                    TerrainBrushScheduler.instance.GenerateFoliage(foliageSaveInScene, seed, foliagePerlinScale, foliageDensity, foliageRecursiveCount, volume.worldToTexture, volume.texture, foliageMeshes);
+                }
+            };
+        }
+        public void RegenerateFoliage() {
+            TerrainBrushScheduler.instance.GenerateFoliage(foliageSaveInScene, seed, foliagePerlinScale, foliageDensity, foliageRecursiveCount, volume.worldToTexture, useBakedMaps ? (Texture)cachedMaskMap : (Texture)volume.texture, foliageMeshes);
+        }
         public void Start() {
             if (!useBakedMaps) {
-                // We do a dry run to ensure stuff is initialized correctly.
-                GenerateTexture();
-                TerrainBrushScheduler.instance.GenerateMesh(transform, volume.worldToTexture, meshBrushTargetLayers, terrainMaterial, terrainWrapPrefab, chunkCountSquared, resolutionPow, smoothness).OnFinish += () => {
-                    GenerateTexture(GenerateDepthNormals());
-                    if (!foliageSaveInScene) {
-                        TerrainBrushScheduler.instance.GenerateFoliage(foliageSaveInScene, seed, foliagePerlinScale, foliageDensity, foliageRecursiveCount, volume.worldToTexture, volume.texture, foliageMeshes);
-                    }
-                };
+                RegenerateTerrain();
                 terrainMaterial.SetTexture("_TerrainBlendMap", volume.texture);
                 foreach(BlendedBrush b in UnityEngine.Object.FindObjectsOfType<BlendedBrush>()) {
                     b.GetComponent<Renderer>().sharedMaterial?.SetTexture("_TerrainBlendMap", volume.texture);
@@ -135,7 +141,7 @@ namespace TerrainBrush {
                 }
             }
             if (!foliageSaveInScene) {
-                TerrainBrushScheduler.instance.GenerateFoliage(foliageSaveInScene, seed, foliagePerlinScale, foliageDensity, foliageRecursiveCount, volume.worldToTexture, useBakedMaps ? (Texture)cachedMaskMap : (Texture)volume.texture, foliageMeshes);
+                RegenerateFoliage();
             }
             Shader.SetGlobalFloat("_FoliageFadeDistance", foliageFadeDistance);
         }

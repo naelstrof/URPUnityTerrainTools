@@ -8,7 +8,6 @@ namespace TerrainBrush {
     // Made to be inherited.
     [ExecuteInEditMode]
     public abstract class Brush : MonoBehaviour {
-        #if UNITY_EDITOR
         public virtual Bounds brushBounds {
             get {
                 return new Bounds(transform.position, transform.lossyScale);
@@ -28,7 +27,6 @@ namespace TerrainBrush {
             }
             //Gizmos.DrawWireCube(brushBounds.center, brushBounds.size);
         }
-        #endif
 
     }
 }

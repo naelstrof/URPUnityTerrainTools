@@ -6,7 +6,6 @@ using UnityEngine;
 namespace TerrainBrush {
     [ExecuteInEditMode]
     public class MeshBrush : MonoBehaviour {
-        #if UNITY_EDITOR
         private static string gizmoName = "ico_meshbrush.png";
         private string internalGizmoPath = "";
         private string gizmoPath { 
@@ -38,6 +37,5 @@ namespace TerrainBrush {
                 transform.hasChanged=false;
             }
         }
-        #endif
     }
 }

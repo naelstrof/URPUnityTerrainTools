@@ -8,7 +8,6 @@ using UnityEngine.Rendering.Universal;
 namespace TerrainBrush {
     [ExecuteInEditMode]
     public class PathBrush : Brush {
-        #if UNITY_EDITOR
         public Color colorMask;
         [Range(0f,512f)]
         public float softRadius = 16f;
@@ -164,6 +163,5 @@ namespace TerrainBrush {
             }
             //Gizmos.DrawWireCube(brushBounds.center, brushBounds.size);
         }
-        #endif
     }
 }

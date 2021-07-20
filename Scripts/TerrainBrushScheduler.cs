@@ -3,6 +3,7 @@ using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
@@ -87,13 +88,24 @@ namespace TerrainBrush {
             #if UNITY_EDITOR
             EditorApplication.update -= Update;
             EditorApplication.update += Update;
+            UnityEditor.SceneManagement.EditorSceneManager.activeSceneChangedInEditMode -= ClearSchedules;
+            UnityEditor.SceneManagement.EditorSceneManager.activeSceneChangedInEditMode += ClearSchedules;
             #endif
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= ClearSchedules;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ClearSchedules;
+        }
+        private void ClearSchedules(Scene start, Scene end) {
+            schedules.Clear();
         }
         public void OnStart() {
             #if UNITY_EDITOR
             EditorApplication.update -= Update;
             EditorApplication.update += Update;
+            UnityEditor.SceneManagement.EditorSceneManager.activeSceneChangedInEditMode -= ClearSchedules;
+            UnityEditor.SceneManagement.EditorSceneManager.activeSceneChangedInEditMode += ClearSchedules;
             #endif
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= ClearSchedules;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ClearSchedules;
         }
         public void Update() {
             for(int i=0;i<schedules.Count;i++){

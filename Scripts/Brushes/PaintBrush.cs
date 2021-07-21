@@ -49,6 +49,7 @@ namespace TerrainBrush {
         public override void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection) {
             Material tempMaterial = Material.Instantiate(renderMaterial);
             tempMaterial.SetColor("_Color", color);
+            tempMaterial.SetColor("_BaseColor", color);
             cmd.DrawMesh(renderMesh, transform.localToWorldMatrix, tempMaterial, 0, 0);
         }
 

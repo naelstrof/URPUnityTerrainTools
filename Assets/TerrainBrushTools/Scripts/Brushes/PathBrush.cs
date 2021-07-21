@@ -55,6 +55,12 @@ namespace TerrainBrush {
                 return b;
             }
         }
+        public override void Start() {
+            base.Start();
+            if (Application.isPlaying) {
+                line.gameObject.SetActive(false);
+            }
+        }
         public override void Execute(CommandBuffer cmd, RenderTargetHandle renderTarget, TerrainBrushVolume volume, Matrix4x4 view, Matrix4x4 projection) {
             // Now prepare a texture with our line rendered to it.
             RenderTargetHandle temporaryTextureA = new RenderTargetHandle();
@@ -100,6 +106,7 @@ namespace TerrainBrush {
             cmd.SetRenderTarget(renderTarget.id);
         }
 
+        #if UNITY_EDITOR
         public void OnValidate() {
             GameObject prefab = PrefabUtility.GetCorrespondingObjectFromSource<GameObject>(gameObject);
             if (AssetDatabase.GUIDFromAssetPath(AssetDatabase.GetAssetPath(prefab)) == new GUID("9caf7ba2c57f48f4ea061249fed87358")) {
@@ -139,6 +146,7 @@ namespace TerrainBrush {
                 line.SetPosition(currentPoint++, JPBotelho.CatmullRom.CalculatePosition(factors[i].p1, factors[i].p2, factors[i].p3, factors[i].p4, 1f));
             }
         }
+        #endif
         public override void OnEnable() {
             base.OnEnable();
             for(int i=0;i<transform.childCount;i++) {

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5916844529382757591}
   - component: {fileID: 5916844529382757584}
   - component: {fileID: 5916844529382757585}
+  - component: {fileID: 160380063000370541}
   m_Layer: 0
   m_Name: TerrainWrap
   m_TagString: Untagged
@@ -45,12 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 662a4fa435bf2854c9a10c7489a2ca8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 80.068756
-  resolution: 40
-  chunks: 8
   chunkID: 0
-  material: {fileID: 2100000, guid: ad5bce9faf2a3d04a9048b1c7606615d, type: 2}
-  volume: {fileID: 11400000, guid: cf7ae258925a3dc468099f80630d024e, type: 2}
+  group: {fileID: 160380063000370541}
+  foliageFadeDistance: 25
 --- !u!33 &5916844529382757584
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -67,11 +65,11 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5916844529382757586}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
+  m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
@@ -100,3 +98,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!205 &160380063000370541
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5916844529382757586}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0, y: 0, z: 0}
+  m_Size: 1
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.6
+    fadeTransitionWidth: 0
+    renderers: []
+  - screenRelativeHeight: 0.3
+    fadeTransitionWidth: 0
+    renderers: []
+  - screenRelativeHeight: 0.1
+    fadeTransitionWidth: 0
+    renderers: []
+  m_Enabled: 1

@@ -78,6 +78,7 @@ namespace TerrainBrush {
                 }
                 if (_instance == null) {
                     GameObject gameObject = new GameObject("TerrainBrushScheduler", new System.Type[]{typeof(TerrainBrushScheduler)});
+                    gameObject.hideFlags = HideFlags.HideAndDontSave;
                     _instance = gameObject.GetComponent<TerrainBrushScheduler>();
                 }
                 _instance.hideFlags = HideFlags.HideAndDontSave;
@@ -85,6 +86,7 @@ namespace TerrainBrush {
             }
         }
         public void OnEnable() {
+            gameObject.hideFlags = HideFlags.HideAndDontSave;
             #if UNITY_EDITOR
             EditorApplication.update -= Update;
             EditorApplication.update += Update;
@@ -97,7 +99,7 @@ namespace TerrainBrush {
         private void ClearSchedules(Scene start, Scene end) {
             schedules.Clear();
         }
-        public void OnStart() {
+        public void Start() {
             #if UNITY_EDITOR
             EditorApplication.update -= Update;
             EditorApplication.update += Update;

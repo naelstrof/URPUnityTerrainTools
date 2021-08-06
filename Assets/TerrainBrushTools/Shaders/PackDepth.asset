@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: PackDepth
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18910\n137;41;1672;988;835;491;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-448.5,-46;Inherit;False;Input;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-278.5,62;Inherit;False;float4
+    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18910\n287;168;1675;693;1325.5;482.5;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-542.5,6;Inherit;False;Input;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-329.5,-12;Inherit;False;float4
     kEncodeMul = float4(1.0, 255.0, 65025.0, 16581375.0)@$    float kEncodeBit =
     1.0/255.0@$    float4 enc = kEncodeMul * v@$    enc = frac (enc)@$    enc -=
     enc.yzww * kEncodeBit@$    return enc@;4;Create;1;True;v;FLOAT;0;In;;Inherit;False;Encode
-    float RGBA;True;False;0;;False;1;0;FLOAT;0;False;1;FLOAT4;0\nNode;AmplifyShaderEditor.DynamicAppendNode;3;-215,-142;Inherit;False;FLOAT4;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT4;0\nNode;AmplifyShaderEditor.FunctionOutput;0;0,0;Inherit;False;True;-1;Output;0;False;1;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0\nWireConnection;2;0;1;0\nWireConnection;3;0;1;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=4C8B4DA202C5DCE95B6834FFF0D77254DB2FE12D"
+    float RGBA;True;False;0;;False;1;0;FLOAT;0;False;1;FLOAT4;0\nNode;AmplifyShaderEditor.FunctionOutput;0;0,0;Inherit;False;True;-1;Output;0;False;1;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0\nWireConnection;2;0;1;0\nWireConnection;0;0;2;0\nASEEND*/\n//CHKSM=7D7A6BBAD96436457F579A3F0F76D9353B0C8468"
   m_functionName: 
   m_description: 
   m_additionalIncludes:

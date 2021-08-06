@@ -204,7 +204,17 @@ Shader "TerrainBrush/Depth"
 			CBUFFER_END
 			
 
-						
+			float4 EncodefloatRGBA2_g1( float v )
+			{
+				float4 kEncodeMul = float4(1.0, 255.0, 65025.0, 16581375.0);
+				    float kEncodeBit = 1.0/255.0;
+				    float4 enc = kEncodeMul * v;
+				    enc = frac (enc);
+				    enc -= enc.yzww * kEncodeBit;
+				    return enc;
+			}
+			
+			
 			VertexOutput VertexFunction ( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -342,9 +352,9 @@ Shader "TerrainBrush/Depth"
 					#endif
 				#endif
 				float4 unityObjectToClipPos22 = TransformWorldToHClip(TransformObjectToWorld(IN.ase_texcoord3.xyz));
-				float temp_output_1_0_g1 = ( 1.0 - unityObjectToClipPos22.z );
-				float4 appendResult3_g1 = (float4(temp_output_1_0_g1 , 0.0 , 0.0 , 0.0));
-				float4 temp_output_29_0 = appendResult3_g1;
+				float v2_g1 = ( 1.0 - unityObjectToClipPos22.z );
+				float4 localEncodefloatRGBA2_g1 = EncodefloatRGBA2_g1( v2_g1 );
+				float4 temp_output_29_0 = localEncodefloatRGBA2_g1;
 				
 				float3 BakedAlbedo = 0;
 				float3 BakedEmission = 0;
@@ -433,7 +443,17 @@ Shader "TerrainBrush/Depth"
 			CBUFFER_END
 			
 
+			float4 EncodefloatRGBA2_g1( float v )
+			{
+				float4 kEncodeMul = float4(1.0, 255.0, 65025.0, 16581375.0);
+				    float kEncodeBit = 1.0/255.0;
+				    float4 enc = kEncodeMul * v;
+				    enc = frac (enc);
+				    enc -= enc.yzww * kEncodeBit;
+				    return enc;
+			}
 			
+
 			VertexOutput VertexFunction( VertexInput v  )
 			{
 				VertexOutput o = (VertexOutput)0;
@@ -570,9 +590,9 @@ Shader "TerrainBrush/Depth"
 				#endif
 
 				float4 unityObjectToClipPos22 = TransformWorldToHClip(TransformObjectToWorld(IN.ase_texcoord2.xyz));
-				float temp_output_1_0_g1 = ( 1.0 - unityObjectToClipPos22.z );
-				float4 appendResult3_g1 = (float4(temp_output_1_0_g1 , 0.0 , 0.0 , 0.0));
-				float4 temp_output_29_0 = appendResult3_g1;
+				float v2_g1 = ( 1.0 - unityObjectToClipPos22.z );
+				float4 localEncodefloatRGBA2_g1 = EncodefloatRGBA2_g1( v2_g1 );
+				float4 temp_output_29_0 = localEncodefloatRGBA2_g1;
 				
 				float Alpha = temp_output_29_0.w;
 				float AlphaClipThreshold = 0.5;
@@ -597,7 +617,7 @@ Shader "TerrainBrush/Depth"
 }
 /*ASEBEGIN
 Version=18910
-137;41;1672;988;1464.364;730.4868;1.37183;True;False
+7;216;1675;687;1466.422;519.9109;1.37183;True;False
 Node;AmplifyShaderEditor.PosVertexDataNode;8;-976.6698,-289.9463;Inherit;False;1;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.UnityObjToClipPosHlpNode;22;-756.4413,-290.834;Inherit;False;1;0;FLOAT3;0,0,0;False;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.OneMinusNode;23;-517.8192,-239.9358;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
@@ -615,4 +635,4 @@ WireConnection;16;0;29;0
 WireConnection;2;2;29;0
 WireConnection;2;3;16;3
 ASEEND*/
-//CHKSM=2DA9802370869802881433B8E7E4F3FA8AF313CB
+//CHKSM=57559A0603446852E2FF964C9FB98764A07E7F09

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PackNormals
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18910\n6;87;1675;1029;977.3955;486.2839;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-324.7986,-109.3952;Inherit;False;Normal;3;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.TFHCRemapNode;9;14.60451,-145.2839;Inherit;False;5;0;FLOAT3;0,0,0;False;1;FLOAT3;-1,-1,-1;False;2;FLOAT3;1,1,1;False;3;FLOAT3;0,0,0;False;4;FLOAT3;1,1,1;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.FunctionOutput;0;565.0797,-81.49728;Inherit;False;True;-1;Output;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nWireConnection;9;0;1;0\nWireConnection;0;0;9;0\nASEEND*/\n//CHKSM=576423C515CBDC798F99092A8068F5E134D7C4FA"
+    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18910\n223;292;1675;699;916.396;635.2839;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-587.7986,-325.3952;Inherit;False;Normal;3;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.TFHCRemapNode;9;-299.3955,-357.2839;Inherit;False;5;0;FLOAT3;0,0,0;False;1;FLOAT3;-1,-1,-1;False;2;FLOAT3;1,1,1;False;3;FLOAT3;0,0,0;False;4;FLOAT3;1,1,1;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.FunctionOutput;0;-17.92029,-380.4973;Inherit;False;True;-1;Output;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nWireConnection;9;0;1;0\nWireConnection;0;0;9;0\nASEEND*/\n//CHKSM=A5FAA2580304B1D6CE441CA68CE45DD821DA08DF"
   m_functionName: 
   m_description: 
   m_additionalIncludes:

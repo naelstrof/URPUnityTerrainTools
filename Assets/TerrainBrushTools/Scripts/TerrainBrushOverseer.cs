@@ -96,7 +96,6 @@ namespace TerrainBrush {
         public int callbackOrder => throw new NotImplementedException();
 
 
-        [HideInInspector]
         public TerrainBrushVolume volume = new TerrainBrushVolume();
 
         public void OnEnable() {
@@ -163,11 +162,11 @@ namespace TerrainBrush {
             return texture;
         }
         private RenderTexture GetNewNormalsTexture() {
-            RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
+            RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm);
             return texture;
         }
         private RenderTexture GetNewDepthTexture() {
-            RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
+            RenderTexture texture = new RenderTexture(1<<texturePowSize, 1<<texturePowSize, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm);
             return texture;
         }
         private CommandBuffer GenerateDepthNormals() {
@@ -188,7 +187,7 @@ namespace TerrainBrush {
                 depthMaterial = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath("e71467d04236c064aaed2dfa2df7e7a7"));
             }
             #endif
-            RenderTerrainMeshWithMaterial(cmd, volume.normals, normalsMaterial, Color.green);
+            RenderTerrainMeshWithMaterial(cmd, volume.normals, normalsMaterial, new Color(0f,0f,0.5f,1f));
             cmd.SetGlobalTexture("_TerrainBrushNormals", volume.normals);
             cmd.SetGlobalTexture("_TerrainBrushDepth", volume.depth);
             RenderTerrainMeshWithMaterial(cmd, volume.depth, depthMaterial, Color.white);
@@ -331,21 +330,21 @@ namespace TerrainBrush {
             //then Save To Disk as PNG
             File.WriteAllBytes(filename, outputTexture.EncodeToPNG());
 
-            Texture2D outputNormalsTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBAFloat, true, true);
+            Texture2D outputNormalsTexture = new Texture2D(TerrainBrushOverseer.instance.volume.texture.width, TerrainBrushOverseer.instance.volume.texture.height, TextureFormat.RGBA32, true, true);
             RenderTexture.active = TerrainBrushOverseer.instance.volume.normals;
             //Graphics.Blit(TerrainBrushOverseer.instance.volume.depthNormals,outputDepthTexture);
             outputNormalsTexture.ReadPixels(new Rect(0,0,TerrainBrushOverseer.instance.volume.normals.width, TerrainBrushOverseer.instance.volume.normals.height), 0, 0);
             outputNormalsTexture.Apply();
-            string normalsFilename = Path.GetDirectoryName(TerrainBrushOverseer.instance.gameObject.scene.path) + "/TerrainBrushNormalsOutput"+TerrainBrushOverseer.instance.gameObject.scene.name+".exr";
-            File.WriteAllBytes(normalsFilename, outputNormalsTexture.EncodeToEXR(Texture2D.EXRFlags.OutputAsFloat));
+            string normalsFilename = Path.GetDirectoryName(TerrainBrushOverseer.instance.gameObject.scene.path) + "/TerrainBrushNormalsOutput"+TerrainBrushOverseer.instance.gameObject.scene.name+".png";
+            File.WriteAllBytes(normalsFilename, outputNormalsTexture.EncodeToPNG());
 
-            Texture2D outputDepthTexture = new Texture2D(TerrainBrushOverseer.instance.volume.depth.width, TerrainBrushOverseer.instance.volume.depth.height, TextureFormat.RFloat, true, true);
+            Texture2D outputDepthTexture = new Texture2D(TerrainBrushOverseer.instance.volume.depth.width, TerrainBrushOverseer.instance.volume.depth.height, TextureFormat.RGBA32, true, true);
             RenderTexture.active = TerrainBrushOverseer.instance.volume.depth;
             outputDepthTexture.ReadPixels(new Rect(0,0,TerrainBrushOverseer.instance.volume.depth.width, TerrainBrushOverseer.instance.volume.depth.height), 0, 0);
             outputDepthTexture.Apply();
             string depthFilename = Path.GetDirectoryName(TerrainBrushOverseer.instance.gameObject.scene.path) + "/TerrainBrushDepthOutput"+TerrainBrushOverseer.instance.gameObject.scene.name+".png";
             //then Save To Disk as PNG
-            File.WriteAllBytes(depthFilename, outputDepthTexture.EncodeToEXR(Texture2D.EXRFlags.OutputAsFloat));
+            File.WriteAllBytes(depthFilename, outputDepthTexture.EncodeToPNG());
 
             UnityEditor.AssetDatabase.Refresh();
             TextureImporter importer = (TextureImporter)TextureImporter.GetAtPath( filename );
@@ -365,10 +364,12 @@ namespace TerrainBrush {
 
             TextureImporter depthImporter = (TextureImporter)TextureImporter.GetAtPath( depthFilename );
             depthImporter.sRGBTexture = false;
-            depthImporter.alphaSource = TextureImporterAlphaSource.None;
-            depthImporter.textureType = TextureImporterType.SingleChannel;
+            //depthImporter.alphaSource = TextureImporterAlphaSource.FromInput;
+            //depthImporter.textureType = TextureImporterType.SingleChannel;
             depthImporter.mipmapEnabled = false;
             depthImporter.isReadable = true;
+            // We encoded floats into RGBA for better depth info. Can't compress, sorry!
+            depthImporter.textureCompression = TextureImporterCompression.Uncompressed;
             EditorUtility.SetDirty(depthImporter);
             depthImporter.SaveAndReimport();
 

@@ -122,7 +122,6 @@ namespace TerrainBrush {
     #endif
     [CreateAssetMenu(menuName = "Terrain Brush Tools/Foliage Data")]
     public class FoliageData : ScriptableObject {
-        #if UNITY_EDITOR
         [System.Flags]
         public enum FoliageAspect {
             Grass = (1 << 0),
@@ -162,7 +161,6 @@ namespace TerrainBrush {
         }
         public Mesh foliageMesh;
         public Material foliageMaterial;
-        #endif
     }
     #if UNITY_EDITOR
     public class EnumFlagsAttribute : PropertyAttribute {

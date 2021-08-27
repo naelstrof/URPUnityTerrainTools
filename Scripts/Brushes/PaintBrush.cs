@@ -11,8 +11,10 @@ namespace TerrainBrush {
     public class PaintBrush : Brush {
         private static string gizmoName = "ico_brush.png";
         private string internalGizmoPath = "";
+
         private string gizmoPath { 
             get {
+                #if UNITY_EDITOR
                 if (string.IsNullOrEmpty(internalGizmoPath)) {
                     var assembly = Assembly.GetExecutingAssembly();
                     var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(assembly);
@@ -22,6 +24,7 @@ namespace TerrainBrush {
                         internalGizmoPath = packageInfo.assetPath+"/Gizmos/"+gizmoName;
                     }
                 }
+                #endif
                 return internalGizmoPath;
             }
         }

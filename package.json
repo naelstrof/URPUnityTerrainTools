@@ -1,7 +1,7 @@
 {
     "name": "com.ralivnaelstrof.terrainbrushtools",
     "displayName": "Terrain Brush Tools",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "unity": "2020.3",
     "description": "Brush based tools that help create terrain."
 }

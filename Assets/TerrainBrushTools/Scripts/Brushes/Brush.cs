@@ -21,10 +21,12 @@ namespace TerrainBrush {
             transform.hasChanged = false;
         }
         public virtual void OnDrawGizmosSelected() {
+            #if UNITY_EDITOR
             if (transform.hasChanged) {
                 TerrainBrushOverseer.instance?.Bake();
                 transform.hasChanged=false;
             }
+            #endif
             //Gizmos.DrawWireCube(brushBounds.center, brushBounds.size);
         }
 

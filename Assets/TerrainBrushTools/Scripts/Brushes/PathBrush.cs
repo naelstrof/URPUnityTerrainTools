@@ -155,6 +155,7 @@ namespace TerrainBrush {
             }
         }
         public void OnDrawGizmos() {
+            #if UNITY_EDITOR
             for(int i=0;i<transform.childCount;i++) {
                 Transform t = transform.GetChild(i);
                 PathNode pathNode = t.GetComponent<PathNode>();
@@ -169,6 +170,7 @@ namespace TerrainBrush {
                 //float mw = maxWidth;
                 //Gizmos.DrawWireSphere(t.position, mw*0.5f);
             }
+            #endif
             //Gizmos.DrawWireCube(brushBounds.center, brushBounds.size);
         }
     }

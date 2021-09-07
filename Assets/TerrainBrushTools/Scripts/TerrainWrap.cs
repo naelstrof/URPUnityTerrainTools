@@ -59,9 +59,6 @@ namespace TerrainBrush {
             if (gameObject.GetComponent<MeshRenderer>()==null) meshRenderer=gameObject.AddComponent<MeshRenderer>();
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
-            MeshCollider meshCollider = GetComponent<MeshCollider>();
-            if (meshCollider==null) meshCollider = gameObject.AddComponent<MeshCollider>();
-            meshCollider.enabled = false;
             Mesh mesh = new Mesh();
             mesh.name="GeneratedSceneMesh";
             List<Vector3> surfaceLattice = new List<Vector3>();
@@ -227,8 +224,17 @@ namespace TerrainBrush {
             meshFilter.mesh=mesh;
             mesh.RecalculateBounds();
 
-            meshCollider.sharedMesh=mesh;
-            meshCollider.enabled = true;
+            MeshCollider meshCollider = GetComponent<MeshCollider>();
+            if (meshCollider==null) {
+                meshCollider = gameObject.AddComponent<MeshCollider>();
+            }
+            // If a mesh has less than 3 distinct verts, then we don't have a valid mesh collider (which throws an error).
+            // Actually determining distinct verts is expensive, so instead we'll just check if the size is big enough.
+            if (mesh.bounds.size.magnitude > 0.1f) {
+                meshCollider.sharedMesh=mesh;
+            } else {
+                meshCollider.enabled = false;
+            }
             //BuildFoliageMesh(vertices, normals, triangles, uv);
         }
 

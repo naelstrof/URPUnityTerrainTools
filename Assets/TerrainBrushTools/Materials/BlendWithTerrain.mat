@@ -124,15 +124,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainBlendMap:
-        m_Texture: {fileID: 2800000, guid: 77c8850b053d88d40b2d1fbecd616012, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainDepth:
-        m_Texture: {fileID: 2800000, guid: 916ba2f2ad495064592f448f565e18fe, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainNormals:
-        m_Texture: {fileID: 2800000, guid: a56825bbef61e64429fe63750f2d8551, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:

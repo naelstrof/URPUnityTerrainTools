@@ -232,6 +232,7 @@ namespace TerrainBrush {
             // Actually determining distinct verts is expensive, so instead we'll just check if the size is big enough.
             if (mesh.bounds.size.magnitude > 0.1f) {
                 meshCollider.sharedMesh=mesh;
+                meshCollider.enabled = true;
             } else {
                 meshCollider.enabled = false;
             }

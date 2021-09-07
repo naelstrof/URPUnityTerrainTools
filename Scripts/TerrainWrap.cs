@@ -59,6 +59,9 @@ namespace TerrainBrush {
             if (gameObject.GetComponent<MeshRenderer>()==null) meshRenderer=gameObject.AddComponent<MeshRenderer>();
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
+            MeshCollider meshCollider = GetComponent<MeshCollider>();
+            if (meshCollider==null) meshCollider = gameObject.AddComponent<MeshCollider>();
+            meshCollider.enabled = false;
             Mesh mesh = new Mesh();
             mesh.name="GeneratedSceneMesh";
             List<Vector3> surfaceLattice = new List<Vector3>();
@@ -224,9 +227,8 @@ namespace TerrainBrush {
             meshFilter.mesh=mesh;
             mesh.RecalculateBounds();
 
-            MeshCollider meshCollider = GetComponent<MeshCollider>();
-            if (meshCollider==null) meshCollider = gameObject.AddComponent<MeshCollider>();
             meshCollider.sharedMesh=mesh;
+            meshCollider.enabled = true;
             //BuildFoliageMesh(vertices, normals, triangles, uv);
         }
 

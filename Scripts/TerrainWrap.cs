@@ -234,6 +234,7 @@ namespace TerrainBrush {
                 meshCollider.sharedMesh=mesh;
                 meshCollider.enabled = true;
             } else {
+                meshCollider.sharedMesh=null;
                 meshCollider.enabled = false;
             }
             //BuildFoliageMesh(vertices, normals, triangles, uv);

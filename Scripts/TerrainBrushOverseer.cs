@@ -152,7 +152,10 @@ namespace TerrainBrush {
             cmd.SetViewProjectionMatrices(view, projection);
             TerrainWrap[] activeTerrainWraps = UnityEngine.Object.FindObjectsOfType<TerrainWrap>();
             foreach(TerrainWrap wrap in activeTerrainWraps) {
-                cmd.DrawMesh(wrap.GetComponent<MeshFilter>().sharedMesh, wrap.transform.localToWorldMatrix, withMaterial);
+                MeshFilter filter = wrap.GetComponent<MeshFilter>();
+                if (filter != null) {
+                    cmd.DrawMesh(filter.sharedMesh, wrap.transform.localToWorldMatrix, withMaterial);
+                }
             }
             cmd.Blit(temporaryDepth.Identifier(), outputTexture);
             cmd.ReleaseTemporaryRT(temporaryDepth.id);

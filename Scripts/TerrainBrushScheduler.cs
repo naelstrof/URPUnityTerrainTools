@@ -56,9 +56,14 @@ namespace TerrainBrush {
             public FoliageData[] foliageDatas;
             public float foliagePerlinScale;
             public bool saveInScene;
+            public override bool isFinished {
+                get {
+                    return currentChunk >= terrainWraps.Count;
+                }
+            }
             public override void IncrementalWork() {
                 if (terrainWraps != null) {
-                    terrainWraps[currentChunk].GenerateFoliage(saveInScene, foliagePerlinScale, density, recurseCount, foliageDatas, worldToTexture, maskTexture);
+                    terrainWraps[currentChunk]?.GenerateFoliage(saveInScene, foliagePerlinScale, density, recurseCount, foliageDatas, worldToTexture, maskTexture);
                 }
                 currentChunk++;
             }

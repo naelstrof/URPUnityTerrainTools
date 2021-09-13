@@ -230,12 +230,15 @@ namespace TerrainBrush {
             }
             // If a mesh has less than 3 distinct verts, then we don't have a valid mesh collider (which throws an error).
             // Actually determining distinct verts is expensive, so instead we'll just check if the size is big enough.
-            if (mesh.bounds.size.magnitude > 0.1f) {
+            if (mesh.bounds.size.magnitude > 0.1f && mesh.triangles.Length != 0) {
                 meshCollider.sharedMesh=mesh;
                 meshCollider.enabled = true;
             } else {
-                meshCollider.sharedMesh=null;
-                meshCollider.enabled = false;
+                if (Application.isPlaying) {
+                    Destroy(gameObject);
+                } else {
+                    DestroyImmediate(gameObject);
+                }
             }
             //BuildFoliageMesh(vertices, normals, triangles, uv);
         }

@@ -42,7 +42,10 @@ namespace TerrainBrush {
                         newTerrainWrapObject.transform.parent = parent;
                         terrainWraps.Add(newTerrainWrapObject.GetComponent<TerrainWrap>());
                     }
-                    terrainWraps[currentChunk].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
+                    MeshRenderer renderer = terrainWraps[currentChunk].GetComponent<MeshRenderer>();
+                    if (renderer) {
+                        terrainWraps[currentChunk].GetComponent<MeshRenderer>().sharedMaterial = terrainMaterial;
+                    }
                     terrainWraps[currentChunk].Generate(currentChunk, worldToTexture, collidersMask, encapsulatedBounds, 1<<resolutionPow, chunkCountSquared, smoothness);
                 }
                 currentChunk++;

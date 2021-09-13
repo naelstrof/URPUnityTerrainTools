@@ -9,9 +9,6 @@ using UnityEditor;
 namespace TerrainBrush {
 
     [ExecuteAlways]
-    [RequireComponent(typeof(LODGroup))]
-    [RequireComponent(typeof(MeshFilter))]
-    [RequireComponent(typeof(MeshRenderer))]
     public class TerrainWrap : MonoBehaviour {
         [HideInInspector]
         public int chunkID=0;
@@ -28,7 +25,9 @@ namespace TerrainBrush {
         void Update() {
             Camera cam = Camera.main;
             if (Application.isEditor && !Application.isPlaying) {
-                group?.ForceLOD(0);
+                if (group != null) {
+                    group.ForceLOD(0);
+                }
                 return;
             }
             if (cam == null) {
@@ -235,9 +234,15 @@ namespace TerrainBrush {
                 meshCollider.enabled = true;
             } else {
                 if (Application.isPlaying) {
-                    Destroy(gameObject);
+                    Destroy(meshCollider);
+                    Destroy(meshRenderer);
+                    Destroy(meshFilter);
+                    Destroy(group);
                 } else {
-                    DestroyImmediate(gameObject);
+                    DestroyImmediate(meshCollider);
+                    DestroyImmediate(meshRenderer);
+                    DestroyImmediate(meshFilter);
+                    DestroyImmediate(group);
                 }
             }
             //BuildFoliageMesh(vertices, normals, triangles, uv);
@@ -267,7 +272,7 @@ namespace TerrainBrush {
                 meshFilter = GetComponent<MeshFilter>();
             }
             if (meshFilter == null || meshFilter.sharedMesh == null) {
-                Debug.LogError("Failed to generate foliage, there was no terrain to generate it on!");
+                //Debug.LogError("Failed to generate foliage, there was no terrain to generate it on!");
                 return;
             }
             Vector3[] verticesTerrain = meshFilter.sharedMesh.vertices;

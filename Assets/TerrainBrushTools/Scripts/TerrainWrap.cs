@@ -13,6 +13,7 @@ namespace TerrainBrush {
         [HideInInspector]
         public int chunkID=0;
         private MeshFilter meshFilter;
+        private uint counter;
         private MeshRenderer meshRenderer;
         [SerializeField, HideInInspector]
         private LODGroup group;
@@ -21,6 +22,16 @@ namespace TerrainBrush {
         void Start() {
             foliageFadeDistance = Shader.GetGlobalFloat("_FoliageFadeDistance");
             group = GetComponent<LODGroup>();
+            if (Application.isEditor && !Application.isPlaying) {
+                if (group != null) {
+                    group.ForceLOD(0);
+                }
+                return;
+            }
+            if (meshRenderer == null) {
+                meshRenderer = GetComponent<MeshRenderer>();
+            }
+            StartCoroutine(CheckVisibility());
         }
         private Camera cachedCamera; 
         private Camera cam {
@@ -34,24 +45,24 @@ namespace TerrainBrush {
                 return cachedCamera;
             }
         }
-        void Update() {
-            if (Application.isEditor && !Application.isPlaying) {
-                if (group != null) {
+        IEnumerator CheckVisibility() {
+            while(true) {
+                yield return null;
+                if ((counter++)%Mathf.Max(chunkID,64) != 0) {
+                    continue;
+                }
+                if (cam == null) {
+                    group.ForceLOD(1);
+                    continue;
+                }
+                if (meshRenderer == null) {
+                    continue;
+                }
+                if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center)-meshRenderer.bounds.extents.magnitude > foliageFadeDistance) {
+                    group.ForceLOD(1);
+                } else {
                     group.ForceLOD(0);
                 }
-                return;
-            }
-            if (meshRenderer == null) {
-                meshRenderer = GetComponent<MeshRenderer>();
-            }
-            if (cam == null) {
-                group.ForceLOD(1);
-                return;
-            }
-            if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center)-meshRenderer.bounds.extents.magnitude > foliageFadeDistance) {
-                group.ForceLOD(1);
-            } else {
-                group.ForceLOD(0);
             }
         }
         public void Generate(int chunkID, Matrix4x4 worldToTexture, LayerMask colliderMask, Bounds encapsulatedBounds, int resolution, int chunks, float smooth ) {

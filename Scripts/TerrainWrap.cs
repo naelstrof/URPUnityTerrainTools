@@ -22,16 +22,24 @@ namespace TerrainBrush {
             foliageFadeDistance = Shader.GetGlobalFloat("_FoliageFadeDistance");
             group = GetComponent<LODGroup>();
         }
+        private Camera cachedCamera; 
+        private Camera cam {
+            get {
+                if (cachedCamera == null || !cachedCamera.isActiveAndEnabled) {
+                    cachedCamera = Camera.current;
+                }
+                if (cachedCamera == null || !cachedCamera.isActiveAndEnabled) {
+                    cachedCamera = Camera.main;
+                }
+                return cachedCamera;
+            }
+        }
         void Update() {
-            Camera cam = Camera.main;
             if (Application.isEditor && !Application.isPlaying) {
                 if (group != null) {
                     group.ForceLOD(0);
                 }
                 return;
-            }
-            if (cam == null) {
-                cam = Camera.current;
             }
             if (meshRenderer == null) {
                 meshRenderer = GetComponent<MeshRenderer>();

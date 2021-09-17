@@ -48,6 +48,9 @@ namespace TerrainBrush {
         IEnumerator CheckVisibility() {
             while(true) {
                 yield return null;
+                if (group == null) {
+                    continue;
+                }
                 if (chunkID == 0) {
                     if ((counter++)%32 != 0) {
                         continue;

@@ -67,10 +67,10 @@ namespace TerrainBrush {
                 if (meshRenderer == null) {
                     continue;
                 }
-                if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center)-meshRenderer.bounds.extents.magnitude > foliageFadeDistance) {
-                    group.ForceLOD(1);
-                } else {
+                if (Vector3.Distance(cam.transform.position, meshRenderer.bounds.center)-meshRenderer.bounds.extents.magnitude < foliageFadeDistance*1.5f) {
                     group.ForceLOD(0);
+                } else {
+                    group.ForceLOD(1);
                 }
             }
         }

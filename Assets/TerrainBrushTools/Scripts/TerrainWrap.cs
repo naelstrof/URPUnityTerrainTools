@@ -48,8 +48,14 @@ namespace TerrainBrush {
         IEnumerator CheckVisibility() {
             while(true) {
                 yield return null;
-                if ((counter++)%Mathf.Max(chunkID,64) != 0) {
-                    continue;
+                if (chunkID == 0) {
+                    if ((counter++)%32 != 0) {
+                        continue;
+                    }
+                } else {
+                    if ((counter++)%chunkID != 0) {
+                        continue;
+                    }
                 }
                 if (cam == null) {
                     group.ForceLOD(1);
